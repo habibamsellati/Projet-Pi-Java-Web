@@ -1,0 +1,194 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Connexion - AfkArt{% endblock %}
+
+{% block body %}
+<style>
+  :root {
+    --color-cream: #FAF7F2;
+    --color-cream-dark: #F5F0E8;
+    --color-terracotta: #C4704B;
+    --color-terracotta-dark: #A85D3B;
+    --color-sage: #8FAE8B;
+    --color-sage-light: #B8D4B4;
+    --color-brown: #3D3229;
+    --color-brown-light: #5C4A3D;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background-color: var(--color-cream);
+    color: var(--color-brown);
+    line-height: 1.6;
+  }
+  
+  h1, h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .form-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  
+  .form-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 450px;
+  }
+  
+  .form-card h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-brown);
+  }
+  
+  .form-card h1 span {
+    color: var(--color-terracotta);
+  }
+  
+  .form-description {
+    color: var(--color-brown-light);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-brown);
+    font-size: 0.95rem;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--color-terracotta);
+    box-shadow: 0 0 0 3px rgba(196, 112, 75, 0.1);
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+  }
+  
+  .btn-primary {
+    background: var(--color-terracotta);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--color-terracotta-dark);
+  }
+  
+  .flash {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .flash.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+  
+  .flash.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  
+  .form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--color-brown-light);
+    font-size: 0.95rem;
+  }
+  
+  .form-footer a {
+    color: var(--color-terracotta);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .form-footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="form-container">
+  <div class="form-card">
+    <h1>Se <span>connecter</span></h1>
+    <p class="form-description">Accédez à votre compte AfkArt</p>
+    
+    {% for label, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="flash {{ label }}">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
+    
+    {% if error %}
+      <div class="flash error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+    
+    <form action="{{ path('app_login') }}" method="post">
+      <div class="form-group">
+        <label for="username">Email</label>
+        <input type="text" id="username" name="_username" value="{{ last_username }}" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="_password" required />
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Se connecter</button>
+    </form>
+    
+    <div class="form-footer">
+      Pas encore de compte? <a href="{{ path('app_register') }}">S'inscrire</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

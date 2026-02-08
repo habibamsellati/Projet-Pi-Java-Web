@@ -1,0 +1,46 @@
+{% for label, messages in app.flashes %}
+  {% for message in messages %}
+    <div class="flash {{ label }}">{{ message }}</div>
+  {% endfor %}
+{% endfor %}
+
+<h2>Créer un compte</h2>
+<p class="form-description">Rejoignez AfkArt et découvrez l'art qui donne une seconde vie</p>
+
+<form method="post" action="{{ path('app_register') }}">
+  <div class="form-group">
+    <label for="nom_modal">Nom</label>
+    <input type="text" id="nom_modal" name="nom" required />
+  </div>
+
+  <div class="form-group">
+    <label for="prenom_modal">Prénom</label>
+    <input type="text" id="prenom_modal" name="prenom" required />
+  </div>
+
+  <div class="form-group">
+    <label for="email_modal">Email</label>
+    <input type="text" id="email_modal" name="email" required />
+  </div>
+
+  <div class="form-group">
+    <label for="motdepasse_modal">Mot de passe</label>
+    <input type="password" id="motdepasse_modal" name="motdepasse" required />
+  </div>
+
+  <div class="form-group">
+    <label for="role_modal">Je suis</label>
+    <select id="role_modal" name="role" required>
+      <option value="CLIENT">Un Client</option>
+      <option value="ARTISANT">Un Artisan</option>
+      <option value="ADMIN">Un Administrateur</option>
+      <option value="LIVREUR">Un Livreur</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary">S'inscrire</button>
+</form>
+
+<div class="form-footer">
+  Vous avez déjà un compte? <a href="#" class="switch-auth" data-target="login">Se connecter</a>
+</div>
