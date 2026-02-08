@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}AfkArt | Modifier Proposition{% endblock %}
+{% block page_title %}Gestion des Propositions{% endblock %}
+
+{% block admin_content %}
+    <div class="form-card">
+        <div class="form-header">
+            <div>
+                <h2>Modifier la Proposition</h2>
+                <p>Édition de la proposition #{{ proposition.id }}</p>
+            </div>
+            <div style="font-size: 40px; opacity: 0.5;">✍️</div>
+        </div>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        <div class="form-body">
+            <div class="section-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <h4>Modification des données</h4>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label-standard">Titre</label>
+                    {{ form_widget(form.titre, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.titre) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">ID Utilisateur</label>
+                    {{ form_widget(form.iduser, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.iduser) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">Date de création</label>
+                    {{ form_widget(form.date, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.date) }}</div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label-standard">Produit Lié</label>
+                    {{ form_widget(form.produit, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.produit) }}</div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label-standard">Description détaillée</label>
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control-standard', 'style': 'height: 150px'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.description) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <a href="{{ path('admin_propositions') }}" class="btn-form btn-cancel">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Retour
+            </a>
+            <button type="submit" class="btn-form btn-submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Mettre à jour
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

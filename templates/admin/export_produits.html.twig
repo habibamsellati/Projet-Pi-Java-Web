@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Export Produits{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin: 0; text-transform: uppercase; letter-spacing: 2px;">AfkArt</h1>
+            <p style="color: #666; margin: 5px 0 0;">Rapport de stock - Produits Recyclables</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="margin: 0; font-weight: bold;">Date: {{ "now"|date("d/m/Y") }}</p>
+            <p style="margin: 5px 0 0; color: #666;">Nombre de produits: {{ produits|length }}</p>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead style="background-color: #f8f9fa;">
+            <tr>
+                <th>Nom du produit</th>
+                <th>Matériau</th>
+                <th>État</th>
+                <th>Quantité</th>
+                <th>Origine</th>
+                <th>Date d'ajout</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produit in produits %}
+            <tr>
+                <td style="font-weight: bold;">{{ produit.nomproduit }}</td>
+                <td>{{ produit.typemateriau }}</td>
+                <td>
+                    <span style="padding: 2px 8px; border-radius: 4px; font-size: 0.9em; 
+                        {% if produit.etat == 'Bon' %}background-color: #d1e7dd; color: #0f5132;
+                        {% elseif produit.etat == 'Moyen' %}background-color: #fff3cd; color: #664d03;
+                        {% elseif produit.etat == 'Mauvais' %}background-color: #f8d7da; color: #842029;
+                        {% endif %}">
+                        {{ produit.etat }}
+                    </span>
+                </td>
+                <td>{{ produit.quantite }}</td>
+                <td>{{ produit.origine }}</td>
+                <td>{{ produit.dateajout ? produit.dateajout|date('d/m/Y') : '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px; text-align: center; color: #999; font-size: 0.8em;">
+        <p>Ce document est un export automatique du système de gestion AfkArt.</p>
+    </div>
+</div>
+
+<style>
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; color: #212529; }
+    th, td { padding: 0.75rem; vertical-align: top; border: 1px solid #dee2e6; }
+    th { text-align: inherit; }
+</style>
+{% endblock %}

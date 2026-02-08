@@ -1,0 +1,371 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}AfkArt | Produit Recyclable{% endblock %}
+
+{% block page_title %}Produit Recyclable{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* CUSTOM TABLE STYLES */
+        .custom-table-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-table thead {
+            background-color: #000;
+            color: #fff;
+        }
+        .custom-table th {
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .custom-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+            color: #333;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+        }
+        .custom-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        .product-name {
+            font-weight: 600;
+            color: #444;
+        }
+        .quantity-badge {
+            background-color: #ffc107;
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-block;
+            min-width: 30px;
+            text-align: center;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .btn-circle {
+            background: #f1f1f1;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-decoration: none;
+        }
+        .btn-circle:hover {
+            background: #e2e2e2;
+            color: #333;
+        }
+        .btn-circle svg {
+            width: 16px;
+            height: 16px;
+        }
+        .btn-circle.edit:hover { background: #e3f2fd; color: #1976d2; }
+        .btn-circle.delete:hover { background: #ffebee; color: #d32f2f; }
+        
+        /* Labels below buttons */
+        .btn-label {
+            position: absolute;
+            bottom: -18px;
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .btn-add {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .btn-add:hover {
+            opacity: 0.9;
+            color: #fff;
+        }
+    </style>
+{% endblock %}
+
+{% block header_right %}
+    <div class="header-right">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Rechercher...">
+        </div>
+        <button class="btn-icon notification">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notification-dot"></span>
+        </button>
+        <div class="user-profile">
+            <div class="avatar">AD</div>
+            <div class="user-info">
+                <span class="user-name">Admin</span>
+                <span class="user-role">Super Admin</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block admin_content %}
+    <div style="margin-bottom: 25px; display: flex; justify-content: flex-end;">
+        <a href="{{ path('admin_produit_new') }}" class="btn-add">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Ajouter un produit
+        </a>
+    </div>
+
+    <!-- FORMULAIRE DE RECHERCHE -->
+    <div style="background: white; border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.06); padding: 30px; margin-bottom: 30px; border: 1px solid #f1f5f9;">
+        <form method="get" action="{{ path('admin_produit_recyclable') }}" style="display: flex; gap: 20px; align-items: flex-end;">
+            <div style="flex: 2;">
+                <label style="display: block; margin-bottom: 10px; color: #475569; font-size: 14px; font-weight: 700;">🔍 Mots-clés / Matériau</label>
+                <div style="position: relative;">
+                    <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" name="search_query" placeholder="Ex: Métal, Papier, Plastique..." value="{{ search_query|default('') }}" style="width: 100%; padding: 14px 15px 14px 45px; border: 2px solid #f1f5f9; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='#f1f5f9'">
+                </div>
+            </div>
+            
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 10px; color: #475569; font-size: 14px; font-weight: 700;">État Spécifique</label>
+                <select name="etat" style="width: 100%; padding: 14px 15px; border: 2px solid #f1f5f9; border-radius: 12px; font-size: 15px; background: white; cursor: pointer; outline: none; transition: 0.3s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='#f1f5f9'">
+                    <option value="">Tous les états ✨</option>
+                    <option value="Bon" {% if search_etat|default('') == 'Bon' %}selected{% endif %}>🟢 Bon état</option>
+                    <option value="Moyen" {% if search_etat|default('') == 'Moyen' %}selected{% endif %}>🟡 État moyen</option>
+                    <option value="Mauvais" {% if search_etat|default('') == 'Mauvais' %}selected{% endif %}>🔴 Mauvais état</option>
+                </select>
+            </div>
+
+            <button type="submit" style="padding: 14px 30px; background: var(--primary); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 10px; transition: 0.3s; box-shadow: 0 4px 12px var(--primary)33;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                Filtrer
+            </button>
+            <a href="{{ path('admin_produit_recyclable') }}" style="padding: 14px 20px; background: #f1f5f9; color: #64748b; border: none; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </a>
+        </form>
+    </div>
+
+    <div class="table-container fade-in">
+        <div class="custom-table-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">NOM</th>
+                        <th style="width: 12%;">MATÉRIAU</th>
+                        <th style="width: 8%; text-align: center;">QTÉ</th>
+                        <th style="width: 25%;">DESCRIPTION</th>
+                        <th style="width: 10%; text-align: center;">IMPACT</th>
+                        <th style="width: 10%;">ORIGINE</th>
+                        <th style="width: 10%; text-align: center;">DATE</th>
+                        <th style="width: 10%; text-align: center;">ÉTAT</th>
+                        <th style="text-align: center;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produit in produits %}
+                    <tr>
+                        <td class="product-name">
+                            <span class="fw-bold" style="color: #333;">{{ produit.nomproduit }}</span>
+                        </td>
+                        <td style="color: #666; font-size: 13px;">{{ produit.typemateriau }}</td>
+                        <td style="text-align: center; font-weight: 700; color: var(--primary);">
+                            {{ produit.quantite }}
+                        </td>
+                        <td style="color: #888; font-size: 12px; line-height: 1.4;">
+                            {{ produit.description|length > 60 ? produit.description|slice(0, 60) ~ '...' : produit.description }}
+                        </td>
+                        <td style="text-align: center;">
+                            <span style="color: #059669; font-weight: 700; background: #ecfdf5; padding: 2px 8px; border-radius: 6px; font-size: 11px;">
+                                {{ produit.impactecologique }}%
+                            </span>
+                        </td>
+                        <td style="color: #666; font-size: 13px;">{{ produit.origine }}</td>
+                        <td style="text-align: center; color: #94a3b8; font-size: 12px;">
+                            {{ produit.dateajout ? produit.dateajout|date('d/m/y') : '-' }}
+                        </td>
+                        <td style="text-align: center;">
+                            {% set etat = produit.getEtat() %}
+                            {% set badge_color = etat == 'Bon' ? '#10b981' : (etat == 'Moyen' ? '#f59e0b' : '#ef4444') %}
+                            <span style="border: 1px solid {{ badge_color }}; color: {{ badge_color }}; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                                {{ etat }}
+                            </span>
+                        </td>
+                        <td style="text-align: center;">
+                            <div class="action-buttons" style="justify-content: flex-end;">
+                                <a href="{{ path('admin_produit_edit', {'id': produit.id}) }}" class="btn-circle edit" title="Edit">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </a>
+                                <form method="post" action="{{ path('admin_recyclable_delete', {'id': produit.id}) }}" 
+                                      onsubmit="return {{ produit.propositions|length > 0 ? 'alert(\'Désolé, ce produit est lié à ' ~ produit.propositions|length ~ ' proposition(s). Vous devez d\\\'abord supprimer les propositions associées pour pouvoir supprimer ce produit.\') && false' : 'confirm(\'Êtes-vous sûr de vouloir supprimer ce produit ?\')' }};" 
+                                      style="display: inline-block;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                                    <button class="btn-circle delete" title="{{ produit.propositions|length > 0 ? 'Suppression bloquée (Propositions liées)' : 'Supprimer' }}" 
+                                            style="border: none; background: none; cursor: pointer; {{ produit.propositions|length > 0 ? 'opacity: 0.5; cursor: not-allowed;' : '' }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4">Aucun produit trouvé</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ACTIONS RAPIDES -->
+    <section class="quick-actions-card" style="background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-top: 20px;">
+        <h3 style="font-size: 18px; margin-bottom: 20px; color: #2d2d2d;">Actions rapides</h3>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+            <a href="{{ path('admin_produit_recyclable', {'sort': 'date'}) }}" style="text-decoration: none;">
+                <div style="background: #fdf8f4; border: 2px dashed #eadcd0; border-radius: 12px; padding: 20px; text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;" onmouseover="this.style.background='#f5eee7'" onmouseout="this.style.background='#fdf8f4'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5c3d4a" stroke-width="2" style="margin-bottom: 12px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span style="color: #5c3d4a; font-weight: 600; font-size: 14px;">Tri par date</span>
+                </div>
+            </a>
+            <a href="{{ path('admin_produit_recyclable') }}" style="text-decoration: none;">
+                <div style="background: #fdf8f4; border: 2px dashed #eadcd0; border-radius: 12px; padding: 20px; text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;" onmouseover="this.style.background='#f5eee7'" onmouseout="this.style.background='#fdf8f4'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5c3d4a" stroke-width="2" style="margin-bottom: 12px;"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    <span style="color: #5c3d4a; font-weight: 600; font-size: 14px;">Annuler</span>
+                </div>
+            </a>
+            <a href="{{ path('admin_produit_stats') }}" style="text-decoration: none;">
+                <div style="background: #fdf8f4; border: 2px dashed #eadcd0; border-radius: 12px; padding: 20px; text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;" onmouseover="this.style.background='#f5eee7'" onmouseout="this.style.background='#fdf8f4'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5c3d4a" stroke-width="2" style="margin-bottom: 12px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span style="color: #5c3d4a; font-weight: 600; font-size: 14px;">Statistiques</span>
+                </div>
+            </a>
+            <a href="{{ path('admin_produit_export_pdf') }}" style="text-decoration: none;">
+                <div style="background: #fdf8f4; border: 2px dashed #eadcd0; border-radius: 12px; padding: 20px; text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s;" onmouseover="this.style.background='#f5eee7'" onmouseout="this.style.background='#fdf8f4'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5c3d4a" stroke-width="2" style="margin-bottom: 12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span style="color: #5c3d4a; font-weight: 600; font-size: 14px;">Exporter PDF</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- MODAL STATS -->
+    <div id="stateModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 20px; width: 700px; max-width: 95%; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h2 style="margin: 0; color: #5c3d4a;">Statistiques des Produits</h2>
+                <button onclick="closeStateModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div style="text-align: center;">
+                    <h4 style="margin-bottom: 15px;">Total Produits</h4>
+                    <div style="position: relative; display: inline-block;">
+                        <svg width="180" height="180" viewBox="0 0 200 200">
+                            <circle cx="100" cy="100" r="70" fill="none" stroke="#f3f4f6" stroke-width="20"/>
+                            <circle cx="100" cy="100" r="70" fill="none" stroke="#c4956a" stroke-width="20" stroke-dasharray="290 440" style="transition: 0.5s;"/>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: bold; color: #2d2d2d;">
+                            {{ total_produits|default(0) }}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 15px;">Détails par État</h4>
+                    {% if stats_etat is defined %}
+                        {% set total = total_produits|default(1) > 0 ? total_produits|default(1) : 1 %}
+                        {% for etat, count in stats_etat %}
+                            {% set color = '#c4956a' %}
+                            {% if etat|lower == 'bon' %}{% set color = '#059669' %}
+                            {% elseif etat|lower == 'moyen' %}{% set color = '#d97706' %}
+                            {% elseif etat|lower == 'mauvais' %}{% set color = '#dc2626' %}
+                            {% endif %}
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+                                    <span style="color: #4b5563;">{{ etat }}</span>
+                                    <strong style="color: #1f2937;">{{ count }}</strong>
+                                </div>
+                                <div style="height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden;">
+                                    <div style="height: 100%; width: {{ (count / total * 100)|round }}%; background: {{ color }}; border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #9ca3af; font-size: 14px;">Aucune donnée disponible.</p>
+                    {% endif %}
+
+                    {% if stats_materiau is defined %}
+                        <h4 style="margin-bottom: 15px; margin-top: 25px;">Top Matériaux</h4>
+                        {% for mat, count in stats_materiau|slice(0, 3) %}
+                            <div style="margin-bottom: 10px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 2px;">
+                                    <span>{{ mat }}</span>
+                                    <span>{{ count }}</span>
+                                </div>
+                                <div style="height: 4px; background: #f3f4f6; border-radius: 2px;">
+                                    <div style="height: 100%; width: {{ (count / total_produits|default(1) * 100)|round }}%; background: #5c3d4a; border-radius: 2px;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function openStateModal() { document.getElementById('stateModal').style.display = 'flex'; }
+        function closeStateModal() { document.getElementById('stateModal').style.display = 'none'; }
+        window.onclick = function(e) { if (e.target == document.getElementById('stateModal')) closeStateModal(); }
+    </script>
+{% endblock %}

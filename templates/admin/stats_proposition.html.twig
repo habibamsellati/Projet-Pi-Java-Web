@@ -1,0 +1,214 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}AfkArt | Statistiques Propositions par Produit{% endblock %}
+
+{% block page_title %}Statistiques Propositions{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes growCylinder { from { height: 0; } }
+        
+        .stats-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            animation: slideUp 0.6s ease forwards;
+        }
+        .btn-return {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: #1a1a1a;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            margin-bottom: 30px;
+        }
+        .btn-return:hover { background: #333; transform: translateX(-5px); color: white; }
+
+        .chart-canvas {
+            background: white;
+            border-radius: 8px;
+            padding: 60px 40px 40px 80px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            min-height: 500px;
+            border: 1px solid #eee;
+        }
+
+        .grid-bg {
+            position: absolute;
+            top: 60px; left: 80px; right: 40px; bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        .grid-line { height: 1px; background: #e2e8f0; width: 100%; }
+
+        .left-tabs {
+            position: absolute;
+            top: 60px; left: 0; bottom: 100px;
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+        .tab {
+            height: 25px;
+            width: 70px;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            border-radius: 0 4px 4px 0;
+            position: relative;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 100%;
+            border-top: 5px solid #666;
+            border-left: 5px solid transparent;
+        }
+
+        .bars-area {
+            position: absolute;
+            top: 60px; left: 80px; right: 40px; bottom: 100px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+        }
+        .cylinder-wrapper {
+            width: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .cylinder {
+            width: 100%;
+            position: relative;
+            animation: growCylinder 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+        }
+        .cylinder-body {
+            width: 100%;
+            height: 100%;
+            border-radius: 0 0 40px 40px / 0 0 20px 20px;
+            background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(255,255,255,0.2) 50%, rgba(0,0,0,0.2) 100%);
+        }
+        .cylinder-top {
+            position: absolute;
+            top: -20px; left: 0;
+            width: 100%; height: 40px;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        
+        .ribbon {
+            position: absolute;
+            top: -65px;
+            width: 40px;
+            height: 50px;
+            background: #cbd5e1;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 80%, 0% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-weight: 900;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 3;
+        }
+
+        .legend-area {
+            position: absolute;
+            bottom: 20px; left: 80px; right: 40px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .legend-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .legend-dot { width: 15px; height: 15px; border-radius: 50%; border: 3px solid #eee; }
+        .legend-text { font-size: 12px; font-weight: 700; color: #64748b; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;}
+    </style>
+{% endblock %}
+
+{% block admin_content %}
+    <div class="stats-container">
+        <a href="{{ path('admin_propositions') }}" class="btn-return">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Retour aux Propositions
+        </a>
+
+        <div class="chart-canvas">
+            <div class="grid-bg">
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+            </div>
+
+            <div class="left-tabs">
+                <div class="tab" style="background: #94bcbe;">6</div>
+                <div class="tab" style="background: #f5b942;">5</div>
+                <div class="tab" style="background: #5c3d4a;">4</div>
+                <div class="tab" style="background: #e63946;">3</div>
+                <div class="tab" style="background: #2a9d8f;">2</div>
+                <div class="tab" style="background: #a8dadc;">1</div>
+            </div>
+
+            <div class="bars-area">
+                {% set max_count = 1 %}
+                {% for prod, count in stats_produit %}{% if count > max_count %}{% set max_count = count %}{% endif %}{% endfor %}
+                
+                {% set labels = ['a', 'b', 'c', 'd', 'e'] %}
+                {% set colors = ['#008b8b', '#b22222', '#483d8b', '#daa520', '#2e8b57'] %}
+                
+                {% set idx = 0 %}
+                {% for prod, count in stats_produit|slice(0, 5) %}
+                    {% set h = (count / max_count * 300) %}
+                    {% set color = colors[idx % colors|length] %}
+                    <div class="cylinder-wrapper">
+                        <div class="ribbon">{{ labels[idx % labels|length]|upper }}</div>
+                        <div class="cylinder" style="height: {{ h }}px;">
+                            <div class="cylinder-top" style="background: {{ color }};"></div>
+                            <div class="cylinder-body" style="background-color: {{ color }};"></div>
+                        </div>
+                    </div>
+                    {% set idx = idx + 1 %}
+                {% endfor %}
+            </div>
+
+            <div class="legend-area">
+                {% set idx = 0 %}
+                {% for prod, count in stats_produit|slice(0, 5) %}
+                    {% set color = colors[idx % colors|length] %}
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: {{ color }};"></div>
+                        <div class="legend-text" title="{{ prod }}">
+                            <div style="color: #1a1a1a; font-size: 14px;">{{ count }}</div>
+                            {{ prod }}
+                        </div>
+                    </div>
+                    {% set idx = idx + 1 %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

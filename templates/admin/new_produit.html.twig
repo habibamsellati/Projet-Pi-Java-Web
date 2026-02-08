@@ -1,0 +1,88 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}AfkArt | Nouveau Produit{% endblock %}
+{% block page_title %}Gestion des Produits{% endblock %}
+
+{% block admin_content %}
+    <div class="form-card">
+        <div class="form-header">
+            <div>
+                <h2>Nouveau Produit</h2>
+                <p>Enregistrez un nouvel article dans l'inventaire recyclable.</p>
+            </div>
+            <div style="font-size: 40px; opacity: 0.5;">📦</div>
+        </div>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        <div class="form-body">
+            <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+                </svg>
+                <h4>Informations Générales</h4>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label-standard">Nom du produit</label>
+                    {{ form_widget(form.nomproduit, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.nomproduit) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">Type de matériau</label>
+                    {{ form_widget(form.typemateriau, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.typemateriau) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">État du produit</label>
+                    {{ form_widget(form.etat, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.etat) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">Quantité en stock</label>
+                    {{ form_widget(form.quantite, {'attr': {'class': 'form-control-standard', 'placeholder': 'Nombre d\'articles'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.quantite) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">Impact Écologique (%)</label>
+                    {{ form_widget(form.impactecologique, {'attr': {'class': 'form-control-standard', 'placeholder': 'Ex: 85.5'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.impactecologique) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">Origine géographique</label>
+                    {{ form_widget(form.origine, {'attr': {'class': 'form-control-standard', 'placeholder': 'Ex: Tunisie, France'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.origine) }}</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-standard">Date d'enregistrement</label>
+                    {{ form_widget(form.dateajout, {'attr': {'class': 'form-control-standard'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.dateajout) }}</div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label-standard">Description détaillée</label>
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control-standard', 'style': 'height: 120px', 'placeholder': 'Décrivez les propriétés du produit...'}}) }}
+                    <div class="form-error-msg">{{ form_errors(form.description) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <a href="{{ path('admin_produit_recyclable') }}" class="btn-form btn-cancel">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Retour
+            </a>
+            <button type="submit" class="btn-form btn-submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Enregistrer le produit
+            </button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

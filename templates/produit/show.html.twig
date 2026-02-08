@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produit Details{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden mb-4">
+                <div class="card-header text-white text-center py-4" style="background: linear-gradient(135deg, #c46210 0%, #8b4513 100%);">
+                    <h2 class="mb-0 fw-bold">Détails du Produit</h2>
+                    <p class="mb-0 mt-2 opacity-75">Visualisation des informations</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle">
+                            <tbody>
+                                <tr class="border-bottom">
+                                    <th class="text-secondary py-3" style="width: 30%;">ID</th>
+                                    <td class="fw-bold py-3">{{ produit.id }}</td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <th class="text-secondary py-3">Nom du produit</th>
+                                    <td class="py-3">{{ produit.nomproduit }}</td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <th class="text-secondary py-3">Matériau</th>
+                                    <td class="py-3">{{ produit.typemateriau }}</td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <th class="text-secondary py-3">État</th>
+                                    <td class="py-3"><span class="badge bg-info text-white px-3">{{ produit.etat }}</span></td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <th class="text-secondary py-3">Quantité</th>
+                                    <td class="py-3">{{ produit.quantite }}</td>
+                                </tr>
+                                <tr class="border-bottom">
+                                    <th class="text-secondary py-3">Description</th>
+                                    <td class="py-3 text-muted" style="font-style: italic;">"{{ produit.description }}"</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-secondary py-3">Date d'ajout</th>
+                                    <td class="py-3">{{ produit.dateajout ? produit.dateajout|date('d/m/Y H:i') : '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-5">
+                        <a href="{{ path('app_produit_index') }}" class="btn btn-outline-secondary px-4 py-2 rounded-pill">
+                            <i class="fas fa-arrow-left me-2"></i> Retour à la liste
+                        </a>
+                        <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm" style="background: #c46210; border: none;">
+                            <i class="fas fa-edit me-2"></i> Modifier ce produit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

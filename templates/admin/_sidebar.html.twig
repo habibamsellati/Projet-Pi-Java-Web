@@ -1,0 +1,109 @@
+<aside class="sidebar">
+    <div class="logo" style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+        <div class="logo-text" style="font-size: 24px; color: #fff; font-weight: 300; display: flex; align-items: center;">
+            <span class="logo-icon-box" style="background: #c4956a; width: 40px; height: 40px; border-radius: 8px; margin-right: 12px; display: flex; align-items: center; justify-content: center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </span>
+            afk<span style="color: #c4956a;">'</span>art
+        </div>
+    </div>
+
+    <nav class="nav-section">
+        <p class="nav-label" style="color: rgba(255,255,255,0.4); font-size: 11px; padding: 0 24px; text-transform: uppercase; margin-bottom: 15px;">Menu Principal</p>
+        <ul class="nav-menu" style="list-style: none; padding: 0;">
+            
+            <li class="nav-item {{ app.request.get('_route') == 'back' ? 'active' : '' }}">
+                <a href="{{ path('back') }}" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Utilisateurs</span>
+                    <span class="badge-count" style="margin-left: auto; background: rgba(255,152,0,0.2); color: #ff9800; padding: 2px 8px; border-radius: 10px; font-size: 11px;">875</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    <span>Artisans</span>
+                    <span class="badge-count" style="margin-left: auto; background: rgba(76,175,80,0.2); color: #4caf50; padding: 2px 8px; border-radius: 10px; font-size: 11px;">153</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>Oeuvres</span>
+                    <span class="badge-count" style="margin-left: auto; background: rgba(196,149,106,0.2); color: #c4956a; padding: 2px 8px; border-radius: 10px; font-size: 11px;">214</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    <span>Catégories</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Evenements</span>
+                </a>
+            </li>
+
+            <!-- Produit Recyclable Group -->
+            {% set is_recyclable = app.request.get('_route') starts with 'admin_produit' or app.request.get('_route') == 'admin_propositions' %}
+            <li class="nav-item has-submenu {{ is_recyclable ? 'open' : '' }}">
+                <a href="javascript:void(0)" onclick="toggleSubmenu(this)" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                    <span>Produit recyclable</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron" style="margin-left: auto;"><path d="M6 9l6 6 6-6"/></svg>
+                </a>
+                <ul class="submenu">
+                    <li class="nav-item {{ app.request.get('_route') == 'admin_produit_recyclable' ? 'active' : '' }}">
+                        <a href="{{ path('admin_produit_recyclable') }}" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 57px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px;">
+                            <span style="width: 6px; height: 6px; border: 1px solid rgba(255,255,255,0.5); border-radius: 50%;"></span>
+                            Produits
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(196,149,106,0.6)" stroke-width="2" style="margin-left: auto;">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ app.request.get('_route') == 'admin_propositions' ? 'active' : '' }}">
+                        <a href="{{ path('admin_propositions') }}" style="display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 57px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px;">
+                            <span style="width: 6px; height: 6px; border: 1px solid rgba(255,255,255,0.5); border-radius: 50%;"></span>
+                            Propositions
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(196,149,106,0.6)" stroke-width="2" style="margin-left: auto;">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        
+        <p class="nav-label" style="color: rgba(255,255,255,0.4); font-size: 11px; padding: 25px 24px 15px; text-transform: uppercase;">Analyses</p>
+        <ul class="nav-menu" style="list-style: none; padding: 0;">
+             <li class="nav-item {{ app.request.get('_route') == 'admin_stats' ? 'active' : '' }}">
+                <a href="{{ path('admin_stats') }}" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: rgba(255,255,255,0.7); text-decoration: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Statistiques</span>
+                </a>
+            </li>
+        <li class="nav-item">
+                <a href="{{ path('home') }}" style="display: flex; align-items: center; gap: 15px; padding: 12px 24px; color: #c4956a; text-decoration: none; font-weight: 600;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <span>Retour au Front</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</aside>

@@ -1,0 +1,20 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    file_name_pattern: '*.twig'
+
+    # Active le thème Bootstrap 5 pour les formulaires (important)
+    form_themes: ['bootstrap_5_layout.html.twig']
+
+    # Variables globales accessibles dans tous les templates
+    globals:
+        site_name: 'Afk Art'
+        # Tu peux en ajouter d'autres ici plus tard
+        # site_slogan: 'L''art qui donne une seconde vie'
+        # current_year: "{{ 'now'|date('Y') }}"
+
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+
+when@test:
+    twig:
+        strict_variables: true
