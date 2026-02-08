@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier SuiviLivraison{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background-color: #f8f9fa;
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .custom-card {
+        background: #fffdfa;
+        width: 100%;
+        max-width: 500px;
+        padding: 50px;
+        border-radius: 5px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: 1px solid #f0e6dc;
+    }
+
+    .custom-card h1 {
+        text-align: center;
+        color: #C4704B;
+        margin-bottom: 30px;
+    }
+
+    .btn-marron {
+        background-color: #C4704B;
+        color: white !important;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-marron:hover {
+        background-color: #A65B3C;
+    }
+
+    .btn-retour-simple {
+        background-color: #f8f9fa;
+        color: #333;
+        border: 1px solid #ccc;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .btn-delete {
+        background-color: #C4704B;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .form-row {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #444;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .footer-section {
+        width: 100%;
+        max-width: 500px;
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="custom-card">
+        <h1>Modifier SuiviLivraison</h1>
+
+        <div id="form-content">
+            {{ include('suivi_livraison/_form.html.twig', {'button_label': 'Update'}) }}
+        </div>
+
+       
+    </div>
+</div>
+{% endblock %}

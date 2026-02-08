@@ -1,0 +1,151 @@
+{# templates/suivi_livraison/new.html.twig #}
+
+<div class="container">
+    
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <!-- DATE SUIVI -->
+    <div class="form-group">
+        {{ form_label(form.datesuivi, 'Date de Suivi') }}
+        <div class="date-group">
+            {{ form_widget(form.datesuivi) }}
+        </div>
+        {{ form_errors(form.datesuivi) }}
+    </div>
+
+    <!-- ETAT -->
+    <div class="form-group">
+        {{ form_label(form.etat, 'Etat') }}
+        {{ form_widget(form.etat, {'attr': {'id': 'etat', 'class': 'form-control'}}) }}
+        {{ form_errors(form.etat) }}
+    </div>
+     <!-- LIVRAISON -->
+    <div class="form-group">
+        {{ form_label(form.livraison, 'Livraison') }}
+        {{ form_widget(form.livraison, {'attr': {'id': 'livraison', 'class': 'form-control'}}) }}
+        {{ form_errors(form.livraison) }}
+    </div>
+
+    <!-- LOCALISATION -->
+    <div class="form-group">
+        {{ form_label(form.localisation, 'Localisation') }}
+        {{ form_widget(form.localisation, {'attr': {'id': 'localisation', 'class': 'form-control'}}) }}
+        {{ form_errors(form.localisation) }}
+    </div>
+
+    <!-- COMMENTAIRE -->
+    <div class="form-group">
+        {{ form_label(form.commentaire, 'Commentaire') }}
+        {{ form_widget(form.commentaire, {'attr': {'class': 'form-control', 'placeholder': 'Ajouter un commentaire'}}) }}
+        {{ form_errors(form.commentaire) }}
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="form-actions">
+         <a href="{{ path('home') }}" class="btn btn-primary">
+    Aller à l'accueil
+</a>
+        <button type="submit">Enregistrer</button>
+        <a href="{{ path('app_suivi_livraison_index') }}">Retour à la liste</a>
+    </div>
+   
+
+    {{ form_end(form) }}
+</div>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #FAF7F2;
+}
+
+.container {
+    width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+h1 {
+    margin-bottom: 25px;
+    text-align: center;
+    color: #C4704B;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+}
+
+textarea {
+    min-height: 80px;
+}
+
+/* Date group styling */
+.date-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+    .date-group {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+button {
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #C4704B;
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #A85C3D;
+}
+
+a {
+    text-decoration: none;
+    color: #C4704B;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #C4704B;
+    transition: background 0.3s, color 0.3s;
+}
+
+a:hover {
+    background-color: #C4704B;
+    color: #fff;
+}
+</style>

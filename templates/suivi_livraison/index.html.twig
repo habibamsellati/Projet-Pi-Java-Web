@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des suivis{% endblock %}
+
+{% block body %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; padding: 20px;">
+    
+    <h1 style="text-align: center; color: #C4704B; margin-bottom: 30px;">Liste des Suivis de Livraison</h1>
+
+    <table style="border-collapse: collapse; width: 80%; max-width: 1000px; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <thead>
+            <tr style="background-color: #C4704B; color: white;">
+                <th style="border: 2px solid #C4704B; padding: 12px;">ID</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Date du suivi</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">État</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Localisation</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Commentaire</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for suivi in suivi_livraisons %}
+            <tr style="text-align: center;">
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ suivi.id }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ suivi.datesuivi ? suivi.datesuivi|date('Y-m-d H:i') : '' }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ suivi.etat }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ suivi.localisation }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ suivi.commentaire }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">
+                    <a href="{{ path('app_suivi_livraison_show', {'id': suivi.id}) }}" style="text-decoration: none; background: #C4704B; color: white; padding: 5px 10px; border-radius: 5px;">Afficher</a>
+                    <a href="{{ path('app_suivi_livraison_edit', {'id': suivi.id}) }}" style="text-decoration: none; background: #C4704B; color: white; padding: 5px 10px; border-radius: 5px;">Modifier</a>
+                    <a href="{{ path('app_suivi_livraison_delete', {'id': suivi.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce suivi ?')" style="text-decoration: none; background: #C4704B; color: white; padding: 5px 10px; border-radius: 5px;">Supprimer</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6" style="border: 1px solid #C4704B; padding: 20px; text-align: center;">Aucun suivi trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+     
+        <a href="{{ path('app_suivi_livraison_new') }}" style="text-decoration: none; background: #C4704B; color: white; padding: 10px 20px; border-radius: 5px;">Ajouter un suivi</a>
+         <a href="{{ path('home') }}" style="text-decoration: none; background: #C4704B; color: white; padding: 10px 20px; border-radius: 4px;"">
+    Aller à l'accueil
+</a>
+    </div>
+</div>
+{% endblock %}

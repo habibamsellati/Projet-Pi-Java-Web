@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des livraisons{% endblock %}
+
+
+{% block body %}
+{# Ce wrapper occupe toute la hauteur de l'écran et centre le contenu #}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; padding: 20px;">
+    
+        <h1 style="text-align: center; color: #C4704B; margin-bottom: 30px;">Liste des Livraisons</h1>
+
+
+    {# Le tableau avec des bordures tracées #}
+    <table style="border-collapse: collapse; width: 80%; max-width: 1000px; background-color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <thead>
+            <tr style="background-color: #C4704B; color: white;">
+                <th style="border: 2px solid #C4704B; padding: 12px;">Id</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Date Livraison</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Adresse</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Statut</th>
+                <th style="border: 2px solid #C4704B; padding: 12px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for livraison in livraisons %}
+            <tr style="text-align: center;">
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ livraison.id }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ livraison.datelivraison ? livraison.datelivraison|date('Y-m-d H:i:s') : '' }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ livraison.addresslivraison }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">{{ livraison.statutlivraison }}</td>
+                <td style="border: 1px solid #C4704B; padding: 10px;">
+                    <a href="{{ path('app_livraison_show', {'id': livraison.id}) }}"  style="text-decoration: none; background: #C4704B; color: white; padding: 5px 10px; border-radius: 5px;">afficher </a>
+                    <a href="{{ path('app_livraison_edit', {'id': livraison.id}) }}"style="text-decoration: none; background: #C4704B; color: white; padding: 5px 10px; border-radius: 5px;">Modifier</a>
+                    <a href="{{ path('app_livraison_delete', {'id': livraison.id}) }}" onclick="return confirm('Are you sure you want to delete this item?')" style="text-decoration: none; background: #C4704B; color: white; padding: 5px 10px; border-radius: 5px;">Supprimer</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5" style="border: 1px solid #C4704B; padding: 20px; text-align: center;">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+        <a href="{{ path('app_livraison_new') }}" style="text-decoration: none; background: #C4704B; color: white; padding: 10px 20px; border-radius: 5px;">Ajouter une livraison</a>
+           <a href="{{ path('home') }}" style="text-decoration: none; background: #C4704B; color: white; padding: 10px 20px; border-radius: 4px;"">
+    Aller à l'accueil
+</a>
+    </div>
+</div>
+{% endblock %}

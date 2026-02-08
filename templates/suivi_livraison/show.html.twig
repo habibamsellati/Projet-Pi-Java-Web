@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Suivi Livraison{% endblock %}
+
+{% block body %}
+<style>
+    /* Boutons marron */
+    .btn-marron {
+        background-color: #C4704B;
+        color: white !important;
+        border: none;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 8px;
+        display: inline-block;
+        transition: 0.3s;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    .btn-marron:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Conteneur centré */
+    .page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 90vh;
+        background-color: #f4f1ee;
+    }
+
+    /* Carte des détails */
+    .info-card {
+        background: white;
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        border-radius: 15px;
+        border: 2px solid #C4704B;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .info-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .info-value {
+        display: block;
+        font-size: 1.2rem;
+        color: #333;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+    .actions-container {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+</style>
+
+<div class="page-container">
+    <div class="info-card">
+        <h2 style="text-align:center; color:#C4704B; margin-bottom:30px;">Détails du Suivi Livraison</h2>
+
+        <div class="info-group">
+            <span class="info-value">Date de Livraison</span>
+            <span class="info-label">
+                {{ suivi_livraison.livraison.datelivraison ? suivi_livraison.livraison.datelivraison|date('d F Y à H:i') : 'Non planifiée' }}
+            </span>
+        </div>
+
+        <div class="info-group">
+            <span class="info-value">Date Suivi</span>
+            <span class="info-label">
+                {{ suivi_livraison.datesuivi ? suivi_livraison.datesuivi|date('d F Y à H:i') : 'Non renseignée' }}
+            </span>
+        </div>
+
+        <div class="info-group">
+            <span class="info-value">Localisation</span>
+            <span class="info-label">{{ suivi_livraison.localisation }}</span>
+        </div>
+
+        <div class="info-group">
+            <span class="info-value">État</span>
+            <span class="info-label">{{ suivi_livraison.etat }}</span>
+        </div>
+
+        <div class="info-group">
+            <span class="info-value">Commentaire</span>
+            <span class="info-label">{{ suivi_livraison.commentaire ?: 'Aucun commentaire' }}</span>
+        </div>
+
+        <div class="actions-container">
+            <a href="{{ path('app_suivi_livraison_index') }}" class="btn-marron">Retour</a>
+            <a href="{{ path('app_suivi_livraison_edit', {'id': suivi_livraison.id}) }}" class="btn-marron">Modifier</a>
+            
+            <div class="delete-wrapper">
+                {{ include('suivi_livraison/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const delBtn = document.querySelector('.delete-wrapper button');
+    if (delBtn) {
+        delBtn.classList.add('btn-marron');
+    }
+});
+</script>
+{% endblock %}

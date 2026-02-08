@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la Livraison{% endblock %}
+
+{% block body %}
+<style>
+    /* Fond de page gris très clair pour faire ressortir la carte */
+    body {
+        background-color: #f8f9fa;
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Conteneur pour centrer la carte au milieu */
+    .page-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    /* Titre principal avec l'icône crayon */
+    .main-header {
+        color: #C4704B;
+        font-size: 2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* La Carte du Formulaire (comme sur ton image) */
+    .custom-card {
+        background: #fffdfa;
+        width: 100%;
+        max-width: 500px;
+        padding: 50px;
+        border-radius: 5px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border: 1px solid #f0e6dc;
+    }
+
+    .custom-card h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+    }
+
+    .btn-marron {
+        background-color: #C4704B;
+        color: white !important;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-marron:hover {
+        background-color: #C4704B;
+    }
+
+    
+    .btn-retour-simple {
+        background-color: #eee;
+        color: #333;
+        border: 1px solid #ccc;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    
+    .footer-section {
+        width: 100%;
+        max-width: 500px;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn-outline-marron {
+        background: transparent;
+        color: #C4704B ;
+        border: 2px solid #C4704B;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .btn-delete {
+        background-color: #C4704B; /* Marron */
+        color: white ;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* Espacement des champs du formulaire */
+    .form-row {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #444;
+    }
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+</style>
+
+<div class="page-wrapper">
+    
+
+    <div class="custom-card">
+            <h1 style="text-align: center; color: #C4704B; margin-bottom: 30px;">Modifier une Livraison</h1>
+
+
+        <div id="form-content">
+            {{ include('livraison/_form.html.twig') }}
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

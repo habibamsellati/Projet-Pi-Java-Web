@@ -1,0 +1,33 @@
+{# templates/livraison/map.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Carte Livraison{% endblock %}
+
+{% block body %}
+<h1>Livraison #{{ livraison.id }}</h1>
+<p>Adresse : {{ livraison.addresslivraison }}</p>
+
+{% if coordinates %}
+    <p>Latitude : {{ coordinates.lat }}</p>
+    <p>Longitude : {{ coordinates.lng }}</p>
+
+    <div id="map" style="height:400px;width:600px;"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ app.environment == 'dev' ? 'GOOGLE_MAPS_API_KEY=AIzaSyDTMKk7ErCjE7eTho7m7wF95roUrVTvqIU
+' : '' }}"></script>
+    <script>
+        const map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: {{ coordinates.lat }}, lng: {{ coordinates.lng }} },
+            zoom: 15
+        });
+
+        new google.maps.Marker({
+            position: { lat: {{ coordinates.lat }}, lng: {{ coordinates.lng }} },
+            map: map,
+            title: 'Adresse de la livraison'
+        });
+    </script>
+{% else %}
+    <p>Coordonnées introuvables pour cette adresse.</p>
+{% endif %}
+{% endblock %}
