@@ -1,0 +1,231 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Gestion des Réservations{% endblock %}
+
+{% block header_title %}
+    <h1>Gestion des Réservations</h1>
+    <p class="header-subtitle">Liste de toutes les réservations</p>
+{% endblock %}
+
+{% block admin_content %}
+    <section class="content-section" style="display: flex; flex-direction: column; gap: 30px;">
+        <!-- Statistics Section -->
+        <!-- Statistics Section -->
+        <div class="stats-container" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: start;">
+            <!-- Chart Card -->
+            <div class="card" style="padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); background: white;">
+                <h3 style="margin: 0 0 15px 0; color: #666; font-size: 1rem; text-transform: uppercase;">Répartition des Statuts</h3>
+                <div style="height: 250px; position: relative; display: flex; align-items: center; justify-content: center;">
+                    {% if stats.total > 0 %}
+                        <canvas id="reservationStatusChart"></canvas>
+                    {% else %}
+                        <div style="text-align: center; color: #999;">
+                            <svg style="width: 48px; height: 48px; margin-bottom: 10px; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p>Aucune réservation pour le moment</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Summary Cards (Optional side by side) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                <div class="card" style="padding: 20px; border-radius: 12px; background: white; border-top: 4px solid #333; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0; font-size: 0.8rem; color: #666;">TOTAL</h4>
+                    <p style="margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #333;">{{ stats.total }}</p>
+                </div>
+                <div class="card" style="padding: 20px; border-radius: 12px; background: white; border-top: 4px solid #FF9800; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0; font-size: 0.8rem; color: #666;">EN ATTENTE</h4>
+                    <p style="margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #FF9800;">{{ stats.pending }}</p>
+                </div>
+                <div class="card" style="padding: 20px; border-radius: 12px; background: white; border-top: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0; font-size: 0.8rem; color: #666;">CONFIRMÉ</h4>
+                    <p style="margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #4CAF50;">{{ stats.confirmed }}</p>
+                </div>
+                <div class="card" style="padding: 20px; border-radius: 12px; background: white; border-top: 4px solid #F44336; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <h4 style="margin: 0; font-size: 0.8rem; color: #666;">ANNULÉ</h4>
+                    <p style="margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #F44336;">{{ stats.canceled }}</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('reservationStatusChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['En attente', 'Confirmé', 'Annulé'],
+                        datasets: [{
+                            data: [{{ stats.pending }}, {{ stats.confirmed }}, {{ stats.canceled }}],
+                            backgroundColor: [
+                                '#FF9800', // Orange
+                                '#4CAF50', // Green
+                                '#F44336'  // Red
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            });
+        </script>
+
+        <div class="data-table-card" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden;">
+            <div class="card-header" style="padding: 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h2 style="margin: 0; font-size: 1.25rem; color: #333;">Liste des réservations</h2>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <!-- SORT DROPDOWN -->
+                    <div class="dropdown" style="position: relative;">
+                        <button class="btn-secondary" type="button" onclick="document.getElementById('sortDropdown').classList.toggle('show')" style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path></svg>
+                            Trier par
+                        </button>
+                        <div id="sortDropdown" class="dropdown-content" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; min-width: 200px; z-index: 100; margin-top: 5px;">
+                            <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'dateReservation', 'order': 'DESC'})) }}" style="display: block; padding: 10px 15px; text-decoration: none; color: #333; hover:bg-gray-50;">Date (Récent)</a>
+                            <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'dateReservation', 'order': 'ASC'})) }}" style="display: block; padding: 10px 15px; text-decoration: none; color: #333;">Date (Ancien)</a>
+                            <div style="border-top: 1px solid #eee;"></div>
+                            <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'statut', 'order': 'ASC'})) }}" style="display: block; padding: 10px 15px; text-decoration: none; color: #333;">Statut</a>
+                            <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'evenement', 'order': 'ASC'})) }}" style="display: block; padding: 10px 15px; text-decoration: none; color: #333;">Événement</a>
+                        </div>
+                    </div>
+
+                    <form method="get" style="display: flex; gap: 10px;">
+                        <input type="text" name="q" value="{{ app.request.query.get('q') }}" placeholder="Rechercher..." style="padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; width: 250px;">
+                        <button type="submit" class="btn-primary" style="background: #333; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Rechercher</button>
+                    </form>
+                    <a href="{{ path('admin_reservation_pdf') }}" class="btn-secondary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; background-color: #f44336; color: white; border: none; text-decoration: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        PDF
+                    </a>
+                    <a href="{{ path('admin_reservation_new') }}" class="btn-primary" style="display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Ajouter
+                    </a>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f9fafb; color: #666; font-size: 0.85rem; text-transform: uppercase;">
+                            <th style="padding: 15px;">
+                                <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'id', 'order': app.request.query.get('order') == 'ASC' ? 'DESC' : 'ASC'})) }}" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                                    Id 
+                                    {% if app.request.query.get('sort') == 'id' %}
+                                        <span style="color: #333; font-weight: bold;">{{ app.request.query.get('order') == 'ASC' ? '↑' : '↓' }}</span>
+                                    {% else %}
+                                        <span style="color: #ccc;">↕</span>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="padding: 15px;">
+                                <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'evenement', 'order': app.request.query.get('order') == 'ASC' ? 'DESC' : 'ASC'})) }}" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                                    Événement 
+                                    {% if app.request.query.get('sort') == 'evenement' %}
+                                        <span style="color: #333; font-weight: bold;">{{ app.request.query.get('order') == 'ASC' ? '↑' : '↓' }}</span>
+                                    {% else %}
+                                        <span style="color: #ccc;">↕</span>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="padding: 15px;">
+                                <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'dateReservation', 'order': app.request.query.get('order') == 'ASC' ? 'DESC' : 'ASC'})) }}" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                                    Date Réservation 
+                                    {% if app.request.query.get('sort') == 'dateReservation' %}
+                                        <span style="color: #333; font-weight: bold;">{{ app.request.query.get('order') == 'ASC' ? '↑' : '↓' }}</span>
+                                    {% else %}
+                                        <span style="color: #ccc;">↕</span>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="padding: 15px;">
+                                <a href="{{ path('admin_reservation_index', app.request.query.all|merge({'sort': 'statut', 'order': app.request.query.get('order') == 'ASC' ? 'DESC' : 'ASC'})) }}" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                                    Statut 
+                                    {% if app.request.query.get('sort') == 'statut' %}
+                                        <span style="color: #333; font-weight: bold;">{{ app.request.query.get('order') == 'ASC' ? '↑' : '↓' }}</span>
+                                    {% else %}
+                                        <span style="color: #ccc;">↕</span>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="padding: 15px; text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for reservation in reservations %}
+                        <tr style="border-bottom: 1px solid #f0f0f0; transition: background 0.2s;">
+                            <td style="padding: 15px;">{{ reservation.id }}</td>
+                            <td style="padding: 15px; font-weight: 500; color: #333;">{{ reservation.evenement ? reservation.evenement.nom : 'N/A' }}</td>
+                            <td style="padding: 15px;">{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '' }}</td>
+                            <td style="padding: 15px;">
+                                {% if reservation.statut == 'confirme' %}
+                                    <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">Confirmé</span>
+                                {% elseif reservation.statut == 'annule' %}
+                                    <span style="background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">Annulé</span>
+                                {% else %}
+                                    <span style="background: #fff3e0; color: #ef6c00; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">En attente</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 15px; text-align: right;">
+                                <div class="action-btns" style="display: flex; justify-content: flex-end; gap: 8px;">
+                                    <a href="{{ path('admin_reservation_show', {'id': reservation.id}) }}" class="btn-action view" title="Voir" style="color: #666; padding: 5px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                    </a>
+                                    <a href="{{ path('admin_reservation_edit', {'id': reservation.id}) }}" class="btn-action edit" title="Modifier" style="color: #2196F3; padding: 5px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </a>
+                                    <form method="post" action="{{ path('admin_reservation_delete', {'id': reservation.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?');" style="display: inline-block; margin: 0;">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                                        <button class="btn-action delete" title="Supprimer" style="color: #F44336; padding: 5px; background: none; border: none; cursor: pointer;">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                                                <polyline points="3 6 5 6 21 6"/>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 30px; color: #999;">Aucune réservation trouvée</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+{% endblock %}

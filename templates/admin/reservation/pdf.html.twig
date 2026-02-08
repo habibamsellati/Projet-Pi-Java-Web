@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Réservations</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; color: #333; }
+        .status-confirme { color: green; font-weight: bold; }
+        .status-annule { color: red; font-weight: bold; }
+        .status-attente { color: orange; font-weight: bold; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #999; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Réservations</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Événement</th>
+                <th>Date Réservation</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+                <tr>
+                    <td>{{ reservation.id }}</td>
+                    <td>{{ reservation.evenement ? reservation.evenement.nom : 'N/A' }}</td>
+                    <td>{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '' }}</td>
+                    <td>
+                        {% if reservation.statut == 'confirme' %}
+                            <span class="status-confirme">Confirmé</span>
+                        {% elseif reservation.statut == 'annule' %}
+                            <span class="status-annule">Annulé</span>
+                        {% else %}
+                            <span class="status-attente">En attente</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="footer">
+        Généré le {{ "now"|date("d/m/Y à H:i") }} par Afk'Art
+    </div>
+</body>
+</html>

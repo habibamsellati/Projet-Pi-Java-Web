@@ -1,0 +1,15 @@
+{% extends 'front.html.twig' %}
+
+{% block title %}AfkArt | Modifier la Réservation{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 2rem; text-align: center; color: var(--color-brown);">
+        Modifier la Réservation
+    </h1>
+   
+    <div class="form-container">
+        {{ include('reservation/_form.html.twig', {button_label: 'Mettre à jour'}) }}
+    </div>
+</div>
+{% endblock %}

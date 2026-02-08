@@ -1,0 +1,323 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}AfkArt | Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+    <!-- ================= STATS CARDS ================= -->
+    <section class="stats-section">
+        <div class="stat-card">
+            <div class="stat-icon users">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="stat-number" data-count="{{ evenementStats.total }}">0</h2>
+                <p class="stat-label">Événements</p>
+                <span class="stat-trend up">
+                    Capacité: {{ evenementStats.capacity }}
+                </span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon artworks">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="stat-number" data-count="{{ reservationStats.total }}">0</h2>
+                <p class="stat-label">Réservations</p>
+                <span class="stat-trend up">
+                    Confirmées: {{ reservationStats.confirmed }}
+                </span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon artisans">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="stat-number" data-count="{{ reservationStats.pending }}">0</h2>
+                <p class="stat-label">En attente</p>
+                <span class="stat-badge" style="background: #FFF4E5; color: #B76E00; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">
+                    Action requise
+                </span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon reports">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div class="stat-content">
+                <h2 class="stat-number" data-count="{{ reservationStats.canceled }}">0</h2>
+                <p class="stat-label">Annulées</p>
+                <span class="stat-trend down">
+                    Taux: {{ (reservationStats.total > 0 ? (reservationStats.canceled / reservationStats.total * 100)|number_format(1) : 0) }}%
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= CHARTS SECTION ================= -->
+    <section class="charts-section">
+        <div class="chart-card main-chart">
+            <div class="card-header">
+                <h3>Capacité par Événement</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="capacityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card pie-chart-card">
+            <div class="card-header">
+                <h3>Statut des Réservations</h3>
+            </div>
+            <div class="pie-container">
+                <canvas id="reservationChart"></canvas>
+                <div class="pie-center">
+                    <span class="pie-total">{{ reservationStats.total }}</span>
+                    <span class="pie-label">Total</span>
+                </div>
+            </div>
+            <div class="pie-legend">
+                <div class="pie-legend-item">
+                    <span class="pie-color artisans" style="background: #4CAF50;"></span>
+                    <span class="pie-legend-label">Confirmées</span>
+                    <span class="pie-legend-value">{{ reservationStats.confirmed }}</span>
+                </div>
+                <div class="pie-legend-item">
+                    <span class="pie-color users" style="background: #2196F3;"></span>
+                    <span class="pie-legend-label">En attente</span>
+                    <span class="pie-legend-value">{{ reservationStats.pending }}</span>
+                </div>
+                <div class="pie-legend-item">
+                    <span class="pie-color admins" style="background: #F44336;"></span>
+                    <span class="pie-legend-label">Annulées</span>
+                    <span class="pie-legend-value">{{ reservationStats.canceled }}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= TABLE & ACTIVITY SECTION ================= -->
+    <section class="content-section">
+        <div class="data-table-card">
+            <div class="card-header">
+                <h3>Utilisateurs recents</h3>
+                <a href="#" class="view-all">Voir tout</a>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Email</th>
+                        <th>Statut</th>
+                        <th>Role</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">MC</div>
+                                <span>Marie Claire</span>
+                            </div>
+                        </td>
+                        <td>marie@mail.com</td>
+                        <td><span class="status-badge active">Actif</span></td>
+                        <td><span class="role-badge user">Utilisateur</span></td>
+                        <td>28 Jan 2026</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-action view" title="Voir">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-action edit" title="Modifier">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-action delete" title="Supprimer">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="activity-card">
+            <div class="card-header">
+                <h3>Activite recente</h3>
+                <a href="#" class="view-all">Voir tout</a>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon new-user">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <line x1="20" y1="8" x2="20" y2="14"/>
+                            <line x1="23" y1="11" x2="17" y2="11"/>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <p><strong>Marie Claire</strong> s'est inscrite</p>
+                        <span class="activity-time">Il y a 2 heures</span>
+                    </div>
+                </div>
+                <!-- Add more activity items as needed -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= QUICK ACTIONS ================= -->
+    <section class="quick-actions-section">
+        <h3>Actions rapides</h3>
+        <div class="quick-actions">
+            <button class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                <span>Ajouter Utilisateur</span>
+            </button>
+            <button class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="12" y1="8" x2="12" y2="16"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+                <span>Nouvelle Oeuvre</span>
+            </button>
+            <button class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="12" y1="14" x2="12" y2="18"/>
+                    <line x1="10" y1="16" x2="14" y2="16"/>
+                </svg>
+                <span>Creer Evenement</span>
+            </button>
+            <button class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+                <span>Generer Rapport</span>
+            </button>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Stats reelles pour les compteurs
+    document.querySelectorAll('.stat-number').forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const duration = 1500;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += step;
+            if (current < target) {
+                counter.textContent = Math.floor(current);
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target;
+            }
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        observer.observe(counter);
+    });
+
+    // Chart Capacite (Bar)
+    const ctxBar = document.getElementById('capacityChart').getContext('2d');
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: {{ capacityData|map(e => e.label)|json_encode|raw }},
+            datasets: [{
+                label: 'Capacité',
+                data: {{ capacityData|map(e => e.value)|json_encode|raw }},
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: 'rgba(33, 150, 243, 1)',
+                borderWidth: 2,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // Chart Reservations (Doughnut)
+    const ctxPie = document.getElementById('reservationChart').getContext('2d');
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ['Confirmées', 'En attente', 'Annulées'],
+            datasets: [{
+                data: [
+                    {{ reservationStats.confirmed }},
+                    {{ reservationStats.pending }},
+                    {{ reservationStats.canceled }}
+                ],
+                backgroundColor: ['#4CAF50', '#2196F3', '#F44336'],
+                borderWidth: 0,
+                spacing: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '80%',
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}

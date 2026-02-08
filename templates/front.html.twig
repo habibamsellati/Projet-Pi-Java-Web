@@ -1,0 +1,227 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+  :root {
+    --color-cream: #FAF7F2;
+    --color-cream-dark: #F5F0E8;
+    --color-terracotta: #C4704B;
+    --color-terracotta-dark: #A85D3B;
+    --color-sage: #8FAE8B;
+    --color-sage-light: #B8D4B4;
+    --color-brown: #3D3229;
+    --color-brown-light: #5C4A3D;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background-color: var(--color-cream);
+    color: var(--color-brown);
+    line-height: 1.6;
+    padding-top: 80px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Header */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(250, 247, 242, 0.95);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    border-bottom: 1px solid rgba(61, 50, 41, 0.1);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-brown);
+    text-decoration: none;
+  }
+
+  .logo span {
+    color: var(--color-terracotta);
+  }
+
+  .nav {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav a {
+    color: var(--color-brown-light);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .nav a:hover {
+    color: var(--color-terracotta);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--color-terracotta);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-terracotta-dark);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--color-brown);
+    color: var(--color-brown);
+  }
+
+  .btn-outline:hover {
+    background: var(--color-brown);
+    color: white;
+  }
+
+  .btn-secondary {
+    background: var(--color-sage);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: #7A9A76;
+  }
+
+  /* Table */
+  .table-container {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid var(--color-cream);
+    font-weight: 600;
+  }
+
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-cream);
+  }
+
+  /* Form */
+  .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 1.5rem;
+    padding: 3rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+  }
+
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+
+
+{% block body %}
+
+<header class="header">
+  <div class="header-inner">
+
+    <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+
+    <nav class="nav">
+      <a href="{{ path('app_evenement_index') }}">Événements</a>
+      <a href="{{ path('app_reservation_index') }}">Réservations</a>
+      <a href="{{ path('home') }}">Accueil</a>
+    </nav>
+
+    <div class="header-actions">
+      <a class="btn btn-outline">Connexion</a>
+      <a class="btn btn-primary">Rejoindre</a>
+    </div>
+
+  </div>
+</header>
+
+
+
+<main class="container">
+
+    {# Flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div style="padding:1rem; margin-bottom:1rem; border-radius:0.5rem;
+                 background: {{ label == 'success' ? '#dcfce7' : '#fee2e2' }};
+                 color: {{ label == 'success' ? '#166534' : '#991b1b' }};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+
+</main>
+
+
+
+<footer style="background:#3D3229; color:white; padding:2rem; margin-top:3rem; text-align:center;">
+  <p>© {{ "now"|date("Y") }} AfkArt - Tous droits réservés</p>
+</footer>
+
+{% endblock %}

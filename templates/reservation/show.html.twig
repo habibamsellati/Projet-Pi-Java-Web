@@ -1,0 +1,78 @@
+{% extends 'front.html.twig' %}
+
+{% block title %}AfkArt | Réservation #{{ reservation.id }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <a href="{{ path('app_reservation_index') }}" style="text-decoration: none; color: var(--color-terracotta); font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            ← Mes réservations
+        </a>
+        <h1 style="font-size: 3rem; color: var(--color-brown); line-height: 1.2;">
+            Détails de la Réservation
+        </h1>
+        <p style="color: var(--color-brown-light); font-size: 1.1rem;">Référence #{{ reservation.id }}</p>
+    </div>
+
+    <div style="background: white; border-radius: 2.5rem; padding: 3.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02);">
+        
+        <div style="display: flex; flex-direction: column; gap: 2.5rem;">
+            
+            {# Statut Banner #}
+            <div style="text-align: center;">
+                {% set status_info = {
+                    'confirme': {'bg': '#dcfce7', 'color': '#166534', 'label': 'Réservation Confirmée'},
+                    'annule': {'bg': '#fee2e2', 'color': '#991b1b', 'label': 'Réservation Annulée'},
+                    'en_attente': {'bg': 'var(--color-cream)', 'color': 'var(--color-terracotta)', 'label': 'En attente de confirmation'}
+                } %}
+                {% set status = status_info[reservation.statut]|default(status_info.en_attente) %}
+                
+                <span style="display: inline-block; padding: 0.5rem 1.5rem; border-radius: 9999px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05rem; background: {{ status.bg }}; color: {{ status.color }};">
+                    {{ status.label }}
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--color-cream); border-bottom: 1px solid var(--color-cream); padding: 2.5rem 0;">
+                
+                <div>
+                    <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--color-brown-light); margin-bottom: 0.75rem;">Événement</h4>
+                    <div style="font-size: 1.4rem; color: var(--color-brown); font-weight: 600;">
+                        {{ reservation.evenement.nom }}
+                    </div>
+                    {% if reservation.evenement %}
+                    <div style="margin-top: 0.5rem; color: var(--color-brown-light);">
+                         📍 {{ reservation.evenement.lieu }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--color-brown-light); margin-bottom: 0.75rem;">Date Réservée</h4>
+                    <div style="font-size: 1.4rem; color: var(--color-brown); font-weight: 600;">
+                        {{ reservation.dateReservation|date('d F Y') }}
+                    </div>
+                    <div style="margin-top: 0.5rem; color: var(--color-brown-light);">
+                         🕒 à {{ reservation.dateReservation|date('H:i') }}
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                <a href="{{ path('app_reservation_edit', {'id': reservation.id}) }}" class="btn btn-secondary" style="padding: 0.8rem 2rem; border-radius: 1.5rem;">
+                    Modifier ma réservation
+                </a>
+                
+                <form method="post" action="{{ path('app_reservation_delete', {'id': reservation.id}) }}" onsubmit="return confirm('Souhaitez-vous vraiment supprimer cette réservation ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                    <button class="btn btn-outline" style="padding: 0.8rem 2rem; border-radius: 1.5rem; color: #991b1b; border-color: #fee2e2;">
+                        Supprimer
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

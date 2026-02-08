@@ -1,0 +1,92 @@
+{% extends 'front.html.twig' %}
+
+{% block title %}AfkArt | {{ evenement.nom }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding: 2rem 1rem;">
+    
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <a href="{{ path('app_evenement_index') }}" style="text-decoration: none; color: var(--color-terracotta); font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            ← Retour aux événements
+        </a>
+        <h1 style="font-size: 3.5rem; color: var(--color-brown); line-height: 1.2;">
+            {{ evenement.nom }}
+        </h1>
+        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; color: var(--color-brown-light);">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📍</span> {{ evenement.lieu }}
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">👤</span> Artisan: <span style="font-weight: 600; color: var(--color-terracotta);">{{ evenement.artisan }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 3rem;">
+        
+        {# Main Content Column #}
+        <div>
+            <div style="background: white; padding: 3rem; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.03);">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--color-brown);">À propos de l'événement</h3>
+                <div style="color: var(--color-brown-light); line-height: 1.8; font-size: 1.1rem; white-space: pre-wrap;">
+                    {{ evenement.description|nl2br }}
+                </div>
+            </div>
+        </div>
+
+        {# Sidebar Column #}
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            {# Date Card #}
+            <div style="background: var(--color-cream-dark); padding: 2rem; border-radius: 2rem; border: 1px solid rgba(0,0,0,0.05);">
+                <h4 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--color-brown-light); margin-bottom: 1.5rem;">Calendrier</h4>
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.85rem; color: var(--color-terracotta); font-weight: 600; margin-bottom: 0.25rem;">DÉBUT</div>
+                    <div style="font-size: 1.1rem; color: var(--color-brown); font-weight: 500;">
+                        {{ evenement.dateDebut ? evenement.dateDebut|date('d F Y') : 'Non définie' }}
+                        <br>
+                        <span style="color: var(--color-brown-light); font-size: 0.95rem;">à {{ evenement.dateDebut|date('H:i') }}</span>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: var(--color-terracotta); font-weight: 600; margin-bottom: 0.25rem;">FIN</div>
+                    <div style="font-size: 1.1rem; color: var(--color-brown); font-weight: 500;">
+                        {{ evenement.dateFin ? evenement.dateFin|date('d F Y') : 'Non définie' }}
+                        <br>
+                        <span style="color: var(--color-brown-light); font-size: 0.95rem;">à {{ evenement.dateFin|date('H:i') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {# Availability Card #}
+            <div style="background: white; padding: 2rem; border-radius: 2rem; border: 2px solid var(--color-cream-dark);">
+                <h4 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--color-brown-light); margin-bottom: 1.5rem;">Disponibilité</h4>
+                
+                {% set res_count = evenement.reservations|length %}
+                {% set percentage = (res_count / evenement.capacite * 100)|round %}
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-weight: 500;">
+                    <span>Places réservées</span>
+                    <span>{{ res_count }} / {{ evenement.capacite }}</span>
+                </div>
+                
+                <div style="width: 100%; height: 8px; background: var(--color-cream-dark); border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem;">
+                    <div style="width: {{ percentage }}%; height: 100%; background: var(--color-terracotta); border-radius: 4px;"></div>
+                </div>
+
+                <div style="text-align: center; font-size: 0.9rem; color: var(--color-brown-light);">
+                    Il reste <strong>{{ evenement.capacite - res_count }}</strong> places disponibles.
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="btn btn-secondary" style="flex: 1; border-radius: 1.5rem;">
+                    Modifier
+                </a>
+                {{ include('evenement/_delete_form.html.twig') }}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

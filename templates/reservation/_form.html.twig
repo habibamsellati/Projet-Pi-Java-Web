@@ -1,0 +1,80 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+    <div class="form-grid" style="grid-template-columns: 1fr; gap: 2rem;">
+        <div class="form-group">
+            {{ form_label(form.evenement) }}
+            {{ form_widget(form.evenement, {'attr': {'class': 'form-control', 'style': 'height: 3.5rem;'}}) }}
+            {{ form_errors(form.evenement) }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="form-group">
+                {{ form_label(form.dateReservation) }}
+                {{ form_widget(form.dateReservation, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.dateReservation) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.statut) }}
+                {{ form_widget(form.statut, {'attr': {'class': 'form-control'}}) }}
+                {{ form_errors(form.statut) }}
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 3.5rem; justify-content: center;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.8rem 2.5rem; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(196, 112, 75, 0.3);">
+            {{ button_label|default('Enregistrer ma réservation') }}
+        </button>
+        <a href="{{ path('app_reservation_index') }}" class="btn btn-outline" style="padding: 0.8rem 2rem;">
+            Annuler
+        </a>
+    </div>
+
+{{ form_end(form) }}
+
+
+<style>
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--color-brown);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        color: var(--color-brown);
+        font-family: 'Outfit', sans-serif;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--color-terracotta);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(196, 112, 75, 0.12);
+        outline: none;
+    }
+
+    .form-errors {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>

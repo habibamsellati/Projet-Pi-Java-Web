@@ -1,0 +1,59 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Détails Événement{% endblock %}
+
+{% block header_title %}
+    <h1>Détails Événement</h1>
+    <p class="header-subtitle">Informations complètes sur l'événement #{{ evenement.id }}</p>
+{% endblock %}
+
+{% block admin_content %}
+    <section class="content-section">
+        <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h3>{{ evenement.nom }}</h3>
+                <div class="actions">
+                    <a href="{{ path('admin_evenement_edit', {'id': evenement.id}) }}" class="btn-action edit" style="margin-right: 10px; display: inline-block; background: #e63946; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Modifier</a>
+                    <a href="{{ path('admin_evenement_index') }}" class="btn-secondary" style="color: #666; text-decoration: none;">Retour à la liste</a>
+                </div>
+            </div>
+
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0; width: 200px;">Id</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.id }}</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0;">Nom</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.nom }}</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0;">Description</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.description }}</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0;">Date Début</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0;">Date Fin</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.dateFin ? evenement.dateFin|date('d/m/Y H:i') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0;">Lieu</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.lieu }}</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; padding: 10px; border-bottom: 1px solid #f0f0f0;">Capacité</th>
+                        <td style="padding: 10px; border-bottom: 1px solid #f0f0f0;">{{ evenement.capacite }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px;">
+                {{ include('admin/evenement/_delete_form.html.twig') }}
+            </div>
+        </div>
+    </section>
+{% endblock %}

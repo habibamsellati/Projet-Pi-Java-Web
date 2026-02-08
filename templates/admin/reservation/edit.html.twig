@@ -1,0 +1,40 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Modifier Réservation{% endblock %}
+
+{% block header_title %}
+    <h1>Modifier Réservation</h1>
+    <p class="header-subtitle">Mettre à jour la réservation #{{ reservation.id }}</p>
+{% endblock %}
+
+{% block admin_content %}
+    <section class="content-section">
+        <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                <h3>Édition de réservation</h3>
+                <a href="{{ path('admin_reservation_index') }}" class="btn-secondary" style="color: #666; text-decoration: none;">Retour à la liste</a>
+            </div>
+
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        {{ form_row(form.evenement) }}
+                    </div>
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        {{ form_row(form.dateReservation) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6" style="margin-bottom: 15px;">
+                        {{ form_row(form.statut) }}
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn-primary" style="background: #e63946; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">{{ button_label|default('Enregistrer') }}</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </section>
+{% endblock %}
