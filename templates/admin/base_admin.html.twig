@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AfkArt | Admin{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('Assets/css/back.css') }}">
+    <style>
+        /* Ajustements pour le design Premium */
+        :root {
+            --primary: #5c3d4a;
+            --accent: #c4956a;
+            --secondary: #eadcd0;
+        }
+        .main-content { background-color: #f8f9fa; min-height: 100vh; }
+        .header { background: white; padding: 20px 32px; border-bottom: 1px solid #eee; margin-bottom: 30px; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* PREMIUM FORM STYLES */
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            max-width: 850px;
+            margin: 0 auto 40px;
+            overflow: hidden;
+        }
+        .form-header {
+            background: var(--accent);
+            padding: 30px 40px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-header h2 { margin: 0; font-size: 28px; font-weight: 800; }
+        .form-header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; }
+        .form-body { padding: 40px; }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f1f1;
+            color: #4b5563;
+        }
+        .section-title svg { width: 22px; height: 22px; color: var(--accent); }
+        .section-title h4 { margin: 0; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 25px; }
+        .full-width { grid-column: span 2; }
+        
+        .form-control-standard {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #f3f4f6;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: 0.3s;
+            outline: none;
+            background: #fff;
+        }
+        .form-control-standard:focus { border-color: var(--accent); background: #fdfaf7; }
+        .form-label-standard {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6b7280;
+            margin-left: 5px;
+        }
+        .form-error-msg { color: #dc2626; font-size: 12px; font-weight: 600; margin-top: 5px; margin-left: 5px; }
+        
+        .form-footer {
+            padding: 30px 40px;
+            background: #fafafa;
+            border-top: 1px solid #f1f1f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-form {
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-submit { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(92,61,74,0.3); }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); color: white; }
+        .btn-cancel { background: #fff; color: #6b7280; border: 2px solid #f3f4f6; }
+        .btn-cancel:hover { background: #f9fafb; border-color: #e5e7eb; color: #4b5563; }
+    </style>
+{% endblock %}
+
+{% block main_content %}
+<div class="admin-container">
+    {% include 'admin/_sidebar.html.twig' %}
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                <p class="header-subtitle">Espace d'administration AfkArt</p>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 20px;">
+                {% block header_right %}
+                    <div class="search-box">
+                        <input type="text" placeholder="Rechercher...">
+                    </div>
+                    <div class="user-profile">
+                        <div class="avatar">AD</div>
+                        <div class="user-info">
+                            <span class="user-name">Admin</span>
+                            <span class="user-role">Super Admin</span>
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+        </header>
+
+        <div class="container-fluid fade-in">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert" style="margin-bottom: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block admin_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block body %}{% endblock %}
+
+{% block javascripts %}
+<script>
+    function toggleSubmenu(element) {
+        const parent = element.parentElement;
+        parent.classList.toggle('open');
+    }
+</script>
+{% endblock %}

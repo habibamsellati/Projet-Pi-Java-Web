@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Produits - Afk Art{% endblock %}
+
+{% block body %}
+
+<div class="container py-5">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
+        <h1 class="display-6 fw-bold mb-0 text-uppercase" style="border-bottom: 4px solid #c46210; display: inline-block; padding-bottom: 5px;">
+            Nos Créations
+        </h1>
+        
+        <div class="d-flex gap-2">
+            <a href="{{ path('home') }}" class="btn btn-outline-secondary fw-bold px-4 py-2 rounded-pill shadow-sm">
+                <i class="fas fa-home me-2"></i>RETOUR AU SITE
+            </a>
+            <a href="{{ path('app_produit_new') }}" 
+            class="btn text-white fw-bold px-4 py-2 rounded-pill shadow-sm"
+            style="background-color: #c46210; border: none;">
+                CRÉER UN NOUVEAU PRODUIT
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtres / Recherche (Placeholder pour le style, optionnel) -->
+    <div class="d-flex justify-content-end mb-4">
+        <!-- Ajoutez ici des filtres si nécessaire plus tard -->
+    </div>
+
+    {% if produits is empty %}
+        <div class="text-center py-5 bg-light rounded">
+            <h4 class="text-muted">Aucune création disponible pour le moment</h4>
+        </div>
+    {% else %}
+
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-black text-white">
+                    <tr style="background-color: #000;">
+                        <th class="py-3 px-4 text-uppercase fw-bold text-white bg-black">Nom du produit</th>
+                        <th class="py-3 text-uppercase fw-bold text-white bg-black">Matériau</th>
+                        <th class="py-3 text-uppercase fw-bold text-white bg-black">État</th>
+                        <th class="py-3 text-uppercase fw-bold text-center text-white bg-black">Quantité</th>
+                        <th class="py-3 text-uppercase fw-bold text-white bg-black">Origine</th>
+                        <th class="py-3 text-uppercase fw-bold text-white bg-black">Date de mise à jour</th>
+                        <th class="py-3 px-4 text-uppercase fw-bold text-end text-white bg-black" style="min-width: 250px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    {% for produit in produits %}
+                        <tr>
+                            <td class="px-4 fw-bold text-secondary">{{ produit.nomproduit }}</td>
+                            <td>{{ produit.typemateriau }}</td>
+                            <td>{{ produit.etat }}</td>
+                            <td class="text-center">
+                                {% if produit.quantite <= 5 and produit.quantite > 0 %}
+                                    <span class="badge bg-warning text-dark">{{ produit.quantite }}</span>
+                                {% elseif produit.quantite == 0 %}
+                                    <span class="badge bg-danger">0</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border">{{ produit.quantite }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ produit.origine }}</td>
+                            <td>{{ produit.dateajout ? produit.dateajout|date('d/m/y') : '-' }}</td>
+                            <td class="px-4 text-end">
+                                <div class="d-flex justify-content-end gap-3 align-items-center">
+                                    <a href="{{ path('app_produit_show', {'id': produit.id}) }}" class="text-decoration-none text-secondary d-flex flex-column align-items-center action-btn">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-1 shadow-sm" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-eye"></i>
+                                        </div>
+                                        <span style="font-size: 10px; text-transform: uppercase;">Voir</span>
+                                    </a>
+                                    
+                                    <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="text-decoration-none text-primary d-flex flex-column align-items-center action-btn">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-1 shadow-sm" style="width: 32px; height: 32px;">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <span style="font-size: 10px; text-transform: uppercase;">Edit</span>
+                                    </a>
+
+                                     {% if produit.propositions is empty %}
+                                        <form method="post" action="{{ path('app_produit_delete', {'id': produit.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');" style="margin: 0;">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                                            <button class="border-0 bg-transparent text-danger d-flex flex-column align-items-center action-btn p-0">
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-1 shadow-sm" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                                <span style="font-size: 10px; text-transform: uppercase;">Delete</span>
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <div class="text-muted d-flex flex-column align-items-center opacity-50" title="Impossible de supprimer : ce produit possède des propositions associées.">
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-1 shadow-sm" style="width: 32px; height: 32px;">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                            <span style="font-size: 10px; text-transform: uppercase;">Locked</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% endif %}
+</div>
+
+<style>
+    .bg-black { background-color: #000 !important; }
+    .action-btn { transition: all 0.2s; }
+    .action-btn:hover .rounded-circle { background-color: #e2e6ea !important; transform: scale(1.1); }
+    .action-btn:hover span { font-weight: bold; }
+    .action-btn:hover .fa-eye { color: #000; }
+    .action-btn:hover .fa-edit { color: #0d6efd; }
+    .action-btn:hover .fa-trash { color: #dc3545; }
+    .focus-none:focus { box-shadow: none; }
+</style>
+
+{% endblock %}

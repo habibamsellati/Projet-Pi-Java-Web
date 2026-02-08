@@ -1,0 +1,253 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}AfkArt | Statistiques Générales{% endblock %}
+
+{% block page_title %}Statistiques & Analyses{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fillProgress { from { width: 0; } }
+        @keyframes growBar { from { height: 0; } }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .stat-card-large {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            animation: slideUp 0.6s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card-large::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0.3;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .chart-header h3 {
+            font-size: 1.2rem;
+            color: #1a1a1a;
+            font-weight: 800;
+            margin: 0;
+        }
+        .progress-list { list-style: none; padding: 0; margin: 0; }
+        .progress-item { margin-bottom: 22px; }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #4b5563;
+        }
+        .progress-bar-bg {
+            height: 12px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 20px;
+            animation: fillProgress 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            height: 180px;
+            padding: 20px 10px 0;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        .bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .bar-fill {
+            width: 100%;
+            background: var(--primary);
+            border-radius: 6px 6px 0 0;
+            animation: growBar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .bar-fill:hover { transform: scaleX(1.1); filter: brightness(1.1); }
+        .bar-fill::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .bar-fill:hover::before { opacity: 1; }
+        .mat-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        .mat-badge:hover {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+    </style>
+{% endblock %}
+
+{% block admin_content %}
+    <div style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div style="border-left: 5px solid var(--accent); padding-left: 20px;">
+            <h2 style="font-size: 34px; font-weight: 900; color: #1a1a1a; margin-bottom: 5px; letter-spacing: -1px;">Tableau de Bord Analytique</h2>
+            <p style="color: #64748b; font-size: 17px; font-weight: 500;">Visualisez les métriques de recyclage en temps réel.</p>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div style="background: white; padding: 10px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center;">
+                <div style="font-size: 10px; text-transform: uppercase; color: #94a3b8; font-weight: 800; margin-bottom: 2px;">Mise à jour</div>
+                <div style="font-size: 14px; font-weight: 700; color: #1e293b;">Aujourd'hui</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <!-- Produits Distribution -->
+        <div class="stat-card-large">
+            <div class="chart-header">
+                <h3>État du Stock Recyclable</h3>
+                <div style="width: 40px; height: 40px; background: #fff7ed; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 40px; align-items: center;">
+                <!-- Grand Cercle Central -->
+                <div style="position: relative; width: 160px; height: 160px; flex-shrink: 0;">
+                    <svg viewBox="0 0 36 36" style="transform: rotate(-90deg); filter: drop-shadow(0 5px 15px rgba(196,149,106,0.15));">
+                        <circle cx="18" cy="18" r="16" fill="none" stroke="#f1f5f9" stroke-width="3" />
+                        <circle cx="18" cy="18" r="16" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="75, 100" stroke-linecap="round" style="transition: stroke-dasharray 1s ease;" />
+                    </svg>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <div style="font-size: 32px; font-weight: 900; color: #1e293b;">{{ total_produits }}</div>
+                        <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Articles</div>
+                    </div>
+                </div>
+
+                <div style="flex: 1;">
+                    <ul class="progress-list">
+                        {% set total = total_produits > 0 ? total_produits : 1 %}
+                        {% for etat, count in stats_etat %}
+                            {% set percent = (count / total * 100)|round %}
+                            {% set color = '#94a3b8' %}
+                            {% if etat|lower == 'bon' %}{% set color = '#10b981' %}
+                            {% elseif etat|lower == 'moyen' %}{% set color = '#f59e0b' %}
+                            {% elseif etat|lower == 'mauvais' %}{% set color = '#ef4444' %}
+                            {% endif %}
+                            <li class="progress-item">
+                                <div class="progress-info">
+                                    <span>{{ etat }}</span>
+                                    <span>{{ count }}</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: {{ percent }}%; background: {{ color }}; box-shadow: 0 0 12px {{ color }}33;"></div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Propositions Impact -->
+        <div class="stat-card-large" style="animation-delay: 0.1s;">
+            <div class="chart-header">
+                <h3>Impact des Propositions</h3>
+                <div style="width: 40px; height: 40px; background: #fdf2f8; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#db2777" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-10.6 8.5 8.5 0 0 1 7.6 10.6 Z"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: baseline; gap: 10px; margin-bottom: 25px;">
+                    <div style="font-size: 40px; font-weight: 900; color: var(--primary);">{{ total_propositions }}</div>
+                    <div style="font-size: 14px; font-weight: 600; color: #64748b;">Soumissions reçues</div>
+                </div>
+
+                <div class="bar-chart-container">
+                    {% set total_prop = total_propositions > 0 ? total_propositions : 1 %}
+                    {% for etat, count in stats_prop_etat %}
+                        {% set percent = (count / total_prop * 100)|round %}
+                        <div class="bar-wrapper">
+                            <div class="bar-fill" data-value="{{ count }}" style="height: {{ percent }}%;"></div>
+                            <span style="font-size: 11px; font-weight: 700; color: #64748b; white-space: nowrap;">{{ etat }}</span>
+                        </div>
+                    {% else %}
+                        <div style="width: 100%; text-align: center; color: #94a3b8; padding-bottom: 40px;">En attente de données...</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Category & Material Analysis -->
+        <div class="stat-card-large" style="grid-column: span 2; animation-delay: 0.2s;">
+            <div class="chart-header">
+                <h3>Top Matériaux Recyclables</h3>
+                <select style="padding: 8px 15px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; font-weight: 700; color: #475569; outline: none; cursor: pointer;">
+                    <option>Tous les matériaux</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px;">
+                {% set total_p = total_produits > 0 ? total_produits : 1 %}
+                {% for mat, count in stats_materiau|slice(0, 6) %}
+                    {% set mat_percent = (count / total_p * 100)|round %}
+                    <div class="mat-badge">
+                        <div style="width: 45px; height: 45px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;">
+                            <span style="font-size: 18px;">♻️</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <span style="font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase;">{{ mat }}</span>
+                                <span style="font-size: 14px; font-weight: 900; color: var(--accent);">{{ count }}</span>
+                            </div>
+                            <div style="height: 5px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                                <div style="height: 100%; width: {{ mat_percent }}%; background: var(--accent); border-radius: 5px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="grid-column: span 3; text-align: center; padding: 40px; color: #94a3b8;">Aucun matériau inventorié.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
