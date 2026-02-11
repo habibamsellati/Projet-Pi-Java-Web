@@ -1,0 +1,209 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des livraisons | AfkArt{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="header-inner container">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis Livraison</a>
+            <a href="#galerie">Galerie</a>
+            <a href="#contact">Contact</a>
+        </nav>
+        
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <section class="container-wide">
+        <div class="list-header">
+            <h1 class="main-header">Gestion des Livraisons</h1>
+            <a href="{{ path('app_livraison_new') }}" class="btn-custom">
+                + Ajouter une livraison
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date de Livraison</th>
+                        <th>Adresse</th>
+                        <th>Statut</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for livraison in livraisons %}
+                    <tr>
+                        <td class="id-cell">#{{ livraison.id }}</td>
+                        <td class="date-cell">
+                            {{ livraison.datelivraison ? livraison.datelivraison|date('d/m/Y H:i') : 'Non définie' }}
+                        </td>
+                        <td class="address-cell">{{ livraison.addresslivraison }}</td>
+                        <td>
+                            <span class="badge">{{ livraison.statutlivraison }}</span>
+                        </td>
+                        <td class="actions-cell">
+                            <div class="action-links">
+                                <a href="{{ path('app_livraison_show', {'id': livraison.id}) }}" class="link-show">suivre</a>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">Aucune livraison enregistrée.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-cream-dark: #F5F0E8;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+    }
+
+    .page-wrapper {
+        padding: 120px 20px 60px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+    }
+
+    .container-wide {
+        width: 100%;
+        max-width: 1100px;
+    }
+
+    /* Header Global */
+    .header {
+        position: fixed; top: 0; width: 100%;
+        background: rgba(250,247,242,0.95);
+        backdrop-filter: blur(8px); z-index: 100;
+        border-bottom: 1px solid rgba(61,50,41,0.1);
+    }
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    .nav { display: flex; gap: 1.5rem; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.95rem; }
+
+    /* Top List Header */
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    .main-header {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        margin: 0;
+        color: var(--color-brown);
+    }
+
+    /* Table Styling */
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        border: 1px solid rgba(196, 112, 75, 0.1);
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .custom-table th {
+        background-color: #FDFBFA;
+        padding: 18px 25px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #999;
+        border-bottom: 1px solid #F5F0E8;
+    }
+
+    .custom-table td {
+        padding: 20px 25px;
+        border-bottom: 1px solid #F9F4EF;
+        font-size: 0.95rem;
+    }
+
+    .id-cell { font-weight: 600; color: var(--color-terracotta); }
+    .date-cell { color: var(--color-brown-light); }
+
+    /* Badge */
+    .badge {
+        background: var(--color-cream-dark);
+        color: var(--color-brown);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Actions buttons */
+    .action-links { display: flex; gap: 15px; align-items: center; justify-content: flex-end; }
+    
+    .link-show { color: var(--color-brown); text-decoration: none; font-weight: 500; }
+    .link-edit { color: var(--color-sage, #8FAE8B); text-decoration: none; font-weight: 500; }
+    .link-delete { 
+        background: none; border: none; padding: 0;
+        color: #D9534F; font-family: 'Outfit'; cursor: pointer; 
+        font-weight: 500; font-size: 0.95rem;
+    }
+    
+    .link-show:hover, .link-edit:hover, .link-delete:hover { opacity: 0.7; }
+
+    /* Global Button */
+    .btn-custom {
+        background-color: var(--color-terracotta);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: 0.3s;
+        display: inline-block;
+    }
+    .btn-custom:hover { background-color: var(--color-terracotta-dark); transform: translateY(-2px); }
+
+    .empty-state { text-align: center; padding: 50px !important; color: #999; }
+
+    .text-right { text-align: right; }
+
+    @media (max-width: 768px) {
+        .nav, .btn-custom { display: none; }
+        .list-header { flex-direction: column; gap: 15px; text-align: center; }
+        .custom-table th:nth-child(1), .custom-table td:nth-child(1) { display: none; }
+    }
+</style>
+{% endblock %}

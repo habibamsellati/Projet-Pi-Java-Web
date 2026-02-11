@@ -1,0 +1,34 @@
+{# templates/livraison/index.html.twig ou delete.html.twig #}
+
+
+
+<form method="post"
+      action="{{ path('app_livraison_delete', {'id': livraison.id}) }}"
+      onsubmit="return confirmDelete(this);">
+
+    {# Token CSRF pour la sécurité #}
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ livraison.id) }}">
+    
+    <button class="btn btn-danger">Supprimer</button>
+</form>
+
+<script>
+function confirmDelete(form) {
+    // Affiche une fenêtre pop-up pour demander l'ID
+    const userInput = prompt("Veuillez saisir l'ID de la livraison pour confirmer la suppression :");
+
+    if (userInput === null) {
+        // L'utilisateur a annulé
+        return false;
+    }
+
+    // Ajouter le champ confirm_id au formulaire pour envoyer la valeur au serveur
+    let input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "confirm_id";
+    input.value = userInput;
+    form.appendChild(input);
+
+    return true; // soumission du formulaire via POST
+}
+</script>

@@ -1,0 +1,243 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Livraison | AfkArt{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="header-inner container">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis Livraison</a>
+            <a href="#galerie">Galerie</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <article class="info-card">
+        <h1 class="main-header">Détails de la Livraison</h1>
+
+        <div class="info-content">
+            <div class="info-group">
+                <span class="info-label">Date prévue</span>
+                <span class="info-value">
+                    {{ livraison.datelivraison ? livraison.datelivraison|date('d F Y à H:i') : 'Non planifiée' }}
+                </span>
+            </div>
+             <div class="info-group">
+                <span class="info-label">Id</span>
+                <span class="info-value">#{{ livraison.id ?? 'N/A' }}</span>
+            </div>
+
+            <div class="info-group">
+                <span class="info-label">Adresse de livraison</span>
+                <span class="info-value">{{ livraison.addresslivraison }}</span>
+            </div>
+
+            <div class="info-group">
+                <span class="info-label">Commande</span>
+                <span class="info-value">#{{ livraison.commande.id ?? 'N/A' }}</span>
+            </div>
+
+            <div class="status-row">
+                <span class="info-label">Statut actuel</span>
+                <span class="badge status-{{ livraison.statutlivraison|lower|replace({' ': '-'}) }}">
+                    {{ livraison.statutlivraison }}
+                </span>
+            </div>
+
+            {# --- BLOC INTÉGRÉ : Vérification du statut pour afficher le bouton de notation --- #}
+            {% if livraison.statutlivraison|lower == 'livré' or livraison.statutlivraison|lower == 'livre' %}
+                <div class="rating-section" style="margin-top: 25px; text-align: center;">
+            {# Dans show.html.twig #}
+<a href="{{ path('app_suivi_livraison_note', {'id': livraison.id}) }}" class="btn-rating">
+    ⭐ Noter le livreur
+</a></div>
+            {% endif %}
+            {# --- FIN DU BLOC INTÉGRÉ --- #}
+        </div>
+
+        
+    </article>
+</main>
+
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-cream-dark: #F5F0E8;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+        line-height: 1.6;
+    }
+
+    .page-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 80px 20px 40px;
+        box-sizing: border-box;
+    }
+
+    /* Header */
+    .header {
+        position: fixed;
+        top: 0; width: 100%;
+        background: rgba(250,247,242,0.95);
+        backdrop-filter: blur(8px);
+        z-index: 100;
+        border-bottom: 1px solid rgba(61,50,41,0.1);
+    }
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    .nav { display: flex; gap: 1.5rem; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.95rem; transition: 0.3s; }
+    .nav a:hover { color: var(--color-terracotta); }
+
+    /* Card */
+    .info-card {
+        background: white;
+        width: 100%;
+        max-width: 480px;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(196, 112, 75, 0.1);
+    }
+
+    .main-header {
+        color: var(--color-brown);
+        font-family: 'Cormorant Garamond', serif;
+        text-align: center;
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #FDFBFA;
+    }
+    .info-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+    }
+    .info-value { display: block; font-size: 1.1rem; font-weight: 500; }
+
+    /* Status Row */
+    .status-row {
+        background: #FDFBFA;
+        padding: 15px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    /* Badge Styles */
+    .badge {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: capitalize;
+        border: 1px solid transparent;
+        background-color: var(--color-cream-dark);
+        color: var(--color-brown);
+    }
+
+    .status-en-attente { background-color: #FFF9E6; color: #D97706; border-color: #FCD34D; }
+    .status-en-cours { background-color: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
+    .status-livré, .status-livre, .status-terminé { background-color: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+    .status-annulé, .status-annule { background-color: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+
+    /* --- STYLE DU BOUTON DE NOTATION --- */
+    .btn-rating {
+        display: inline-block;
+        background-color: var(--color-brown);
+        color: white !important;
+        padding: 12px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn-rating:hover {
+        background-color: var(--color-terracotta);
+        transform: translateY(-2px);
+    }
+
+    /* Actions Footer */
+    .actions-footer {
+        margin-top: 35px;
+        padding-top: 20px;
+        border-top: 1px solid #F9F4EF;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-custom {
+        background-color: var(--color-terracotta);
+        color: white !important;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-custom:hover {
+        background-color: var(--color-terracotta-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(196, 112, 75, 0.2);
+    }
+
+    .btn-retour-simple {
+        font-size: 0.9rem;
+        color: var(--color-brown-light);
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .btn-retour-simple:hover { color: var(--color-terracotta); }
+
+    @media (max-width: 768px) {
+        .nav { display: none; }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const delBtn = document.querySelector('.delete-wrapper button');
+        if (delBtn) {
+            delBtn.classList.add('btn-custom');
+        }
+    });
+</script>
+
+{% endblock %}

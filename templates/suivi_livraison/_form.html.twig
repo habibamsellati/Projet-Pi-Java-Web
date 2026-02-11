@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Étape de Suivi | AfkArt{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="header-inner container">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis</a>
+            <a href="#galerie">Galerie</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <article class="info-card">
+        <h1 class="main-header">Mettre à jour le Suivi</h1>
+        
+        <div class="form-body">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'styled-form'}}) }}
+                
+                <div class="info-group">
+                    <label class="info-label">Livraison Concernée</label>
+                    {{ form_widget(form.livraison, {'attr': {'class': 'form-input'}}) }}
+                    <div class="form-error">{{ form_errors(form.livraison) }}</div>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">État de la livraison</label>
+                    {# Utilisation de la variable isLivreur passée par le controller #}
+                    {% if isLivreur is defined and isLivreur %}
+                        {{ form_widget(form.etat, {'attr': {'class': 'form-input'}}) }}
+                    {% else %}
+                        {{ form_widget(form.etat, {'attr': {'class': 'form-input', 'readonly': 'readonly', 'style': 'pointer-events: none; opacity: 0.7;'}}) }}
+                        <small style="color: #999;">(Accès réservé aux livreurs)</small>
+                    {% endif %}
+                    <div class="form-error">{{ form_errors(form.etat) }}</div>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Localisation actuelle</label>
+                    {{ form_widget(form.localisation, {'attr': {'class': 'form-input', 'placeholder': 'Ex: Rue de la Liberté, Tunis'}}) }}
+                    <div class="form-error">{{ form_errors(form.localisation) }}</div>
+                </div>
+
+               
+                <div class="form-actions-main">
+                    <button type="submit" class="btn-custom">Enregistrer l'étape</button>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+
+        <div class="actions-footer">
+            <a href="{{ path('app_suivi_livraison_index') }}" class="btn-retour-simple">
+                &larr; Retour à l'historique
+            </a>
+        </div>
+    </article>
+</main>
+
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    body { background-color: var(--color-cream); font-family: 'Outfit', sans-serif; margin: 0; }
+    .page-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 100px 20px 60px; }
+    .info-card { background: white; width: 100%; max-width: 500px; padding: 40px; border-radius: 16px; box-shadow: var(--shadow-soft); border: 1px solid rgba(196, 112, 75, 0.08); }
+    .main-header { font-family: 'Cormorant Garamond', serif; color: var(--color-brown); text-align: center; font-size: 2rem; margin-bottom: 30px; }
+    .info-group { margin-bottom: 20px; }
+    .info-label { display: block; font-size: 0.75rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+    .form-input { width: 100%; padding: 12px 15px; border: 1px solid #EEE; border-radius: 10px; font-size: 0.95rem; box-sizing: border-box; background: #FAFAFA; }
+    .btn-custom { background: var(--color-terracotta); color: white; padding: 14px; border-radius: 50px; border: none; width: 100%; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .btn-custom:hover { background: var(--color-terracotta-dark); transform: translateY(-2px); }
+    .actions-footer { margin-top: 25px; padding-top: 20px; border-top: 1px solid #F5F0E8; text-align: center; }
+    .btn-retour-simple { text-decoration: none; color: var(--color-brown-light); font-size: 0.9rem; }
+    .form-error { color: #D9534F; font-size: 0.8rem; margin-top: 5px; }
+    .header { position: fixed; top: 0; width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(5px); z-index: 100; border-bottom: 1px solid #EEE; }
+    .header-inner { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    .nav a { text-decoration: none; color: var(--color-brown-light); margin-left: 20px; font-size: 0.9rem; }
+</style>
+{% endblock %}
