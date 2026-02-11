@@ -6,7 +6,11 @@
       action="{{ path('app_livraison_delete', {'id': livraison.id}) }}"
       onsubmit="return confirmDelete(this);">
 
+<<<<<<< HEAD
     {# Token CSRF pour la sécurité #}
+=======
+    
+>>>>>>> master
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ livraison.id) }}">
     
     <button class="btn btn-danger">Supprimer</button>
@@ -14,6 +18,7 @@
 
 <script>
 function confirmDelete(form) {
+<<<<<<< HEAD
     // Affiche une fenêtre pop-up pour demander l'ID
     const userInput = prompt("Veuillez saisir l'ID de la livraison pour confirmer la suppression :");
 
@@ -23,6 +28,17 @@ function confirmDelete(form) {
     }
 
     // Ajouter le champ confirm_id au formulaire pour envoyer la valeur au serveur
+=======
+    
+    const userInput = prompt("Veuillez saisir l'ID de la livraison pour confirmer la suppression :");
+
+    if (userInput === null) {
+       
+        return false;
+    }
+
+  
+>>>>>>> master
     let input = document.createElement("input");
     input.type = "hidden";
     input.name = "confirm_id";

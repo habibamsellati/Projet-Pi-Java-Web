@@ -31,4 +31,8 @@ class SuiviLivraisonType extends AbstractType
             'data_class' => SuiviLivraison::class,
         ]);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> master

@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Historique | AfkArt{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-cream-dark: #F5F0E8;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+    }
+
+    /* --- NAVIGATION --- */
+    .header {
+        position: fixed; top: 0; width: 100%;
+        background: rgba(250,247,242,0.95);
+        backdrop-filter: blur(8px); z-index: 100;
+        border-bottom: 1px solid rgba(61,50,41,0.1);
+    }
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    
+    .nav { display: flex; gap: 2rem; align-items: center; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
+    .nav a:hover { color: var(--color-terracotta); }
+
+    /* --- LAYOUT --- */
+    .page-wrapper {
+        padding: 120px 20px 60px;
+        min-height: 100vh;
+    }
+
+    .main-header {
+        font-family: 'Cormorant Garamond', serif;
+        text-align: center;
+        font-size: 2.8rem;
+        margin-bottom: 5px;
+    }
+    .main-header span { color: var(--color-terracotta); }
+    
+    .sub-header {
+        text-align: center;
+        color: var(--color-brown-light);
+        font-style: italic;
+        margin-bottom: 50px;
+        font-size: 1.1rem;
+    }
+
+    /* --- HISTORY CARDS --- */
+    .mission-container { max-width: 800px; margin: 0 auto; }
+
+    .history-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px 30px;
+        margin-bottom: 20px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.3s ease;
+        border-left: 5px solid #28a745; /* Rappel du succès */
+    }
+    .history-card:hover { transform: translateX(5px); }
+
+    .info-label {
+        display: block; font-size: 0.65rem; color: #A0A0A0;
+        text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px; font-weight: 700;
+    }
+
+    .address-small {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.4rem;
+        color: var(--color-brown);
+        margin: 0;
+    }
+
+    .date-badge {
+        background: var(--color-cream-dark);
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        color: var(--color-brown-light);
+        font-weight: 500;
+    }
+
+    .status-done {
+        color: #28a745;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-back-nav {
+        color: var(--color-terracotta) !important;
+        font-weight: bold;
+    }
+</style>
+
+<header class="header">
+    <div class="header-inner">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="#" onclick="history.back()" class="btn-back-nav">&larr; Retour</a>
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis</a>
+            <a href="#">Mon Profil</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <div class="mission-container">
+        
+        <h1 class="main-header">Mon <span>Historique</span></h1>
+        <p class="sub-header">Missions accomplies avec succès</p>
+
+        <div class="history-list">
+            {% for livraison in historique %}
+                <div class="history-card">
+                    <div>
+                        <span class="info-label">Destination</span>
+                        <h3 class="address-small">📍 {{ livraison.addresslivraison }}</h3>
+                        <div style="margin-top: 8px; display: flex; gap: 10px; align-items: center;">
+                            <span class="date-badge">📅 {{ livraison.datelivraison|date('d/m/Y') }}</span>
+                            <span style="color: #DDD; font-size: 0.8rem;">ID #{{ livraison.id }}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <span class="status-done">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            TERMINÉE
+                        </span>
+                        <p style="margin: 5px 0 0; font-size: 0.7rem; color: #BBB;">Commande #{{ livraison.commande.id ?? 'N/A' }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 20px; box-shadow: var(--shadow-soft);">
+                    <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.2;">📜</div>
+                    <p style="color: var(--color-brown-light); font-size: 1.1rem; font-style: italic;">Votre historique est encore vierge.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

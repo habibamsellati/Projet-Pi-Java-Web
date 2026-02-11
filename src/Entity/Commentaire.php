@@ -21,11 +21,19 @@ class Commentaire
 
     #[ORM\ManyToOne(inversedBy: 'comment')]
     #[ORM\JoinColumn(nullable: false)]
+<<<<<<< HEAD
     private ?article $article = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
     #[ORM\JoinColumn(nullable: false)]
     private ?user $user = null;
+=======
+    private ?Article $Article = null;
+
+    #[ORM\ManyToOne(inversedBy: 'commentaires')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+>>>>>>> master
 
     public function getId(): ?int
     {
@@ -56,6 +64,7 @@ class Commentaire
         return $this;
     }
 
+<<<<<<< HEAD
     public function getArticle(): ?article
     {
         return $this->article;
@@ -64,16 +73,34 @@ class Commentaire
     public function setArticle(?article $article): static
     {
         $this->article = $article;
+=======
+    public function getArticle(): ?Article
+    {
+        return $this->Article;
+    }
+
+    public function setArticle(?Article $article): static
+    {
+        $this->Article = $article;
+>>>>>>> master
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function getUser(): ?user
+=======
+    public function getUser(): ?User
+>>>>>>> master
     {
         return $this->user;
     }
 
+<<<<<<< HEAD
     public function setUser(?user $user): static
+=======
+    public function setUser(?User $user): static
+>>>>>>> master
     {
         $this->user = $user;
 

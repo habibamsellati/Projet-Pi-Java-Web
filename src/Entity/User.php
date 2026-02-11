@@ -48,9 +48,13 @@ class User
     #[ORM\OneToMany(targetEntity: ReponseReclamation::class, mappedBy: 'admin')]
     private Collection $reponseReclamations;
 
+<<<<<<< HEAD
     #[ORM\ManyToOne(inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: false)]
     private ?reservation $reservation = null;
+=======
+   
+>>>>>>> master
 
     /**
      * @var Collection<int, Proposition>
@@ -221,6 +225,7 @@ class User
         return $this;
     }
 
+<<<<<<< HEAD
     public function getReservation(): ?reservation
     {
         return $this->reservation;
@@ -232,6 +237,9 @@ class User
 
         return $this;
     }
+=======
+   
+>>>>>>> master
 
     /**
      * @return Collection<int, Proposition>

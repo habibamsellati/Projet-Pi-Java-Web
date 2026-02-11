@@ -40,4 +40,10 @@ class UserRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+<<<<<<< HEAD
 }
+=======
+    
+}
+
+>>>>>>> master

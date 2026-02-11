@@ -1,0 +1,174 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Noter le Livreur | AfkArt{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="header-inner container">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis Livraison</a>
+            <a href="#galerie">Galerie</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <article class="info-card">
+        <h1 class="main-header">Noter votre Livreur</h1>
+        
+        <div class="delivery-man-info" style="text-align: center; margin-bottom: 35px;">
+            <div class="avatar-circle">
+                🚚
+            </div>
+            <h2 class="livreur-name">
+                {{ livraison.livreur.nom ?? 'Livreur AfkArt' }}
+            </h2>
+            <div class="status-preview" style="justify-content: center; background: none; padding: 0;">
+                <span class="badge">Livraison #{{ livraison.id }}</span>
+            </div>
+        </div>
+
+        <form action="{{ path('app_suivi_livraison_note', {'id': livraison.id}) }}" method="POST" class="styled-form">
+            <div class="info-group" style="text-align: center;">
+                <label class="info-label">Votre appréciation</label>
+                <div class="rating-stars">
+                    {% for i in 5..1 %}
+                        <input type="radio" id="star{{ i }}" name="note" value="{{ i }}" required />
+                        <label for="star{{ i }}" title="{{ i }} étoiles">★</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-actions-main" style="margin-top: 40px;">
+                <button type="submit" class="btn-custom">Enregistrer la note</button>
+            </div>
+        </form>
+
+        <div class="actions-footer">
+            <a href="{{ path('app_livraison_show', {'id': livraison.id}) }}" class="btn-retour-simple">
+                &larr; Annuler et retourner
+            </a>
+        </div>
+    </article>
+</main>
+
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-cream-dark: #F5F0E8;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+    }
+
+    .page-wrapper {
+        display: flex; justify-content: center; align-items: center;
+        min-height: 100vh; padding: 100px 20px 60px; box-sizing: border-box;
+    }
+
+    /* Header (identique au design référence) */
+    .header {
+        position: fixed; top: 0; width: 100%;
+        background: rgba(250,247,242,0.95);
+        backdrop-filter: blur(8px); z-index: 100;
+        border-bottom: 1px solid rgba(61,50,41,0.1);
+    }
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    .nav { display: flex; gap: 1.5rem; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.9rem; transition: 0.3s; }
+    .nav a:hover { color: var(--color-terracotta); }
+
+    /* Card */
+    .info-card {
+        background: white; width: 100%; max-width: 450px;
+        padding: 45px; border-radius: 16px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(196, 112, 75, 0.08);
+    }
+
+    .main-header {
+        font-family: 'Cormorant Garamond', serif;
+        color: var(--color-brown); text-align: center;
+        font-size: 2rem; margin-top: 0; margin-bottom: 35px;
+    }
+
+    /* Avatar & Livreur Info */
+    .avatar-circle {
+        width: 70px; height: 70px; background: var(--color-cream);
+        border-radius: 50%; margin: 0 auto 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; border: 1px solid rgba(196, 112, 75, 0.1);
+    }
+    .livreur-name {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.6rem; margin: 0 0 10px 0; color: var(--color-brown);
+    }
+
+    /* Système d'étoiles (Adapté au design Art) */
+    .rating-stars {
+        display: flex; flex-direction: row-reverse;
+        justify-content: center; font-size: 3rem; margin-top: 10px;
+    }
+    .rating-stars input { display: none; }
+    .rating-stars label {
+        color: #EEE; cursor: pointer; transition: 0.3s; margin: 0 4px;
+    }
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+        color: #F1C40F; /* Couleur Or */
+        transform: scale(1.1);
+    }
+
+    .info-label {
+        display: block; font-size: 0.8rem; color: #999;
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;
+    }
+
+    .badge {
+        background: var(--color-cream-dark); color: var(--color-brown-light);
+        padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+    }
+
+    /* Buttons */
+    .btn-custom {
+        background-color: var(--color-terracotta); color: white;
+        padding: 14px; border-radius: 50px; border: none;
+        width: 100%; font-size: 1rem; font-weight: 600; cursor: pointer;
+        transition: 0.3s;
+    }
+    .btn-custom:hover {
+        background-color: var(--color-terracotta-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(196, 112, 75, 0.2);
+    }
+
+    .actions-footer {
+        margin-top: 30px; padding-top: 20px; border-top: 1px solid #F5F0E8;
+        text-align: center;
+    }
+    .btn-retour-simple { text-decoration: none; color: var(--color-brown-light); font-size: 0.9rem; transition: 0.2s; }
+    .btn-retour-simple:hover { color: var(--color-terracotta); }
+
+    @media (max-width: 768px) {
+        .nav { display: none; }
+    }
+</style>
+{% endblock %}

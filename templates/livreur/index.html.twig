@@ -1,0 +1,220 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Missions | AfkArt{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-cream-dark: #F5F0E8;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+    }
+
+    /* --- NAVIGATION --- */
+    .header {
+        position: fixed; top: 0; width: 100%;
+        background: rgba(250,247,242,0.95);
+        backdrop-filter: blur(8px); z-index: 100;
+        border-bottom: 1px solid rgba(61,50,41,0.1);
+    }
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    
+    .nav { display: flex; gap: 2rem; align-items: center; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.9rem; font-weight: 500; transition: 0.3s; }
+    .nav a:hover { color: var(--color-terracotta); }
+    
+    /* Style spécial pour le lien Historique dans la nav */
+    .nav-history {
+        color: var(--color-terracotta) !important;
+        border: 1.5px solid var(--color-terracotta);
+        padding: 6px 15px;
+        border-radius: 50px;
+    }
+    .nav-history:hover {
+        background: var(--color-terracotta);
+        color: white !important;
+    }
+
+    /* --- LAYOUT --- */
+    .page-wrapper {
+        padding: 120px 20px 60px;
+        min-height: 100vh;
+    }
+
+    .main-header {
+        font-family: 'Cormorant Garamond', serif;
+        text-align: center;
+        font-size: 2.8rem;
+        margin-bottom: 5px;
+    }
+    .main-header span { color: var(--color-terracotta); }
+    
+    .sub-header {
+        text-align: center;
+        color: var(--color-brown-light);
+        font-style: italic;
+        margin-bottom: 50px;
+        font-size: 1.1rem;
+    }
+
+    /* --- CARDS --- */
+    .mission-container { max-width: 800px; margin: 0 auto; }
+
+    .mission-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(196, 112, 75, 0.05);
+        transition: 0.3s ease;
+    }
+    .mission-card:hover { transform: translateY(-5px); }
+
+    .info-label {
+        display: block; font-size: 0.7rem; color: #A0A0A0;
+        text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; font-weight: 700;
+    }
+
+    .address-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+        color: var(--color-brown);
+        margin: 5px 0 15px 0;
+    }
+
+    /* --- BADGES & BUTTONS --- */
+    .badge-status {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-action {
+        width: 100%;
+        padding: 16px;
+        border-radius: 50px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: 0.3s;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .btn-start { background: var(--color-terracotta); }
+    .btn-start:hover { background: var(--color-terracotta-dark); box-shadow: 0 5px 15px rgba(196, 112, 75, 0.3); }
+    
+    .btn-complete { background: #28a745; }
+    .btn-complete:hover { background: #218838; box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3); }
+
+    .flash-message {
+        background: #ECFDF5;
+        color: #065F46;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+        border: 1px solid #A7F3D0;
+    }
+</style>
+
+<header class="header">
+    <div class="header-inner">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis</a>
+            <a href="{{ path('app_livreur_historique', {'id': livreur.id}) }}">Historique</a>
+            
+            <a href="#">Mon Profil</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <div class="mission-container">
+        
+        {% for message in app.flashes('success') %}
+            <div class="flash-message">✨ {{ message }}</div>
+        {% endfor %}
+
+        <h1 class="main-header">Mes <span>Missions</span></h1>
+        <p class="sub-header">Tableau de bord logistique</p>
+
+        <div class="mission-list">
+            {% for livraison in livraisons %}
+                {% set s = livraison.statutlivraison|lower|trim %}
+                
+                <div class="mission-card" style="border-top: 5px solid {{ (s == 'livree' or s == 'livré') ? '#28a745' : ((s == 'en_cours' or s == 'en cours') ? '#ffc107' : '#C4704B') }};">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <span class="info-label">État actuel</span>
+                            <span class="badge-status" style="
+                                background: {{ (s == 'livree' or s == 'livré') ? '#DCFCE7' : '#FEF3C7' }}; 
+                                color: {{ (s == 'livree' or s == 'livré') ? '#166534' : '#92400E' }};">
+                                ● {{ livraison.statutlivraison|replace({'_': ' '})|upper }}
+                            </span>
+                        </div>
+                        <span style="color: #DDD; font-weight: 800;">#{{ livraison.id }}</span>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <span class="info-label">Point de livraison</span>
+                        <h2 class="address-title">📍 {{ livraison.addresslivraison }}</h2>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span style="background: var(--color-cream-dark); padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; color: var(--color-brown-light);">
+                                📅 {{ livraison.datelivraison ? livraison.datelivraison|date('d M Y') : 'Date à définir' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-action">
+                        {% if s == 'en_attente' or s == 'en attente' or s == 'en_cours' or s == 'en cours' %}
+                            <form action="{{ path('app_livreur_update_status', {'id': livraison.id}) }}" method="POST">
+                                <button type="submit" class="btn-action {{ (s == 'en_attente' or s == 'en attente') ? 'btn-start' : 'btn-complete' }}">
+                                    {% if s == 'en_attente' or s == 'en attente' %}
+                                        🚀 Démarrer la mission
+                                    {% else %}
+                                        ✅ Finaliser la livraison
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                        {% elseif s == 'livree' or s == 'livré' %}
+                            <div style="text-align: center; color: #28a745; font-weight: 700; padding: 18px; border: 2px solid #28a745; border-radius: 50px; background: #F0FDF4;">
+                                ✨ MISSION ACCOMPLIE
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 80px 20px; background: white; border-radius: 20px; box-shadow: var(--shadow-soft);">
+                    <div style="font-size: 4rem; margin-bottom: 20px; opacity: 0.3;">📦</div>
+                    <p style="color: var(--color-brown-light); font-size: 1.1rem; font-style: italic;">Aucune mission n'est disponible pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

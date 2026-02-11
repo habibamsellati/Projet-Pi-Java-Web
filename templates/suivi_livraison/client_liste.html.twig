@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Livraisons{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h2 style="color: #bc7c5c; font-weight: bold;">📦 Mes Livraisons</h2>
+        <p class="text-muted">Sélectionnez une commande pour voir l'état de l'envoi en temps réel.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        {% for livraison in livraisons %}
+            <div class="col-md-5 mb-4">
+                <div class="card shadow-sm border-0" style="border-radius: 20px; transition: transform 0.3s;">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-light text-dark p-2">Commande #{{ livraison.commande.id }}</span>
+                            <span class="text-success fw-bold">{{ livraison.statutlivraison|upper }}</span>
+                        </div>
+                        <p class="mb-1"><strong>Destination :</strong> {{ livraison.addresslivraison }}</p>
+                        <p class="text-muted small">Livreur : {{ livraison.livreur.nom|default('Non assigné') }}</p>
+                        
+                        <a href="{{ path('app_client_consulter_suivi', {'id': livraison.id}) }}" 
+                           class="btn w-100 mt-3" 
+                           style="background-color: #bc7c5c; color: white; border-radius: 25px; padding: 10px;">
+                           Suivre ce colis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center">
+                <div class="alert alert-light border">Aucune livraison n'est associée à votre compte pour le moment.</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

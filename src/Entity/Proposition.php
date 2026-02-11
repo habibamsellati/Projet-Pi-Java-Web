@@ -24,7 +24,11 @@ class Proposition
 
     #[ORM\ManyToOne(inversedBy: 'propositions')]
     #[ORM\JoinColumn(nullable: false)]
+<<<<<<< HEAD
     private ?produit $produit = null;
+=======
+    private ?Produit $Produit = null;
+>>>>>>> master
 
     #[ORM\ManyToOne(inversedBy: 'prop')]
     #[ORM\JoinColumn(nullable: false)]
@@ -71,6 +75,7 @@ class Proposition
         return $this;
     }
 
+<<<<<<< HEAD
     public function getProduit(): ?produit
     {
         return $this->produit;
@@ -79,16 +84,34 @@ class Proposition
     public function setProduit(?produit $produit): static
     {
         $this->produit = $produit;
+=======
+    public function getProduit(): ?Produit
+    {
+        return $this->Produit;
+    }
+
+    public function setProduit(?Produit $Produit): static
+    {
+        $this->Produit = $Produit;
+>>>>>>> master
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function getUser(): ?user
+=======
+    public function getUser(): ?User
+>>>>>>> master
     {
         return $this->user;
     }
 
+<<<<<<< HEAD
     public function setUser(?user $user): static
+=======
+    public function setUser(?User $user): static
+>>>>>>> master
     {
         $this->user = $user;
 

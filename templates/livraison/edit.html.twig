@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}Modifier la Livraison{% endblock %}
 
 {% block body %}
@@ -143,3 +144,166 @@
 
 
 {% endblock %}
+=======
+{% block title %}Modifier la Livraison | AfkArt{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="header-inner container">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis Livraison</a>
+            <a href="#galerie">Galerie</a>
+            <a href="#contact">Contact</a>
+        </nav>
+     
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <article class="info-card edit-card">
+        <h1 class="main-header">Modifier la Livraison</h1>
+        
+        <div class="form-body">
+            {{ form_start(form, {'attr': {'class': 'styled-form'}}) }}
+                
+                <div class="form-section">
+                    <div class="info-group">
+                        <label class="info-label">Date de livraison</label>
+                        {{ form_widget(form.datelivraison, {'attr': {'class': 'form-input'}}) }}
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">Adresse de livraison</label>
+                        {{ form_widget(form.addresslivraison, {'attr': {'class': 'form-input'}}) }}
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">Commande associée</label>
+                        {{ form_widget(form.commande, {'attr': {'class': 'form-input'}}) }}
+                    </div>
+                </div>
+
+                <div class="form-actions-main" style="margin-top: 20px;">
+                    <button type="submit" class="btn-custom">Enregistrer les modifications</button>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+
+        <div class="actions-footer">
+            <a href="{{ path('app_livraison_index') }}" class="btn-retour-simple">
+                &larr; Retour à la liste
+            </a>
+            <div class="delete-wrapper">
+                {{ include('livraison/_delete_form.html.twig', { 'livraison': livraison }) }}
+            </div>
+        </div>
+    </article>
+</main>
+
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+    }
+
+    .page-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 100px 20px 60px;
+        box-sizing: border-box;
+    }
+
+    .header {
+        position: fixed; top: 0; width: 100%;
+        background: rgba(250,247,242,0.95);
+        backdrop-filter: blur(8px); z-index: 100;
+        border-bottom: 1px solid rgba(61,50,41,0.1);
+    }
+
+    .header-inner {
+        display: flex; align-items: center; justify-content: space-between;
+        max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem;
+    }
+
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    .nav { display: flex; gap: 1.5rem; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.95rem; }
+
+    .info-card {
+        background: white;
+        width: 100%;
+        max-width: 550px;
+        padding: 50px;
+        border-radius: 16px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(196, 112, 75, 0.08);
+    }
+
+    .main-header {
+        font-family: 'Cormorant Garamond', serif;
+        color: var(--color-brown);
+        text-align: center;
+        font-size: 2.2rem;
+        margin-top: 0;
+        margin-bottom: 40px;
+    }
+
+    .info-group { margin-bottom: 25px; }
+    .info-label {
+        display: block; font-size: 0.85rem; color: #888;
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;
+    }
+
+    .form-input {
+        width: 100%; padding: 14px 18px; border: 1px solid #EEE;
+        border-radius: 10px; font-family: 'Outfit', sans-serif;
+        font-size: 1rem; box-sizing: border-box; background-color: #FAFAFA;
+    }
+
+    .btn-custom {
+        background-color: var(--color-terracotta);
+        color: white; padding: 14px 28px; border-radius: 50px;
+        font-size: 1rem; font-weight: 600; border: none; cursor: pointer; width: 100%;
+    }
+
+    .actions-footer {
+        margin-top: 40px; padding-top: 25px; border-top: 1px solid #F5F0E8;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .btn-retour-simple { text-decoration: none; color: var(--color-brown-light); font-size: 0.9rem; }
+    
+    .delete-wrapper button {
+        background: none; border: none; color: #D9534F; cursor: pointer;
+        font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 500;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.querySelector('.mobile-menu-btn');
+        const nav = document.querySelector('.nav');
+        if(btn && nav) {
+            btn.addEventListener('click', () => nav.classList.toggle('active'));
+        }
+    });
+</script>
+{% endblock %} {# <-- C'est cette ligne qui manquait ! #}
+>>>>>>> master

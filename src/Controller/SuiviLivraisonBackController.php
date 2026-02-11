@@ -13,24 +13,40 @@ use Symfony\Component\Routing\Annotation\Route;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 #[Route('suivi_livraison')]
 class SuiviLivraisonBackController extends AbstractController
 {
     #[Route('/', name: 'back_suivi_livraison_index')]
 public function index(Request $request, SuiviLivraisonRepository $repository): Response
 {
+<<<<<<< HEAD
     // Récupère le paramètre 'order' (?order=ASC ou DESC)
+=======
+    
+>>>>>>> master
     $order = strtoupper($request->query->get('order', 'ASC'));
     if (!in_array($order, ['ASC', 'DESC'])) {
         $order = 'ASC';
     }
 
+<<<<<<< HEAD
     // Tri des suivis par date de suivi
+=======
+   
+>>>>>>> master
     $suivis = $repository->findBy([], ['datesuivi' => $order]);
 
     return $this->render('suivi_livraison/indexback.html.twig', [
         'suivis' => $suivis,
+<<<<<<< HEAD
         'current_order' => $order, // important pour Twig
+=======
+        'current_order' => $order, 
+>>>>>>> master
     ]);
 }
 
@@ -116,6 +132,7 @@ public function stats(SuiviLivraisonRepository $repo): Response
 #[Route('/pdf', name: 'back_suivi_livraison_pdf')]
 public function exportPdf(SuiviLivraisonRepository $suiviLivraisonRepository): Response
 {
+<<<<<<< HEAD
     // Récupération des suivis de livraison
     $suivisLivraison = $suiviLivraisonRepository->findAll();
 
@@ -126,6 +143,18 @@ public function exportPdf(SuiviLivraisonRepository $suiviLivraisonRepository): R
     $dompdf = new Dompdf($options);
 
     // Génération du HTML via Twig
+=======
+   
+    $suivisLivraison = $suiviLivraisonRepository->findAll();
+
+   
+    $options = new Options();
+    $options->set('defaultFont', 'DejaVu Sans'); 
+
+    $dompdf = new Dompdf($options);
+
+    
+>>>>>>> master
     $html = $this->renderView('suivi_livraison/pdf.html.twig', [
         'suivisLivraison' => $suivisLivraison,
     ]);

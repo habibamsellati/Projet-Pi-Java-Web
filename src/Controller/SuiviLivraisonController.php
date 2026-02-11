@@ -10,11 +10,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+<<<<<<< HEAD
+=======
+use App\Repository\LivraisonRepository; // N'oubliez pas l'import
+>>>>>>> master
 
 #[Route('/suivi/livraison')]
 final class SuiviLivraisonController extends AbstractController
 {
     #[Route(name: 'app_suivi_livraison_index', methods: ['GET'])]
+<<<<<<< HEAD
     public function index(SuiviLivraisonRepository $suiviLivraisonRepository): Response
     {
         return $this->render('suivi_livraison/index.html.twig', [
@@ -22,6 +27,15 @@ final class SuiviLivraisonController extends AbstractController
         ]);
     }
 
+=======
+    public function index(LivraisonRepository $livraisonRepository): Response
+    {
+        // On envoie 'livraisons' à Twig pour correspondre à votre boucle {% for livraison in livraisons %}
+        return $this->render('suivi_livraison/index.html.twig', [
+            'livraisons' => $livraisonRepository->findAll(),
+        ]);
+    }
+>>>>>>> master
     #[Route('/new', name: 'app_suivi_livraison_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -78,4 +92,9 @@ final class SuiviLivraisonController extends AbstractController
 
         return $this->redirectToRoute('app_suivi_livraison_index', [], Response::HTTP_SEE_OTHER);
     }
+<<<<<<< HEAD
 }
+=======
+    
+}
+>>>>>>> master

@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}Détails Suivi Livraison{% endblock %}
 
 {% block body %}
@@ -124,3 +125,138 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 {% endblock %}
+=======
+{% block title %}Détails du Suivi | AfkArt{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="header-inner container">
+        <a href="{{ path('home') }}" class="logo">Afk<span>Art</span></a>
+        <nav class="nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis Livraison</a>
+            <a href="#galerie">Galerie</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </div>
+</header>
+
+<main class="page-wrapper">
+    <article class="info-card">
+        <div class="card-header">
+            <span class="category-label">Détails de l'étape</span>
+            <h1 class="main-header">Suivi #{{ suivi_livraison.id }}</h1>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-group">
+                <label class="info-label">Référence Livraison</label>
+                <p class="info-value text-terracotta">#{{ suivi_livraison.livraison.id }}</p>
+            </div>
+
+            <div class="info-group">
+                <label class="info-label">Date & Heure</label>
+                <p class="info-value">{{ suivi_livraison.datesuivi ? suivi_livraison.datesuivi|date('d/m/Y H:i') : 'Non renseignée' }}</p>
+            </div>
+
+            <div class="info-group">
+                <label class="info-label">État Actuel</label>
+                <div>
+                    <span class="badge">{{ suivi_livraison.etat }}</span>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <label class="info-label">Localisation</label>
+                <p class="info-value">{{ suivi_livraison.localisation }}</p>
+            </div>
+
+            <div class="info-group full-width">
+                <label class="info-label">Commentaire / Note</label>
+                <p class="info-value note-box">{{ suivi_livraison.commentaire ?: 'Aucun commentaire laissé.' }}</p>
+            </div>
+        </div>
+
+        <footer class="card-footer-actions">
+            <div class="action-main">
+                <a href="{{ path('app_suivi_livraison_index') }}" class="link-back">
+                    ← Retour à la liste des suivis
+                </a>
+            </div>
+        </footer>
+    </article>
+</main>
+
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-cream-dark: #F5F0E8;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+        --shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    body { margin: 0; font-family: 'Outfit', sans-serif; background-color: var(--color-cream); color: var(--color-brown); }
+
+    .page-wrapper { padding: 140px 20px 60px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+
+    /* Card Styling */
+    .info-card {
+        background: white; width: 100%; max-width: 600px;
+        padding: 40px; border-radius: 20px; box-shadow: var(--shadow);
+        border: 1px solid rgba(196, 112, 75, 0.08);
+    }
+
+    .card-header { text-align: center; margin-bottom: 40px; }
+    .category-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--color-terracotta); font-weight: 700; }
+    .main-header { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; margin: 10px 0 0; color: var(--color-brown); }
+
+    /* Grid layout */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+    .full-width { grid-column: span 2; }
+
+    .info-label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 8px; font-weight: 600; }
+    .info-value { font-size: 1.1rem; margin: 0; color: var(--color-brown); font-weight: 500; }
+    .text-terracotta { color: var(--color-terracotta); font-weight: 700; }
+
+    .note-box { background: var(--color-cream); padding: 15px; border-radius: 12px; font-style: italic; color: var(--color-brown-light); font-size: 0.95rem; border-left: 3px solid var(--color-terracotta); }
+
+    /* Badge */
+    .badge { background: var(--color-cream-dark); color: var(--color-brown); padding: 6px 16px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(196, 112, 75, 0.1); display: inline-block; }
+
+    /* Footer Actions */
+    .card-footer-actions { 
+        border-top: 1px solid var(--color-cream-dark); 
+        padding-top: 20px; 
+        margin-top: 20px; 
+    }
+    .action-main { text-align: center; }
+
+    .link-back { 
+        text-decoration: none; 
+        color: var(--color-brown-light); 
+        font-size: 0.95rem; 
+        font-weight: 500; 
+        transition: 0.2s;
+        display: inline-block;
+        padding: 10px 20px;
+    }
+    .link-back:hover { color: var(--color-terracotta); transform: translateX(-5px); }
+
+    /* Header Global */
+    .header { position: fixed; top: 0; width: 100%; background: rgba(250,247,242,0.95); backdrop-filter: blur(8px); z-index: 100; border-bottom: 1px solid rgba(61,50,41,0.1); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: var(--color-brown); font-weight: bold; }
+    .logo span { color: var(--color-terracotta); }
+    .nav { display: flex; gap: 1.5rem; }
+    .nav a { text-decoration: none; color: var(--color-brown-light); font-size: 0.95rem; }
+
+    @media (max-width: 600px) {
+        .info-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: span 1; }
+    }
+</style>
+{% endblock %}
+>>>>>>> master

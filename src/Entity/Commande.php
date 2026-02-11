@@ -37,8 +37,14 @@ class Commande
     #[ORM\ManyToMany(targetEntity: article::class, inversedBy: 'commandes')]
     private Collection $articles;
 
+<<<<<<< HEAD
     #[ORM\OneToOne(inversedBy: 'commande', cascade: ['persist', 'remove'])]
     private ?Livraison $livraison = null; // majuscule corrigée
+=======
+    
+    #[ORM\OneToOne(mappedBy: 'commande', targetEntity: Livraison::class)]
+private ?Livraison $livraison = null;
+>>>>>>> master
 
 
     public function __construct()
