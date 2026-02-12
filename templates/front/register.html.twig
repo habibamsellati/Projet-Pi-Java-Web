@@ -74,10 +74,23 @@
   
   .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     font-weight: 500;
     color: var(--color-brown);
     font-size: 0.95rem;
+    transition: color 0.3s ease;
+  }
+  
+  .form-group label.valid-label {
+    color: #166534 !important;
+  }
+
+  .error-message {
+    color: #991b1b;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    min-height: 1.2rem;
   }
   
   .form-group input,
@@ -157,6 +170,8 @@
   .form-footer a:hover {
     text-decoration: underline;
   }
+
+
 </style>
 
 <div class="form-container">
@@ -170,34 +185,38 @@
       {% endfor %}
     {% endfor %}
     
-    <form method="post" action="{{ path('app_register') }}">
+    <form method="post" action="{{ path('app_register') }}" novalidate>
       <div class="form-group">
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" name="nom" required />
+        <label for="nom" id="label-nom">Nom</label>
+        <span class="error-message" id="error-nom">{{ errors.nom|default('') }}</span>
+        <input type="text" id="nom" name="nom" value="{{ last_entered_data.nom|default('') }}" />
       </div>
       
       <div class="form-group">
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" name="prenom" required />
+        <label for="prenom" id="label-prenom">Prénom</label>
+        <span class="error-message" id="error-prenom">{{ errors.prenom|default('') }}</span>
+        <input type="text" id="prenom" name="prenom" value="{{ last_entered_data.prenom|default('') }}" />
       </div>
       
       <div class="form-group">
-        <label for="email">Email</label>
-        <input type="text" id="email" name="email" required />
+        <label for="email" id="label-email">Email</label>
+        <span class="error-message" id="error-email">{{ errors.email|default('') }}</span>
+        <input type="text" id="email" name="email" value="{{ last_entered_data.email|default('') }}" />
       </div>
       
       <div class="form-group">
-        <label for="motdepasse">Mot de passe</label>
-        <input type="password" id="motdepasse" name="motdepasse" required />
+        <label for="motdepasse" id="label-motdepasse">Mot de passe</label>
+        <span class="error-message" id="error-motdepasse">{{ errors.motdepasse|default('') }}</span>
+        <input type="password" id="motdepasse" name="motdepasse" />
       </div>
       
       <div class="form-group">
         <label for="role">Je suis</label>
-        <select id="role" name="role" required>
-          <option value="CLIENT">Un Client</option>
-          <option value="ARTISANT">Un Artisan</option>
-          <option value="ADMIN">Un Administrateur</option>
-          <option value="LIVREUR">Un Livreur</option>
+        <select id="role" name="role">
+          <option value="CLIENT" {{ (last_entered_data.role|default('') == 'CLIENT') ? 'selected' : '' }}>Un Client</option>
+          <option value="ARTISANT" {{ (last_entered_data.role|default('') == 'ARTISANT') ? 'selected' : '' }}>Un Artisan</option>
+          <option value="ADMIN" {{ (last_entered_data.role|default('') == 'ADMIN') ? 'selected' : '' }}>Un Administrateur</option>
+          <option value="LIVREUR" {{ (last_entered_data.role|default('') == 'LIVREUR') ? 'selected' : '' }}>Un Livreur</option>
         </select>
       </div>
       
@@ -209,4 +228,63 @@
     </div>
   </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const inputs = {
+      nom: document.getElementById('nom'),
+      prenom: document.getElementById('prenom'),
+      email: document.getElementById('email'),
+      motdepasse: document.getElementById('motdepasse')
+    };
+
+    const validators = {
+      nom: (val) => {
+        if (!val) return "Le nom est obligatoire";
+        if (val.length > 15) return "Max 15 caractères";
+        if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(val)) return "Le nom ne doit contenir que des lettres";
+        return null;
+      },
+      prenom: (val) => {
+        if (!val) return "Le prénom est obligatoire";
+        if (val.length > 30) return "Max 30 caractères";
+        if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(val)) return "Le prénom ne doit contenir que des lettres";
+        return null;
+      },
+      email: (val) => {
+        if (!val) return "L'email est obligatoire";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return "Email invalide (ex: chaine@chaine.chaine)";
+        return null;
+      },
+      motdepasse: (val) => {
+        if (!val) return "Le mot de passe est obligatoire";
+        if (!/(?=.*[A-Z])(?=.*\d)(?=.*[\W_])/.test(val)) return "Doit contenir Majuscule, Chiffre et Symbole";
+        return null;
+      }
+    };
+
+    function validateField(id) {
+      const input = inputs[id];
+      const val = input.value;
+      const errorMsg = validators[id](val);
+      const label = document.getElementById('label-' + id);
+      const errorSpan = document.getElementById('error-' + id);
+
+      if (errorMsg === null) {
+        label.classList.add('valid-label');
+        errorSpan.textContent = "";
+      } else {
+        label.classList.remove('valid-label');
+        errorSpan.textContent = errorMsg;
+      }
+    }
+
+    Object.keys(inputs).forEach(id => {
+      if (inputs[id]) {
+        inputs[id].addEventListener('input', () => validateField(id));
+        // Run initial validation if field has value (from server side repopulation)
+        if (inputs[id].value) validateField(id);
+      }
+    });
+  });
+</script>
 {% endblock %}

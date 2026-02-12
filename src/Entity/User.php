@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -18,15 +19,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom est obligatoire")]
+    #[Assert\Length(max: 15, maxMessage: "Le nom ne doit pas dépasser {{ limit }} caractères")]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s-]+$/", message: "Le nom ne doit contenir que des lettres")]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le prénom est obligatoire")]
+    #[Assert\Length(max: 30, maxMessage: "Le prénom ne doit pas dépasser {{ limit }} caractères")]
+    #[Assert\Regex(pattern: "/^[a-zA-ZÀ-ÿ\s-]+$/", message: "Le prénom ne doit contenir que des lettres")]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "L'email est obligatoire")]
+    #[Assert\Email(message: "L'email '{{ value }}' n'est pas valide")]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le mot de passe est obligatoire")]
+    #[Assert\Regex(
+        pattern: "/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/",
+        message: "Le mot de passe doit contenir au moins une majuscule, un chiffre et un symbole"
+    )]
     private ?string $motdepasse = null;
 
     #[ORM\Column(length: 255)]

@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -71,6 +73,7 @@ class UserAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
+        /** @var Session $session */
         $session = $request->getSession();
         $session->remove('email_confirmation_pending');
         $session->remove('email_confirmation_email');
@@ -106,10 +109,14 @@ class UserAuthenticator extends AbstractAuthenticator
             try {
                 $this->sendConfirmationEmail($email, $code);
             } catch (\Throwable $e) {
-                $session->getFlashBag()->add('error', 'Envoi email échoué, utilisez le code reçu si possible.');
+                if ($request->hasSession()) {
+                    $session->getFlashBag()->add('error', 'Envoi email échoué, utilisez le code reçu si possible.');
+                }
             }
 
-            $session->getFlashBag()->add('error', 'Compte inactif. Un code de confirmation a été envoyé par email.');
+            if ($request->hasSession()) {
+                $session->getFlashBag()->add('error', 'Compte inactif. Un code de confirmation a été envoyé par email.');
+            }
             throw new AuthenticationException('Email confirmation required.');
         }
 
@@ -126,6 +133,7 @@ class UserAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        /** @var Session $session */
         $session = $request->getSession();
         $session->remove('email_confirmation_pending');
         $session->remove('email_confirmation_email');
@@ -157,12 +165,16 @@ class UserAuthenticator extends AbstractAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         // Store error in session and redirect back to login
-        $request->getSession()->set('_security.last_username', $request->request->get('_username'));
-        if ($request->getSession()->get('email_confirmation_pending')
+        /** @var Session $session */
+        $session = $request->getSession();
+        $session->set('_security.last_username', $request->request->get('_username'));
+        if ($session->get('email_confirmation_pending')
             || str_contains($exception->getMessage(), 'Email confirmation required')) {
             return new RedirectResponse($this->router->generate('app_confirm'));
         }
-        $request->getSession()->getFlashBag()->add('error', $exception->getMessage());
+        if ($request->hasSession()) {
+            $session->getFlashBag()->add('error', $exception->getMessage());
+        }
         return new RedirectResponse($this->router->generate('app_login'));
     }
 }

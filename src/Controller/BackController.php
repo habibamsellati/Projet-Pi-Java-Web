@@ -26,7 +26,9 @@ final class BackController extends AbstractController
 
     private function checkAdminAccess(): ?Response
     {
-        if (!$this->getUser() || $this->getUser()->getRole() !== 'ADMIN') {
+        /** @var User|null $user */
+        $user = $this->getUser();
+        if (!$user || $user->getRole() !== 'ADMIN') {
             $this->addFlash('error', 'Accès réservé aux administrateurs');
             return $this->redirectToRoute('home');
         }
@@ -35,7 +37,9 @@ final class BackController extends AbstractController
 
     private function isAdminUser(): bool
     {
-        return $this->getUser() && $this->getUser()->getRole() === 'ADMIN';
+        /** @var User|null $user */
+        $user = $this->getUser();
+        return $user !== null && $user->getRole() === 'ADMIN';
     }
 
     private function checkModuleAccess(Request $request, string $module): ?Response
@@ -56,6 +60,7 @@ final class BackController extends AbstractController
     #[Route('/verify-admin', name: 'verify_admin', methods: ['POST'])]
     public function verifyAdmin(Request $request): Response
     {
+        /** @var User|null $user */
         $user = $this->getUser();
         
         // Vérifier que l'utilisateur est connecté et est admin
@@ -78,6 +83,27 @@ final class BackController extends AbstractController
         
         // Mot de passe correct, redirection vers le dashboard
         return $this->redirectToRoute('back_users');
+    }
+
+    #[Route('/verify-front', name: 'verify_front', methods: ['POST'])]
+    public function verifyFront(Request $request): Response
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        if (!$user || $user->getRole() !== 'ADMIN') {
+            $this->addFlash('error', 'Accès refusé');
+            return $this->redirectToRoute('home');
+        }
+        
+        $password = $request->request->get('admin_password', '');
+        
+        if (!password_verify($password, $user->getMotdepasse())) {
+            $this->addFlash('error', 'Mot de passe incorrect');
+            return $this->redirectToRoute('back');
+        }
+        
+        return $this->redirectToRoute('home');
     }
 
     #[Route('', name: 'back')]
@@ -262,6 +288,7 @@ final class BackController extends AbstractController
         $check = $this->checkAdminAccess();
         if ($check) return $check;
 
+        /** @var User|null $admin */
         $admin = $this->getUser();
         $user = $userRepository->find($id);
         
@@ -271,14 +298,14 @@ final class BackController extends AbstractController
         }
 
         // Empêcher la suppression de soi-même
-        if ($user->getId() === $admin->getId()) {
+        if ($admin && $user->getId() === $admin->getId()) {
             $this->addFlash('error', 'Vous ne pouvez pas vous supprimer vous-même');
             return $this->redirectToRoute('back_users');
         }
 
         // Vérifier le mot de passe admin
         $adminPassword = $request->request->get('admin_password', '');
-        if (empty($adminPassword) || !password_verify($adminPassword, $admin->getMotdepasse())) {
+        if (!$admin || empty($adminPassword) || !password_verify($adminPassword, $admin->getMotdepasse())) {
             $this->addFlash('error', 'Mot de passe administrateur incorrect');
             return $this->redirectToRoute('back_users');
         }
@@ -326,16 +353,18 @@ final class BackController extends AbstractController
     #[Route('/access/verify', name: 'back_access_verify', methods: ['POST'])]
     public function verifyResponsableAccess(Request $request, UserRepository $userRepository, EntityManagerInterface $em): JsonResponse
     {
-        if ($this->isAdminUser()) {
-            return new JsonResponse(['ok' => true, 'bypass' => true]);
-        }
-
         $module = (string) $request->request->get('module', '');
         $username = trim((string) $request->request->get('username', ''));
         $password = (string) $request->request->get('password', '');
 
         if (!array_key_exists($module, self::RESPONSABLE_ACCOUNTS)) {
             return new JsonResponse(['ok' => false, 'message' => 'Module non valide'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Admin credentials can open any module
+        $admin = $userRepository->findOneBy(['email' => $username, 'role' => 'ADMIN']);
+        if ($admin && password_verify($password, $admin->getMotdepasse())) {
+            return new JsonResponse(['ok' => true]);
         }
 
         $expected = self::RESPONSABLE_ACCOUNTS[$module];

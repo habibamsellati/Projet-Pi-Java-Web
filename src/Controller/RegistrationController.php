@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/register')]
 class RegistrationController extends AbstractController
@@ -15,8 +16,11 @@ class RegistrationController extends AbstractController
     private const ROLES_FRONT = ['CLIENT', 'ARTISANT', 'ADMIN', 'LIVREUR'];
 
     #[Route('', name: 'app_register')]
-    public function register(Request $request, EntityManagerInterface $em): Response
+    public function register(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): Response
     {
+        $lastEnteredData = [];
+        $errors = [];
+
         if ($request->isMethod('POST')) {
 
             $role = strtoupper($request->request->get('role'));
@@ -27,33 +31,63 @@ class RegistrationController extends AbstractController
                 return $this->redirectToRoute('app_register');
             }
 
-            $user = new User();
             $nom = (string) $request->request->get('nom', '');
             $prenom = (string) $request->request->get('prenom', '');
             $email = (string) $request->request->get('email', '');
+            $motdepasse = (string) $request->request->get('motdepasse', '');
+            
+            // Keep data for repopulating form
+            $lastEnteredData = [
+                'nom' => $nom,
+                'prenom' => $prenom,
+                'email' => $email,
+                // Do not send back password
+            ];
 
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $this->addFlash('error', 'Email invalide (il faut un @)');
-                return $this->redirectToRoute('app_register');
-            }
-
+            $user = new User();
             $user->setNom($nom);
             $user->setPrenom($prenom);
             $user->setEmail($email);
-            $user->setMotdepasse(
-                password_hash($request->request->get('motdepasse'), PASSWORD_BCRYPT)
-            );
+
+            $user->setMotdepasse($motdepasse); 
             $user->setRole($role);
             $user->setStatut('inactif');
             $user->setDatecreation(new \DateTime());
+            
+            // Validate the entity
+            $violations = $validator->validate($user);
+            
+            if (count($violations) > 0) {
+                foreach ($violations as $violation) {
+                    $errors[$violation->getPropertyPath()] = $violation->getMessage();
+                }
+            }
+            
+            // Manual uniqueness check (could be a UniqueEntity constraint but keeping logic here as requested/planned sort of)
+            $existingUser = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+            if ($existingUser) {
+                // If email duplication isn't already caught (it wouldn't be by standard constraints unless UniqueEntity is used)
+                if (!isset($errors['email'])) {
+                    $errors['email'] = 'Cet email existe déjà';
+                }
+            }
 
-            $em->persist($user);
-            $em->flush();
+            if (empty($errors)) {
+                // Hash password now that validation passed
+                $user->setMotdepasse(
+                    password_hash($motdepasse, PASSWORD_BCRYPT)
+                );
+                
+                $em->persist($user);
+                $em->flush();
 
-            $this->addFlash('success', 'Compte créé avec succès');
-            return $this->redirectToRoute('app_login');
+                $this->addFlash('success', 'Compte créé avec succès');
+                return $this->redirectToRoute('app_login');
+            }
         }
-
-        return $this->render('front/register.html.twig');
+        return $this->render('front/register.html.twig', [
+            'errors' => $errors,
+            'last_entered_data' => $lastEnteredData
+        ]);
     }
 }
