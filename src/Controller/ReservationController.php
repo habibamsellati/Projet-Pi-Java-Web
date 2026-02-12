@@ -26,13 +26,22 @@ class ReservationController extends AbstractController
     }
 
     #[Route('/new', name: 'app_reservation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, \App\Repository\EvenementRepository $evenementRepository): Response
     {
         $reservation = new Reservation();
         $reservation->setDateReservation(new \DateTime());
         $reservation->setStatut('en_attente');
         // On lie automatiquement l'utilisateur connecté
         $reservation->setUser($this->getUser());
+
+        // Pré-sélection de l'événement si l'ID est passé en paramètre
+        $eventId = $request->query->get('event');
+        if ($eventId) {
+            $evenement = $evenementRepository->find($eventId);
+            if ($evenement) {
+                $reservation->setEvenement($evenement);
+            }
+        }
         
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
@@ -72,10 +81,28 @@ class ReservationController extends AbstractController
             throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette réservation.');
         }
 
+        // Proactive check for expiry on GET
+        if ($reservation->getStatut() === 'en_attente' && $reservation->getCreatedAt()) {
+            $expiry = $reservation->getCreatedAt()->modify('+3 hours');
+            if ($expiry < new \DateTimeImmutable()) {
+                $this->addFlash('warning', 'Le délai de confirmation de 3 heures est dépassé. Vous ne pouvez plus confirmer cette réservation.');
+            }
+        }
+
         $form = $this->createForm(ReservationType::class, $reservation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Enforce 3-hour limit for confirmation
+            if ($reservation->getStatut() === 'confirme' && $reservation->getCreatedAt()) {
+                $expiry = $reservation->getCreatedAt()->modify('+3 hours');
+                if ($expiry < new \DateTimeImmutable()) {
+                    $this->addFlash('error', 'Désolé, le délai de confirmation de 3 heures est dépassé. Cette réservation ne peut plus être confirmée.');
+                    $reservation->setStatut('annule');
+                    $entityManager->flush();
+                    return $this->redirectToRoute('app_reservation_index');
+                }
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'La réservation a été mise à jour.');

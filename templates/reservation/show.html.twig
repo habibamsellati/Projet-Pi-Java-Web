@@ -33,7 +33,7 @@
                 </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--color-cream); border-bottom: 1px solid var(--color-cream); padding: 2.5rem 0;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 1px solid var(--color-cream); padding: 2.5rem 0;">
                 
                 <div>
                     <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--color-brown-light); margin-bottom: 0.75rem;">Événement</h4>
@@ -57,6 +57,36 @@
                     </div>
                 </div>
 
+            </div>
+
+            {# NOUVEAU: Suivi de la règle des 3h pour la prof #}
+            <div style="background: #fdfcfb; border: 1px dashed var(--color-terracotta); border-radius: 1.5rem; padding: 2rem; margin-top: -1rem; position: relative; overflow: hidden;">
+                <div style="position: absolute; top:0; right:0; background: var(--color-terracotta); color: white; padding: 0.2rem 1rem; font-size: 0.7rem; font-weight: 700; border-bottom-left-radius: 1rem;">
+                    RÈGLE DES 3 HEURES
+                </div>
+                <h4 style="font-size: 0.9rem; color: var(--color-brown); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    📊 Suivi de Validation
+                </h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--color-brown-light); margin-bottom: 0.25rem;">Effectuée le :</p>
+                        <p style="font-weight: 600; color: var(--color-brown);">{{ reservation.createdAt ? reservation.createdAt|date('d/m/Y à H:i:s') : 'N/A' }}</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.75rem; color: var(--color-brown-light); margin-bottom: 0.25rem;">Délai max de confirmation :</p>
+                        {% if reservation.createdAt %}
+                            {% set expiry = reservation.createdAt|date_modify("+3 hours") %}
+                            <p style="font-weight: 600; color: #991b1b;">{{ expiry|date('d/m/Y à H:i:s') }}</p>
+                        {% else %}
+                            <p style="font-weight: 600; color: var(--color-brown);">N/A</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.85rem; color: var(--color-brown-light); font-style: italic;">
+                    💡 Note : Pour garantir la disponibilité, toute réservation en attente est automatiquement annulée après 3 heures si elle n'est pas confirmée.
+                </div>
             </div>
 
             <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">

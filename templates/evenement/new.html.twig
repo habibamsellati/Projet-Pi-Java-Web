@@ -1,15 +1,120 @@
-{% extends 'front.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block title %}AfkArt | Créer un Événement{% endblock %}
+{% block title %}Nouvel Événement - Afk Art{% endblock %}
 
-{% block content %}
-<div style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
-    <h1 style="font-size: 2.5rem; margin-bottom: 2rem; text-align: center; color: var(--color-brown);">
-        Nouvel Événement
-    </h1>
-   
-    <div class="form-container">
-        {{ include('evenement/_form.html.twig', { button_label: "Créer l'événement" }) }}
+{% block body %}
+    <div class="container" style="max-width: 1000px; margin: 60px auto; padding: 0 20px;">
+        <!-- Header stylé comme ta page réservation -->
+        <h1 style="text-align: center; color: var(--primary); font-family: 'Cormorant Garamond', serif; margin-bottom: 20px;">
+            Nouvel Événement
+        </h1>
+        <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">
+            Créez un nouvel atelier, exposition ou événement artistique
+        </p>
+
+        <!-- Lien retour -->
+        <a href="{{ path('app_evenement_index') }}" style="display: inline-block; margin-bottom: 30px; color: var(--accent); text-decoration: none; font-weight: 500;">
+            ← Retour à la liste des événements
+        </a>
+
+        <!-- Contenu du formulaire -->
+        <div style="background: white; border-radius: 16px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.08);">
+            {{ form_start(form, {'attr': {'class': 'premium-form'}}) }}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                {# Ligne 1: Nom et Lieu #}
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Nom de l'événement
+                    </label>
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-input-premium', 'placeholder': 'Ex: Exposition d\'Art Moderne'}}) }}
+                    {{ form_errors(form.nom) }}
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Lieu
+                    </label>
+                    {{ form_widget(form.lieu, {'attr': {'class': 'form-input-premium', 'placeholder': 'Adresse de l\'événement'}}) }}
+                    {{ form_errors(form.lieu) }}
+                </div>
+
+                {# Ligne 2: Dates #}
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Date de début
+                    </label>
+                    {{ form_widget(form.dateDebut, {'attr': {'class': 'form-input-premium'}}) }}
+                    {{ form_errors(form.dateDebut) }}
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Date de fin
+                    </label>
+                    {{ form_widget(form.dateFin, {'attr': {'class': 'form-input-premium'}}) }}
+                    {{ form_errors(form.dateFin) }}
+                </div>
+
+                {# Ligne 3: Capacité et Artisan #}
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Capacité maximale
+                    </label>
+                    {{ form_widget(form.capacite, {'attr': {'class': 'form-input-premium', 'placeholder': 'Nombre de places'}}) }}
+                    {{ form_errors(form.capacite) }}
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Artisan responsable
+                    </label>
+                    {{ form_widget(form.artisan, {'attr': {'class': 'form-input-premium', 'placeholder': 'Nom de l\'artisan (optionnel)'}}) }}
+                    {{ form_errors(form.artisan) }}
+                </div>
+
+                {# Ligne 4: Description #}
+                <div class="form-group" style="grid-column: span 2;">
+                    <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
+                        Description complète
+                    </label>
+                    {{ form_widget(form.description, {'attr': {'class': 'form-input-premium', 'style': 'min-height: 150px; resize: vertical;', 'placeholder': 'Détaillez le programme de l\'événement...'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+            </div>
+
+            <!-- Boutons -->
+            <div style="margin-top: 40px; text-align: center; display: flex; justify-content: center; gap: 20px;">
+                <button type="submit" class="btn btn-orange" style="padding: 14px 50px; border-radius: 30px; font-size: 1.1rem; font-weight: 600;">
+                    Créer l'événement
+                </button>
+
+                <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary" style="padding: 14px 40px; border-radius: 30px; text-decoration: none;">
+                    Annuler
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
     </div>
-</div>
+
+    <!-- Styles conservés -->
+    <style>
+        .form-input-premium {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid #e8ddd4;
+            background: #fafafa;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .form-input-premium:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(196, 149, 106, 0.1);
+        }
+    </style>
 {% endblock %}

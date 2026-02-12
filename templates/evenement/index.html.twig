@@ -1,62 +1,93 @@
 {% extends 'front.html.twig' %}
 
-{% block title %}AfkArt | Nos Événements{% endblock %}
+{% block title %}AfkArt | Événements{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-    <div>
-        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Événements</h1>
-        <p style="color: var(--color-brown-light);">Découvrez et participez à nos ateliers et expositions artistiques.</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--color-brown);">Événements</h1>
+            <p style="color: var(--color-brown-light); font-size: 1.1rem;">
+                Découvrez nos ateliers, expositions et rencontres artistiques.
+            </p>
+        </div>
+
+        {# BOUTON IDENTIQUE À CELUI DE "+ Nouvelle Réservation" #}
+        {% if is_granted('ROLE_ARTISAN') or is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('app_evenement_new') }}" class="btn btn-primary">
+                <span>+ Nouvel Événement</span>
+            </a>
+        {% endif %}
     </div>
-    <a href="{{ path('app_evenement_new') }}" class="btn btn-primary">
-        <span>+ Nouvel Événement</span>
-    </a>
-</div>
 
-<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; margin-top: 1rem;">
-    {% for evenement in evenements %}
-        <div style="background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); transition: transform 0.3s, box-shadow 0.3s; position: relative;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.03)';">
-            
-            <div style="padding: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                    <h3 style="font-size: 1.5rem; color: var(--color-brown); margin: 0; line-height: 1.2;">{{ evenement.nom }}</h3>
-                    <div style="background: var(--color-cream); color: var(--color-terracotta); padding: 0.4rem 1rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 600;">
-                        {{ evenement.capacite }} places
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; margin-top: 1rem;">
+        {% for evenement in evenements %}
+            <div style="
+                background: white;
+                border-radius: 2rem;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+                border: 1px solid rgba(0,0,0,0.02);
+                transition: transform 0.3s;"
+                onmouseover="this.style.transform='translateY(-5px)';"
+                onmouseout="this.style.transform='translateY(0)';">
+                
+                <div style="padding: 2rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="
+                            color: var(--color-terracotta);
+                            font-size: 0.75rem;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            letter-spacing: 0.05rem;
+                            margin-bottom: 0.25rem;">
+                            {{ evenement.dateDebut ? evenement.dateDebut|date('d F Y') : 'Date à venir' }}
+                        </div>
+                        <h3 style="font-size: 1.4rem; color: var(--color-brown); margin: 0; line-height: 1.2;">
+                            {{ evenement.nom }}
+                        </h3>
                     </div>
-                </div>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="color: var(--color-terracotta); font-size: 0.9rem; font-weight: 500; margin-bottom: 0.25rem;">PROPOSÉ PAR</div>
-                    <div style="color: var(--color-brown); font-weight: 600;">{{ evenement.artisan|default('Artisan indépendant') }}</div>
-                </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--color-brown-light); font-size: 0.95rem;">
+                            <span style="opacity: 0.8;">🕒</span>
+                            <span>
+                                {{ evenement.dateDebut ? evenement.dateDebut|date('H:i') : '' }}
+                                {% if evenement.dateFin %}
+                                    - {{ evenement.dateFin|date('H:i') }}
+                                {% endif %}
+                            </span>
+                        </div>
 
-                <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; font-size: 0.9rem; color: var(--color-brown-light);">
-                    <div>
-                        <span style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05rem; opacity: 0.7;">Date</span>
-                        <strong>{{ evenement.dateDebut ? evenement.dateDebut|date('d M Y') : 'À venir' }}</strong>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--color-brown-light); font-size: 0.95rem;">
+                            <span style="opacity: 0.8;">📍</span>
+                            <span>{{ evenement.lieu }}</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--color-brown-light); font-size: 0.95rem;">
+                            <span style="opacity: 0.8;">👥</span>
+                            <span>Capacité : {{ evenement.capacite }} places</span>
+                        </div>
                     </div>
-                    <div>
-                        <span style="display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05rem; opacity: 0.7;">Lieu</span>
-                        <strong>{{ evenement.lieu }}</strong>
-                    </div>
-                </div>
 
-                <div style="display: flex; gap: 0.75rem; border-top: 1px solid var(--color-cream); pt: 1.5rem; margin-top: 1.5rem; padding-top: 1.5rem;">
-                    <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="btn btn-outline" style="flex: 1; font-size: 0.85rem; padding: 0.6rem;">
-                        Consulter
-                    </a>
-                    <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="btn btn-secondary" style="flex: 1; font-size: 0.85rem; padding: 0.6rem;">
-                        Modifier
-                    </a>
+                    <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--color-cream); padding-top: 1.5rem;">
+                        <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="btn btn-primary" style="flex: 1; text-align: center; padding: 0.8rem;">
+                            Voir Détails
+                        </a>
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="btn btn-outline" style="padding: 0.8rem;">
+                                ✏️
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-    {% else %}
-        <div style="grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; background: white; border-radius: 2rem; color: var(--color-brown-light);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Aucun événement</h3>
-            <p>Découvrez bientôt nos nouvelles expositions et ateliers.</p>
-        </div>
-    {% endfor %}
-</div>
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; background: white; border-radius: 2rem; color: var(--color-brown-light);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Aucun événement</h3>
+                <p>Revenez bientôt pour découvrir nos prochaines activités.</p>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

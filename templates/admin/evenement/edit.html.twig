@@ -9,45 +9,98 @@
 
 {% block admin_content %}
     <section class="content-section">
-        <div class="card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-                <h3>Formulaire d'édition</h3>
-                <a href="{{ path('admin_evenement_index') }}" class="btn-secondary" style="color: #666; text-decoration: none;">Retour à la liste</a>
+        <div class="card" style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); max-width: 900px; margin: 0 auto;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #f0edeb; padding-bottom: 15px;">
+                <h3 style="font-size: 1.5rem; color: var(--primary); font-family: 'Cormorant Garamond', serif;">Modifier l'événement</h3>
+                <a href="{{ path('admin_evenement_index') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    Retour à la liste
+                </a>
             </div>
 
-            {{ form_start(form) }}
-                <div class="row">
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        {{ form_row(form.nom) }}
-                    </div>
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        {{ form_row(form.lieu) }}
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        {{ form_row(form.dateDebut) }}
-                    </div>
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        {{ form_row(form.dateFin) }}
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6" style="margin-bottom: 15px;">
-                        {{ form_row(form.capacite) }}
+            {{ form_start(form, {'attr': {'class': 'premium-form'}}) }}
+                {# Section 1: Informations de base #}
+                <div style="margin-bottom: 2.5rem;">
+                    <h4 style="font-size: 1.1rem; color: var(--accent); margin-bottom: 1.5rem; border-left: 4px solid var(--accent); padding-left: 1rem; font-family: 'Cormorant Garamond', serif;">Informations Générales</h4>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Nom de l'événement</label>
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-input-premium', 'placeholder': 'Ex: Exposition d\'Art Moderne'}}) }}
+                            {{ form_errors(form.nom) }}
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Description complète</label>
+                            {{ form_widget(form.description, {'attr': {'class': 'form-input-premium', 'style': 'min-height: 120px; resize: vertical;', 'placeholder': 'Détaillez le programme...'}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    {{ form_row(form.description) }}
+                {# Section 2: Logistique & Responsable #}
+                <div style="margin-bottom: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div style="grid-column: span 2;">
+                        <h4 style="font-size: 1.1rem; color: var(--accent); margin-bottom: 1.5rem; border-left: 4px solid var(--accent); padding-left: 1rem; font-family: 'Cormorant Garamond', serif;">Logistique & Responsable</h4>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Lieu</label>
+                        {{ form_widget(form.lieu, {'attr': {'class': 'form-input-premium', 'placeholder': 'Adresse'}}) }}
+                        {{ form_errors(form.lieu) }}
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Artisan</label>
+                        {{ form_widget(form.artisan, {'attr': {'class': 'form-input-premium'}}) }}
+                        {{ form_errors(form.artisan) }}
+                    </div>
+                    <div class="form-group" style="grid-column: span 1;">
+                        <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Capacité maximale</label>
+                        {{ form_widget(form.capacite, {'attr': {'class': 'form-input-premium'}}) }}
+                        {{ form_errors(form.capacite) }}
+                    </div>
                 </div>
 
-                <div style="margin-top: 20px;">
-                    <button class="btn-primary" style="background: #e63946; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">{{ button_label|default('Enregistrer') }}</button>
+                {# Section 3: Calendrier #}
+                <div style="margin-bottom: 2.5rem;">
+                    <h4 style="font-size: 1.1rem; color: var(--accent); margin-bottom: 1.5rem; border-left: 4px solid var(--accent); padding-left: 1rem; font-family: 'Cormorant Garamond', serif;">Calendrier</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Date de début</label>
+                            {{ form_widget(form.dateDebut, {'attr': {'class': 'form-input-premium'}}) }}
+                            {{ form_errors(form.dateDebut) }}
+                        </div>
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem;">Date de fin</label>
+                            {{ form_widget(form.dateFin, {'attr': {'class': 'form-input-premium'}}) }}
+                            {{ form_errors(form.dateFin) }}
+                        </div>
+                    </div>
                 </div>
+
+                <div style="margin-top: 3rem; display: flex; justify-content: center; border-top: 1px solid #f0edeb; padding-top: 2rem;">
+                    <button class="btn-primary" style="background: var(--accent); color: white; border: none; padding: 14px 50px; border-radius: 30px; cursor: pointer; font-weight: 600; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(196, 149, 106, 0.3); transition: all 0.3s ease;">
+                        {{ button_label|default('Enregistrer les modifications') }}
+                    </button>
+                </div>
+            {{ form_end(form) }}
             {{ form_end(form) }}
         </div>
     </section>
+
+    <style>
+        .form-input-premium {
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid #e8ddd4;
+            background: #fafafa;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .form-input-premium:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(196, 149, 106, 0.1);
+        }
+    </style>
 {% endblock %}

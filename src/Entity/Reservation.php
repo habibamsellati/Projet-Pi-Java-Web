@@ -15,6 +15,9 @@ class Reservation
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Assert\NotBlank(message: 'La date de réservation est obligatoire')]
     #[Assert\GreaterThanOrEqual(
@@ -29,16 +32,21 @@ class Reservation
         choices: ['en_attente', 'confirme', 'annule'],
         message: 'Le statut doit être : en_attente, confirme ou annule'
     )]
-    private ?string $statut = 'en_attente';  // valeur par défaut très utile
+    private ?string $statut = 'en_attente';
 
     #[ORM\ManyToOne(targetEntity: Evenement::class, inversedBy: 'reservations')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]  // supprime les résas si événement supprimé
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: 'L\'événement est obligatoire')]
     private ?Evenement $evenement = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -86,6 +94,17 @@ class Reservation
     public function setUser(?User $user): static
     {
         $this->user = $user;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
         return $this;
     }
 }
