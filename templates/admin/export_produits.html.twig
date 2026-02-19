@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Export Produits</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f0eb; }
+    </style>
+</head>
+<body>
+    <h1>Liste des produits</h1>
+    <p>Export du {{ "now"|date("d/m/Y H:i") }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Matériau</th>
+                <th>État</th>
+                <th>Quantité</th>
+                <th>Origine</th>
+                <th>Date ajout</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produits %}
+            <tr>
+                <td>{{ p.nomproduit }}</td>
+                <td>{{ p.typemateriau }}</td>
+                <td>{{ p.etat }}</td>
+                <td>{{ p.quantite }}</td>
+                <td>{{ p.origine }}</td>
+                <td>{{ p.dateajout ? p.dateajout|date('d/m/Y') : '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

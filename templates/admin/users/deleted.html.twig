@@ -1,0 +1,58 @@
+{% extends 'admin/index.html.twig' %}
+
+{% block title %}Utilisateurs Supprimés{% endblock %}
+
+{% block admin_header_title %}Utilisateurs supprimés{% endblock %}
+{% block admin_header_subtitle %}Corbeille des comptes utilisateurs{% endblock %}
+
+{% block admin_main %}
+<div class="users-panel">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash {{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="users-toolbar">
+        <div class="search-form">
+            <a class="btn-secondary" href="{{ path('back_users') }}">← Retour</a>
+        </div>
+    </div>
+
+    {% if users is not empty %}
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Prénom</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Supprimé le</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.prenom }}</td>
+                        <td>{{ user.nom }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.deletedAt ? user.deletedAt|date('d/m/Y H:i') : '' }}</td>
+                        <td>
+                            <form method="post" action="{{ path('back_user_restore', {'id': user.id}) }}">
+                                <button class="btn-edit" type="submit">Restaurer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <h2>Aucun utilisateur supprimé</h2>
+            <p>La corbeille est vide.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

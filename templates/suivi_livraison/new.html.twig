@@ -1,0 +1,18 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Nouveau Suivi Livraison | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 500px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #3d2817; text-align: center; margin-bottom: 1.5rem;">Ajouter un Suivi de Livraison</h1>
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_row(form.livraison, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+    {{ form_row(form.datesuivi, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+    {{ form_row(form.etat, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+    {{ form_row(form.localisation, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+    {{ form_row(form.commentaire, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+    <button type="submit" style="width: 100%; padding: 0.75rem; background: #8b5e4a; color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Enregistrer</button>
+    {{ form_end(form) }}
+    <p style="margin-top: 1rem;"><a href="{{ path('app_suivi_livraison_index') }}" style="color: #8b5e4a; text-decoration: none;">← Retour à la liste</a></p>
+</section>
+{% endblock %}

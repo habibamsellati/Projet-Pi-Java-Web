@@ -1,0 +1,15 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Détails du Suivi | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 600px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #3d2817; text-align: center; margin-bottom: 1.5rem;">Suivi #{{ suivi_livraison.id }}</h1>
+    <div style="margin-bottom: 1rem;"><span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Référence Livraison</span><br><span style="color: #8b5e4a; font-weight: 600;">#{{ suivi_livraison.livraison.id }}</span></div>
+    <div style="margin-bottom: 1rem;"><span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Date & Heure</span><br>{{ suivi_livraison.datesuivi ? suivi_livraison.datesuivi|date('d/m/Y H:i') : 'Non renseignée' }}</div>
+    <div style="margin-bottom: 1rem;"><span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">État</span><br><span style="background: #f5f0eb; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.85rem;">{{ suivi_livraison.etat }}</span></div>
+    <div style="margin-bottom: 1rem;"><span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Localisation</span><br>{{ suivi_livraison.localisation }}</div>
+    <div style="margin-bottom: 1rem;"><span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Commentaire</span><br><span style="background: #f8f6f3; padding: 0.75rem; border-radius: 8px; display: block;">{{ suivi_livraison.commentaire ?: 'Aucun commentaire.' }}</span></div>
+    <p style="margin-top: 1.5rem;"><a href="{{ path('app_suivi_livraison_index') }}" style="color: #8b5e4a; text-decoration: none;">← Retour à la liste</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Export Propositions</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f0eb; }
+    </style>
+</head>
+<body>
+    <h1>Liste des propositions</h1>
+    <p>Export du {{ "now"|date("d/m/Y H:i") }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Produit</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in propositions %}
+            <tr>
+                <td>{{ p.titre }}</td>
+                <td>{{ p.description|slice(0, 100) }}{% if p.description|length > 100 %}...{% endif %}</td>
+                <td>{% if p.produit %}{{ p.produit.nomproduit }}{% else %}—{% endif %}</td>
+                <td>{{ p.date ? p.date|date('d/m/Y') : '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

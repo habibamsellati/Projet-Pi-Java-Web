@@ -1,0 +1,25 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}AfkArt | Réservation #{{ reservation.id }}{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 800px; margin: 0 auto; padding: 2rem 1rem;">
+    <a href="{{ path('app_reservation_index') }}" style="text-decoration: none; color: #8b5e4a; font-weight: 500;">← Mes réservations</a>
+    <h1 style="font-size: 2rem; color: #3D3229; margin: 1rem 0 0.5rem;">Détails Réservation #{{ reservation.id }}</h1>
+    <div style="background: white; border-radius: 1.5rem; padding: 2rem; margin-top: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+        {% set status_info = {'confirme': {'bg': '#dcfce7', 'color': '#166534'}, 'annule': {'bg': '#fee2e2', 'color': '#991b1b'}, 'en_attente': {'bg': '#fefce8', 'color': '#854d0e'} } %}
+        {% set s = status_info[reservation.statut]|default(status_info.en_attente) %}
+        <p style="margin: 0 0 1rem;"><span style="padding: 0.35rem 1rem; border-radius: 9999px; font-weight: 700; font-size: 0.85rem; background: {{ s.bg }}; color: {{ s.color }};">{{ reservation.statut }}</span></p>
+        <p><strong>Événement:</strong> {{ reservation.evenement ? reservation.evenement.nom : '—' }}</p>
+        <p><strong>Date:</strong> {{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '—' }}</p>
+        <p><strong>Créée le:</strong> {{ reservation.createdAt ? reservation.createdAt|date('d/m/Y H:i') : '—' }}</p>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <a href="{{ path('app_reservation_edit', {id: reservation.id}) }}" class="btn btn-primary">Modifier</a>
+            <form method="post" action="{{ path('app_reservation_delete', {id: reservation.id}) }}" onsubmit="return confirm('Supprimer cette réservation ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                <button type="submit" class="btn" style="color: #991b1b; border-color: #fecaca;">Supprimer</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

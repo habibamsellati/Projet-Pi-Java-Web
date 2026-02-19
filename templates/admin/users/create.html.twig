@@ -1,0 +1,107 @@
+{% extends 'admin/index.html.twig' %}
+
+{% block title %}Ajouter un Utilisateur - Dashboard{% endblock %}
+
+{% block admin_main %}
+
+{% block admin_header_title %}Ajouter un utilisateur{% endblock %}
+{% block admin_header_subtitle %}Créer un nouveau compte utilisateur{% endblock %}
+
+<div class="form-wrapper-auth">
+<div class="form-container-auth">
+    <div class="form-card-auth">
+        <h1>Créer un <span>compte</span></h1>
+        <p class="form-description-auth">Remplissez les informations ci-dessous pour ajouter un nouvel utilisateur</p>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash {{ label }}">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        <form method="POST" action="{{ path('back_user_create') }}">
+            <div class="form-group">
+                <label for="prenom">
+                    Prénom <span class="required">*</span>
+                </label>
+                <input type="text" id="prenom" name="prenom" placeholder="Jean" />
+            </div>
+
+            <div class="form-group">
+                <label for="nom">
+                    Nom <span class="required">*</span>
+                </label>
+                <input type="text" id="nom" name="nom" placeholder="Dupont" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">
+                    Email <span class="required">*</span>
+                </label>
+                <input type="email" id="email" name="email" placeholder="jean.dupont@example.com" />
+                <div class="email-hint" data-email-hint style="margin-top: 0.35rem; color: #991b1b; font-size: 0.85rem;">L'email doit contenir @</div>
+            </div>
+
+            <div class="form-group">
+                <label for="motdepasse">
+                    Mot de passe <span class="required">*</span>
+                </label>
+                <input type="password" id="motdepasse" name="motdepasse" placeholder="••••••••" />
+            </div>
+
+            <div class="form-group">
+                <label for="role">
+                    Rôle <span class="required">*</span>
+                </label>
+                <select id="role" name="role">
+                    <option value="">-- Sélectionner un rôle --</option>
+                    {% for role in roles %}
+                        <option value="{{ role }}">
+                            {% if role == 'CLIENT' %}
+                                Client
+                            {% elseif role == 'ARTISANT' %}
+                                Artisan
+                            {% elseif role == 'ADMIN' %}
+                                Administrateur
+                            {% elseif role == 'LIVREUR' %}
+                                Livreur
+                            {% else %}
+                                {{ role }}
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-buttons-auth">
+                <button type="submit" class="btn-auth btn-primary-auth">Créer l'utilisateur</button>
+            </div>
+        </form>
+        <div class="form-footer-auth">
+            <a href="{{ path('back_users') }}">← Retour à la liste</a>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var emailInput = document.getElementById('email');
+    var hint = document.querySelector('[data-email-hint]');
+    if (!emailInput || !hint) return;
+
+    function updateHint() {
+      var ok = emailInput.value.indexOf('@') !== -1;
+      if (ok) {
+        hint.textContent = "Email valide";
+        hint.style.color = '#166534';
+      } else {
+        hint.textContent = "L'email doit contenir @";
+        hint.style.color = '#991b1b';
+      }
+    }
+
+    emailInput.addEventListener('input', updateHint);
+    updateHint();
+  });
+</script>
+{% endblock %}

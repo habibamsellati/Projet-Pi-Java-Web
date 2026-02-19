@@ -1,0 +1,47 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Répondre à la réclamation - Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .form-container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .form-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .reclamation-info { background: #f8f6f3; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .reclamation-info h3 { margin: 0 0 1rem 0; color: #3d2817; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #3d2817; }
+        .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; resize: vertical; }
+        .btn-submit { display: block; width: 100%; padding: 0.85rem; background: #2d7a4f; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+        .back-link { display: inline-block; color: #8b5e4a; text-decoration: none; margin-bottom: 1rem; font-weight: 500; }
+        .alert-error { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; margin-bottom: 1rem; }
+    </style>
+{% endblock %}
+
+{% block back_main %}
+        <header class="header"><div class="header-left"><h1>Répondre à la réclamation</h1></div></header>
+
+        <div class="form-container">
+            <a href="{{ path('back_reclamation_show', {'id': reclamation.id}) }}" class="back-link">← Retour aux détails</a>
+
+            {% for message in app.flashes('error') %}<div class="alert alert-error">{{ message }}</div>{% endfor %}
+
+            <div class="reclamation-info">
+                <h3>{{ reclamation.titre }}</h3>
+                <p><strong>Utilisateur :</strong> {{ reclamation.user.prenom }} {{ reclamation.user.nom }} ({{ reclamation.user.role }})</p>
+                <p><strong>Date :</strong> {{ reclamation.datecreation ? reclamation.datecreation|date('d/m/Y à H:i') : '—' }}</p>
+                {% if reclamation.descripition %}<p><strong>Description :</strong> {{ reclamation.descripition|nl2br }}</p>{% endif %}
+            </div>
+
+            <div class="form-card">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                <div class="form-group">
+                    {{ form_label(form.contenu) }}
+                    {{ form_widget(form.contenu) }}
+                    {{ form_errors(form.contenu) }}
+                </div>
+                <button type="submit" class="btn-submit">Envoyer la réponse</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+{% endblock %}

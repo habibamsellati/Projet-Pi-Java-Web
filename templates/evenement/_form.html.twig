@@ -1,0 +1,46 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{% set widget_attr = {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;'} %}
+<div class="form-group" style="margin-bottom: 1.25rem;">
+    {{ form_label(form.nom) }}
+    {{ form_widget(form.nom, {'attr': widget_attr|merge({'placeholder': 'Ex: Atelier de Poterie'})}) }}
+    {{ form_errors(form.nom) }}
+</div>
+<div class="form-group" style="margin-bottom: 1.25rem;">
+    {{ form_label(form.artisan) }}
+    {{ form_widget(form.artisan, {'attr': widget_attr|merge({'placeholder': "Nom de l'artisan"})}) }}
+    {{ form_errors(form.artisan) }}
+</div>
+<div class="form-group" style="margin-bottom: 1.25rem;">
+    {{ form_label(form.description) }}
+    {{ form_widget(form.description, {'attr': {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;min-height:100px;resize:vertical;'}}) }}
+    {{ form_errors(form.description) }}
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+        {{ form_label(form.dateDebut) }}
+        {{ form_widget(form.dateDebut, {'attr': widget_attr}) }}
+        {{ form_errors(form.dateDebut) }}
+    </div>
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+        {{ form_label(form.dateFin) }}
+        {{ form_widget(form.dateFin, {'attr': widget_attr}) }}
+        {{ form_errors(form.dateFin) }}
+    </div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+        {{ form_label(form.lieu) }}
+        {{ form_widget(form.lieu, {'attr': widget_attr}) }}
+        {{ form_errors(form.lieu) }}
+    </div>
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+        {{ form_label(form.capacite) }}
+        {{ form_widget(form.capacite, {'attr': widget_attr}) }}
+        {{ form_errors(form.capacite) }}
+    </div>
+</div>
+<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+    <button type="submit" style="background: #8b5e4a; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer;">{{ button_label|default('Confirmer') }}</button>
+    <a href="{{ path('app_evenement_index') }}" style="color: #5a5450; text-decoration: none;">Annuler</a>
+</div>
+{{ form_end(form) }}

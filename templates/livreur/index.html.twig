@@ -1,0 +1,91 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Mes Missions | AfkArt{% endblock %}
+
+{% block body %}
+<style>
+    .livreur-header { position: fixed; top: 0; width: 100%; background: rgba(250,247,242,0.95); backdrop-filter: blur(8px); z-index: 100; border-bottom: 1px solid rgba(61,50,41,0.1); }
+    .livreur-header-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem; }
+    .livreur-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: #3D3229; font-weight: bold; }
+    .livreur-logo span { color: #8b5e4a; }
+    .livreur-nav { display: flex; gap: 1.5rem; align-items: center; }
+    .livreur-nav a { text-decoration: none; color: #5C4A3D; font-size: 0.9rem; font-weight: 500; }
+    .livreur-nav a:hover { color: #8b5e4a; }
+    .livreur-nav-history { color: #8b5e4a !important; border: 1.5px solid #8b5e4a; padding: 6px 15px; border-radius: 50px; }
+    .livreur-page { padding: 120px 20px 60px; min-height: 100vh; }
+    .livreur-main-title { font-family: 'Cormorant Garamond', serif; text-align: center; font-size: 2.2rem; margin-bottom: 0.25rem; }
+    .livreur-main-title span { color: #8b5e4a; }
+    .livreur-sub-title { text-align: center; color: #5C4A3D; font-style: italic; margin-bottom: 2rem; font-size: 1rem; }
+    .mission-container { max-width: 800px; margin: 0 auto; }
+    .mission-card { background: white; border-radius: 16px; padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06); border: 1px solid rgba(139,94,74,0.08); transition: 0.3s; }
+    .mission-card:hover { transform: translateY(-4px); }
+    .mission-info-label { display: block; font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.35rem; font-weight: 600; }
+    .mission-address { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: #3D3229; margin: 0.35rem 0 0.75rem 0; }
+    .badge-status { padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+    .btn-action { width: 100%; padding: 0.85rem; border-radius: 50px; border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.3s; color: white; }
+    .btn-start { background: #8b5e4a; }
+    .btn-start:hover { background: #6b4535; }
+    .btn-complete { background: #28a745; }
+    .btn-complete:hover { background: #218838; }
+    .flash-message { background: #ECFDF5; color: #065F46; padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; border: 1px solid #A7F3D0; }
+</style>
+
+<header class="livreur-header">
+    <div class="livreur-header-inner">
+        <a href="{{ path('home') }}" class="livreur-logo">Afk<span>Art</span></a>
+        <nav class="livreur-nav">
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis</a>
+            <a href="{{ path('app_livreur_historique', {'id': livreur.id}) }}" class="livreur-nav-history">Historique</a>
+        </nav>
+    </div>
+</header>
+
+<main class="livreur-page">
+    <div class="mission-container">
+        {% for message in app.flashes('success') %}
+            <div class="flash-message">✨ {{ message }}</div>
+        {% endfor %}
+
+        <h1 class="livreur-main-title">Mes <span>Missions</span></h1>
+        <p class="livreur-sub-title">Tableau de bord logistique</p>
+
+        <div class="mission-list">
+            {% for livraison in livraisons %}
+                {% set s = livraison.statutlivraison|lower|trim %}
+                <div class="mission-card" style="border-top: 4px solid {{ (s == 'livree' or s == 'livré') ? '#28a745' : ((s == 'en_cours' or s == 'en cours') ? '#ffc107' : '#8b5e4a') }};">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div>
+                            <span class="mission-info-label">État actuel</span>
+                            <span class="badge-status" style="background: {{ (s == 'livree' or s == 'livré') ? '#DCFCE7' : '#FEF3C7' }}; color: {{ (s == 'livree' or s == 'livré') ? '#166534' : '#92400E' }};">● {{ livraison.statutlivraison|replace({'_': ' '}) }}</span>
+                        </div>
+                        <span style="color: #ddd; font-weight: 700;">#{{ livraison.id }}</span>
+                    </div>
+                    <div style="margin-bottom: 1.25rem;">
+                        <span class="mission-info-label">Point de livraison</span>
+                        <h2 class="mission-address">📍 {{ livraison.addresslivraison }}</h2>
+                        <span style="background: #f5f0eb; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.8rem; color: #5C4A3D;">📅 {{ livraison.datelivraison ? livraison.datelivraison|date('d M Y') : 'Date à définir' }}</span>
+                    </div>
+                    <div class="card-action">
+                        {% if s == 'en_attente' or s == 'en attente' or s == 'en_cours' or s == 'en cours' %}
+                            <form action="{{ path('app_livreur_update_status', {'id': livraison.id}) }}" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token('livreur_update') }}">
+                                <button type="submit" class="btn-action {{ (s == 'en_attente' or s == 'en attente') ? 'btn-start' : 'btn-complete' }}">
+                                    {% if s == 'en_attente' or s == 'en attente' %}🚀 Démarrer la mission{% else %}✅ Finaliser la livraison{% endif %}
+                                </button>
+                            </form>
+                        {% elseif s == 'livree' or s == 'livré' %}
+                            <div style="text-align: center; color: #28a745; font-weight: 700; padding: 1rem; border: 2px solid #28a745; border-radius: 50px; background: #F0FDF4;">✨ MISSION ACCOMPLIE</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 3rem 1.5rem; background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">📦</div>
+                    <p style="color: #5C4A3D; font-size: 1rem; font-style: italic;">Aucune mission disponible pour le moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Détail produit | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 1.5rem;">
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; color: #3d2817; margin-bottom: 1rem;">{{ produit.nomproduit }}</h1>
+        <p style="color: #666; margin-bottom: 1rem;"><strong>Matériau:</strong> {{ produit.typemateriau }} · <strong>État:</strong> {{ produit.etat }} · <strong>Quantité:</strong> {{ produit.quantite }}</p>
+        <p style="color: #666;"><strong>Origine:</strong> {{ produit.origine }} · <strong>Impact écologique:</strong> {{ produit.impactecologique }}</p>
+        <p style="margin-top: 1rem;">{{ produit.description }}</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem; color: #999;">Date d'ajout : {{ produit.dateajout ? produit.dateajout|date('d/m/Y H:i') : '-' }}</p>
+        <div style="margin-top: 1.5rem;">
+            {% if can_manage|default(false) %}
+            <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" style="background: #8b5e4a; color: white; padding: 0.5rem 1rem; border-radius: 50px; text-decoration: none; margin-right: 0.5rem;">Modifier</a>
+            {% endif %}
+            <a href="{{ path('app_produit_index') }}" style="color: #5a5450; text-decoration: none;">← Liste des produits</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

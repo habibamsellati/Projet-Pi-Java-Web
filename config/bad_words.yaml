@@ -1,0 +1,8 @@
+# Custom Bad Words Configuration
+# Add your own unaccepted words here
+# Words are case-insensitive and will be matched as whole words only
+
+parameters:
+  bad_words.custom_list:
+    - 'leleee'
+    - 'leleee'

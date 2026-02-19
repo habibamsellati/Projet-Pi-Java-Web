@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('Assets/css/back.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="admin-container {% block admin_container_class %}{% endblock %}">
+    {% include 'partials/_sidebar_back.html.twig' %}
+    <main class="main-content">
+        {% block back_main %}{% endblock %}
+    </main>
+</div>
+{% include 'partials/_modals_back.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    (function() {
+        var btnGoFront = document.getElementById('btn-go-front');
+        var frontModal = document.getElementById('frontModal');
+        var frontModalClose = document.getElementById('frontModalClose');
+        var frontCancel = document.getElementById('frontCancel');
+        if (btnGoFront) {
+            btnGoFront.addEventListener('click', function(e) {
+                e.preventDefault();
+                frontModal.style.display = 'flex';
+                document.getElementById('frontPassword').focus();
+            });
+        }
+        if (frontModalClose) frontModalClose.addEventListener('click', function() { frontModal.style.display = 'none'; });
+        if (frontCancel) frontCancel.addEventListener('click', function() { frontModal.style.display = 'none'; });
+        window.addEventListener('click', function(e) {
+            if (e.target === frontModal) frontModal.style.display = 'none';
+        });
+
+        var responsableLinks = document.querySelectorAll('a[data-responsable]');
+        var responsableModalEl = document.getElementById('responsableModal');
+        var responsableForm = document.getElementById('responsableAccessForm');
+        var responsableModuleInput = document.getElementById('responsableModule');
+        var responsableTitle = document.getElementById('responsableModalTitle');
+        var responsableDesc = document.getElementById('responsableModalDesc');
+        var responsableError = document.getElementById('responsableModalError');
+        var responsableClose = document.querySelector('#responsableModal .modal-access-close');
+        var responsableCancel = document.getElementById('responsableCancel');
+        var pendingHref = '';
+
+        function openResponsableModal(module, label, href) {
+            responsableModuleInput.value = module;
+            responsableTitle.textContent = label || 'Acces responsable';
+            responsableDesc.textContent = 'Veuillez saisir les identifiants du responsable.';
+            responsableError.textContent = '';
+            pendingHref = href || '#';
+            responsableModalEl.style.display = 'flex';
+            document.getElementById('responsableUsername').focus();
+        }
+        function closeResponsableModal() {
+            responsableModalEl.style.display = 'none';
+            responsableForm.reset();
+            responsableError.textContent = '';
+        }
+
+        [].forEach.call(responsableLinks, function(link) {
+            link.addEventListener('click', function(e) {
+                var module = this.getAttribute('data-responsable');
+                if (!module) return;
+                e.preventDefault();
+                var label = this.getAttribute('data-responsable-label') || 'Acces responsable';
+                openResponsableModal(module, label, this.getAttribute('href'));
+            });
+        });
+        if (responsableClose) responsableClose.addEventListener('click', closeResponsableModal);
+        if (responsableCancel) responsableCancel.addEventListener('click', closeResponsableModal);
+        window.addEventListener('click', function(e) {
+            if (e.target === responsableModalEl) closeResponsableModal();
+        });
+
+        if (responsableForm) {
+            responsableForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                responsableError.textContent = '';
+                var formData = new FormData(responsableForm);
+                fetch('{{ path('back_access_verify') }}', { method: 'POST', body: formData })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (!data.ok) {
+                            responsableError.textContent = data.message || 'Acces refusé';
+                            return;
+                        }
+                        closeResponsableModal();
+                        if (pendingHref && pendingHref !== '#') window.location.href = pendingHref;
+                    })
+                    .catch(function() { responsableError.textContent = 'Erreur lors de la verification'; });
+            });
+        }
+    })();
+    </script>
+{% endblock %}

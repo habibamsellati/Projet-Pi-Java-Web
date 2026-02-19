@@ -1,0 +1,161 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Produits recyclables - Admin{% endblock %}
+{% block admin_container_class %}produit-recyclable-page{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.produit-recyclable-page .header h1 { margin-bottom: 0.25rem; }
+.table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; margin-top: 1rem; border: 1px solid rgba(0,0,0,0.06); }
+.table-card table { width: 100%; border-collapse: collapse; }
+.table-card th { padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666; background: #f8f6f3; }
+.table-card td { padding: 1rem; border-bottom: 1px solid #eee; }
+.table-card tbody tr:hover { background: #fafafa; }
+.btn-add { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none; font-weight: 500; }
+.btn-add:hover { color: white; opacity: 0.9; }
+.btn-edit, .btn-del { padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; }
+.btn-edit { background: #e3f2fd; color: #1976d2; }
+.btn-del { background: #ffebee; color: #c62828; border: none; cursor: pointer; }
+.filters-form { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; background: #fff; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.filters-form input, .filters-form select { padding: 0.5rem 0.75rem; border: 1px solid #e0d5ca; border-radius: 8px; }
+.header-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.quick-actions-card { background: #fff; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 1.25rem; }
+.quick-actions-card h3 { font-size: 1rem; margin-bottom: 1rem; color: #333; }
+.quick-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.quick-action-link { text-decoration: none; display: block; background: #fdf8f4; border: 2px dashed #eadcd0; border-radius: 12px; padding: 1rem; text-align: center; transition: 0.2s; color: #5a5450; font-weight: 600; font-size: 0.875rem; }
+.quick-action-link:hover { background: #f5eee7; color: #8b5e4a; }
+</style>
+{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left">
+        <h1>Produits recyclables</h1>
+        <p class="header-subtitle">Liste et gestion des produits</p>
+    </div>
+    <div class="header-actions">
+        <button type="button" onclick="document.getElementById('stateModal').style.display='flex'" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:#f5f0eb;color:#5a5450;border-radius:8px;font-size:0.9rem;border:none;cursor:pointer;">Statistiques</button>
+        <a href="{{ path('back_produit_new') }}" class="btn-add">+ Ajouter un produit</a>
+    </div>
+</header>
+
+{% for message in app.flashes('success') %}<div class="alert alert-success" style="padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;background:#d4edda;color:#155724;">{{ message }}</div>{% endfor %}
+{% for message in app.flashes('error') %}<div class="alert alert-error" style="padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;background:#f8d7da;color:#721c24;">{{ message }}</div>{% endfor %}
+
+<div class="filters-form">
+    <form method="get" action="{{ path('back_produit_recyclable') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label style="display:block;margin-bottom:0.35rem;font-size:0.85rem;color:#666;">Recherche</label>
+            <input type="text" name="search_query" value="{{ search_query|default('') }}" placeholder="Nom, matériau...">
+        </div>
+        <div>
+            <label style="display:block;margin-bottom:0.35rem;font-size:0.85rem;color:#666;">État</label>
+            <select name="etat">
+                <option value="">Tous</option>
+                <option value="Bon" {{ search_etat|default('') == 'Bon' ? 'selected' : '' }}>Bon</option>
+                <option value="Moyen" {{ search_etat|default('') == 'Moyen' ? 'selected' : '' }}>Moyen</option>
+                <option value="Mauvais" {{ search_etat|default('') == 'Mauvais' ? 'selected' : '' }}>Mauvais</option>
+            </select>
+        </div>
+        <div>
+            <label style="display:block;margin-bottom:0.35rem;font-size:0.85rem;color:#666;">Tri</label>
+            <select name="sort">
+                <option value="">—</option>
+                <option value="date" {{ sort|default('') == 'date' ? 'selected' : '' }}>Par date</option>
+            </select>
+        </div>
+        <button type="submit" style="padding:0.5rem 1rem;background:#8b5e4a;color:white;border:none;border-radius:8px;cursor:pointer;">Filtrer</button>
+        <a href="{{ path('back_produit_recyclable') }}" style="padding:0.5rem 1rem;background:#f5f0eb;color:#5a5450;border-radius:8px;text-decoration:none;">Réinitialiser</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Matériau</th>
+                <th style="text-align:center;">Qté</th>
+                <th>Description</th>
+                <th style="text-align:center;">Impact</th>
+                <th>Origine</th>
+                <th>Date</th>
+                <th>État</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produit in produits %}
+            <tr>
+                <td style="font-weight:600;color:#8b5e4a;">{{ produit.nomproduit }}</td>
+                <td>{{ produit.typemateriau }}</td>
+                <td style="text-align:center;">{{ produit.quantite }}</td>
+                <td style="font-size:0.85rem;max-width:180px;">{{ produit.description ? (produit.description|length > 60 ? produit.description|slice(0,60) ~ '...' : produit.description) : '-' }}</td>
+                <td style="text-align:center;">{{ produit.impactecologique is not null ? produit.impactecologique ~ '%' : '-' }}</td>
+                <td>{{ produit.origine }}</td>
+                <td>{{ produit.dateajout ? produit.dateajout|date('d/m/y') : '-' }}</td>
+                <td><span style="background:#f5f0eb;padding:0.25rem 0.5rem;border-radius:20px;font-size:0.8rem;">{{ produit.etat }}</span></td>
+                <td style="text-align:right;">
+                    <a href="{{ path('back_produit_edit', {id: produit.id}) }}" class="btn-edit">Modifier</a>
+                    <form method="post" action="{{ path('back_recyclable_delete', {id: produit.id}) }}" style="display:inline;" onsubmit="return {{ produit.propositions|length > 0 ? 'alert(\'Ce produit a des propositions liées. Suppression impossible.\') && false' : 'confirm(\'Supprimer ce produit ?\')' }};">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                        <button type="submit" class="btn-del" {{ produit.propositions|length > 0 ? 'disabled title="Propositions liées"' : '' }}>Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" style="padding:2rem;text-align:center;color:#999;">Aucun produit.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<section class="quick-actions-card">
+    <h3>Actions rapides</h3>
+    <div class="quick-actions-grid">
+        <a href="{{ path('back_produit_recyclable', {sort: 'date', search_query: search_query|default(''), etat: search_etat|default('')}) }}" class="quick-action-link">Tri par date</a>
+        <a href="{{ path('back_produit_recyclable') }}" class="quick-action-link">Annuler filtres</a>
+        <a href="{{ path('back_produit_stats') }}" class="quick-action-link">Statistiques</a>
+        <a href="{{ path('back_produit_export_pdf') }}" class="quick-action-link" target="_blank">Exporter PDF</a>
+    </div>
+</section>
+
+<div id="stateModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:1.5rem;border-radius:12px;width:90%;max-width:700px;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid #eee;padding-bottom:0.75rem;">
+            <h2 style="margin:0;color:#8b5e4a;">Statistiques des Produits</h2>
+            <button type="button" onclick="document.getElementById('stateModal').style.display='none'" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            <div style="text-align:center;">
+                <h4 style="margin-bottom:0.75rem;">Total Produits</h4>
+                <div style="font-size:2rem;font-weight:700;color:#8b5e4a;">{{ total_produits|default(0) }}</div>
+            </div>
+            <div>
+                <h4 style="margin-bottom:0.75rem;">Par état</h4>
+                {% if stats_etat is defined and stats_etat|length > 0 %}
+                    {% set total = total_produits|default(1) > 0 ? total_produits : 1 %}
+                    {% for etat, count in stats_etat %}
+                        <div style="margin-bottom:0.5rem;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span>{{ etat }}</span><strong>{{ count }}</strong></div>
+                            <div style="height:6px;background:#f3f4f6;border-radius:4px;"><div style="height:100%;width:{{ (count / total * 100)|round }}%;background:#8b5e4a;border-radius:4px;"></div></div>
+                        </div>
+                    {% endfor %}
+                {% else %}<p style="color:#999;font-size:0.9rem;">Aucune donnée.</p>{% endif %}
+                {% if stats_materiau is defined and stats_materiau|length > 0 %}
+                    <h4 style="margin:1rem 0 0.5rem;">Top Matériaux</h4>
+                    {% for mat, count in stats_materiau|slice(0, 3) %}
+                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;"><span>{{ mat }}</span><span>{{ count }}</span></div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function(){ var m=document.getElementById('stateModal'); if(m) m.onclick=function(e){ if(e.target===m) m.style.display='none'; }; })();
+</script>
+
+<p style="margin-top:1rem;font-size:0.9rem;color:#666;">Total : {{ total_produits }} produit(s). <a href="{{ path('back_propositions') }}">Voir les propositions</a> · <a href="{{ path('back_stats_produits') }}">Statistiques globales</a></p>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Nouvelle Livraison | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 500px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #3d2817; text-align: center; margin-bottom: 1.5rem;">Ajouter une Livraison</h1>
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.datelivraison) }}
+        {{ form_widget(form.datelivraison, {'attr': {'class': 'form-input', 'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.datelivraison) }}
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.addresslivraison) }}
+        {{ form_widget(form.addresslivraison, {'attr': {'class': 'form-input', 'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;', 'placeholder': "Ex: 123 Rue de l'Art, Tunis"}}) }}
+        {{ form_errors(form.addresslivraison) }}
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.commande) }}
+        {{ form_widget(form.commande, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.commande) }}
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.livreur) }}
+        {{ form_widget(form.livreur, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.livreur) }}
+    </div>
+    <button type="submit" style="width: 100%; padding: 0.75rem; background: #8b5e4a; color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Créer la livraison</button>
+    {{ form_end(form) }}
+    <p style="margin-top: 1rem;"><a href="{{ path('app_livraison_index') }}" style="color: #8b5e4a; text-decoration: none;">← Retour à la liste</a></p>
+</section>
+{% endblock %}
