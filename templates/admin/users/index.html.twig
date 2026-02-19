@@ -1,0 +1,487 @@
+{% extends 'admin/index.html.twig' %}
+
+{% block title %}Gestion des Utilisateurs - Dashboard{% endblock %}
+
+{% block admin_main %}
+<style>
+    :root {
+        --color-cream: #FAF7F2;
+        --color-terracotta: #C4704B;
+        --color-terracotta-dark: #A85D3B;
+        --color-sage: #8FAE8B;
+        --color-brown: #3D3229;
+        --color-brown-light: #5C4A3D;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Outfit', system-ui, sans-serif;
+        background-color: var(--color-cream);
+        color: var(--color-brown);
+        line-height: 1.6;
+    }
+
+    /* Content will be placed in the admin layout's right column */
+    .users-panel {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    /* reuse the admin header from layout; page title set via blocks */
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        background: var(--color-terracotta);
+        color: white;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: background 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-primary:hover {
+        background: var(--color-terracotta-dark);
+    }
+
+    .flash {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+    }
+
+    .flash.success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .flash.error {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .users-table thead {
+        background: var(--color-brown);
+        color: white;
+    }
+
+    .users-table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .users-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .users-table tbody tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-admin {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .role-livreur {
+        background-color: #dbeafe;
+        color: #0c4a6e;
+    }
+
+    .role-artisan {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .role-client {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-actif {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inactif {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-edit, .btn-delete {
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-edit {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        opacity: 0.8;
+    }
+
+    .btn-delete {
+        background-color: #ef4444;
+        color: white;
+        border: none;
+    }
+
+    .btn-delete:hover {
+        opacity: 0.8;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 0.5rem;
+        color: var(--color-brown-light);
+    }
+
+    .empty-state h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--color-brown);
+    }
+
+    .logout-link {
+        margin-top: 2rem;
+        text-align: center;
+    }
+
+    .logout-link a {
+        color: var(--color-terracotta);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .logout-link a:hover {
+        text-decoration: underline;
+    }
+
+    .users-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #e5e5e5;
+        border-radius: 0.4rem;
+        min-width: 240px;
+        font-size: 0.95rem;
+    }
+
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        background: var(--color-brown-light);
+        color: white;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: background 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .btn-secondary:hover {
+        background: var(--color-brown);
+    }
+
+    .sort-link {
+        color: inherit;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .sort-indicator {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+</style>
+
+{# Page content placed inside admin layout's main header; set title/subtitle #}
+{% block admin_header_title %}Gestion des Utilisateurs{% endblock %}
+{% block admin_header_subtitle %}Liste et gestion des comptes{% endblock %}
+
+<div class="users-panel">
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash {{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="users-toolbar">
+        <form class="search-form" method="get" action="{{ path('back_users') }}">
+            <input class="search-input" type="text" name="q" placeholder="Rechercher (nom, prenom, email...)" value="{{ q|default('') }}">
+            <input type="hidden" name="sort" value="{{ sort|default('datecreation') }}">
+            <input type="hidden" name="dir" value="{{ dir|default('DESC') }}">
+            <button type="submit" class="btn-secondary">Rechercher</button>
+            {% if q is defined and q is not empty %}
+                <a class="btn-secondary" href="{{ path('back_users', {sort: sort|default('datecreation'), dir: dir|default('DESC')}) }}">Réinitialiser</a>
+            {% endif %}
+            <a class="btn-secondary" href="{{ path('back_users_deleted') }}">Corbeille</a>
+        </form>
+        <div>
+            <a href="{{ path('back_users_export_pdf') }}" class="btn-primary" style="background: #10b981; display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exporter en PDF
+            </a>
+            <a href="{{ path('back_user_create') }}" class="btn-primary" style="margin-left: 0.75rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; vertical-align:middle;">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Ajouter un utilisateur
+            </a>
+        </div>
+    </div>
+
+    {% if users is not empty %}
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>
+                        <a class="sort-link" href="{{ path('back_users', {q: q|default(''), sort: 'prenom', dir: (sort|default('') == 'prenom' and dir|default('DESC') == 'ASC') ? 'DESC' : 'ASC'}) }}">
+                            Prénom
+                            {% if sort|default('') == 'prenom' %}
+                                <span class="sort-indicator">{{ dir|default('DESC') == 'ASC' ? '^' : 'v' }}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a class="sort-link" href="{{ path('back_users', {q: q|default(''), sort: 'nom', dir: (sort|default('') == 'nom' and dir|default('DESC') == 'ASC') ? 'DESC' : 'ASC'}) }}">
+                            Nom
+                            {% if sort|default('') == 'nom' %}
+                                <span class="sort-indicator">{{ dir|default('DESC') == 'ASC' ? '^' : 'v' }}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a class="sort-link" href="{{ path('back_users', {q: q|default(''), sort: 'email', dir: (sort|default('') == 'email' and dir|default('DESC') == 'ASC') ? 'DESC' : 'ASC'}) }}">
+                            Email
+                            {% if sort|default('') == 'email' %}
+                                <span class="sort-indicator">{{ dir|default('DESC') == 'ASC' ? '^' : 'v' }}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a class="sort-link" href="{{ path('back_users', {q: q|default(''), sort: 'role', dir: (sort|default('') == 'role' and dir|default('DESC') == 'ASC') ? 'DESC' : 'ASC'}) }}">
+                            Rôle
+                            {% if sort|default('') == 'role' %}
+                                <span class="sort-indicator">{{ dir|default('DESC') == 'ASC' ? '^' : 'v' }}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a class="sort-link" href="{{ path('back_users', {q: q|default(''), sort: 'statut', dir: (sort|default('') == 'statut' and dir|default('DESC') == 'ASC') ? 'DESC' : 'ASC'}) }}">
+                            Statut
+                            {% if sort|default('') == 'statut' %}
+                                <span class="sort-indicator">{{ dir|default('DESC') == 'ASC' ? '^' : 'v' }}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a class="sort-link" href="{{ path('back_users', {q: q|default(''), sort: 'datecreation', dir: (sort|default('') == 'datecreation' and dir|default('DESC') == 'ASC') ? 'DESC' : 'ASC'}) }}">
+                            Créé le
+                            {% if sort|default('') == 'datecreation' %}
+                                <span class="sort-indicator">{{ dir|default('DESC') == 'ASC' ? '^' : 'v' }}</span>
+                            {% endif %}
+                        </a>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr data-user-id="{{ user.id }}">
+                        <td>{{ user.prenom }}</td>
+                        <td>{{ user.nom }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <span class="role-badge role-{{ user.role|lower }}">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ user.statut }}">
+                                {{ user.statut|capitalize }}
+                            </span>
+                        </td>
+                        <td>{{ user.datecreation|date('d/m/Y H:i') }}</td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ path('back_user_edit', {'id': user.id}) }}" class="btn-edit">Modifier</a>
+                                <a href="#" class="btn-delete" data-user-id="{{ user.id }}" data-user-name="{{ user.prenom }} {{ user.nom }}">Supprimer</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 1rem; text-align: right;">
+            <a class="btn-secondary" href="{{ path('back_users', {q: q|default(''), sort: 'prenom', dir: 'ASC'}) }}">
+                Trier par prénom (ASCII croissant)
+            </a>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <h2>Aucun utilisateur trouvé</h2>
+            <p>Commencez par <a href="{{ path('back_user_create') }}" style="color: var(--color-terracotta); text-decoration: none;">ajouter un utilisateur</a></p>
+        </div>
+    {% endif %}
+
+</div>
+
+<!-- Modal de suppression avec mot de passe -->
+<div id="deleteModal" class="modal-delete">
+    <div class="modal-delete-content">
+        <div class="modal-delete-header">
+            <h2>Supprimer un utilisateur</h2>
+            <button type="button" class="modal-delete-close">&times;</button>
+        </div>
+        <div class="modal-delete-body">
+            <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ? Veuillez saisir votre mot de passe administrateur pour confirmer.</p>
+            <form id="deleteForm" method="POST" style="display: none;"></form>
+            <form id="deleteFormVisible" method="POST">
+                <div class="form-group">
+                    <label for="adminPassword">Mot de passe administrateur *</label>
+                    <input type="password" id="adminPassword" name="admin_password" placeholder="••••••••" required />
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-auth btn-cancel-auth">Annuler</button>
+                    <button type="submit" class="btn-auth btn-danger">Supprimer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteFormVisible');
+    const deleteHiddenForm = document.getElementById('deleteForm');
+    const closeBtn = document.querySelector('.modal-delete-close');
+    const cancelBtn = document.querySelector('.btn-cancel-auth');
+
+    // Ouvrir modal de suppression
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const userId = this.getAttribute('data-user-id');
+            const userName = this.getAttribute('data-user-name');
+            
+            // Mettre à jour le message
+            const msgParagraph = modal.querySelector('.modal-delete-body p');
+            msgParagraph.textContent = `Êtes-vous sûr de vouloir supprimer l'utilisateur "${userName}" ? Veuillez saisir votre mot de passe administrateur pour confirmer.`;
+            
+            // Définir l'action du formulaire
+            deleteForm.action = '{{ path("back_user_delete", {"id": "USERID"}) }}'.replace('USERID', userId);
+            deleteForm.id = 'deleteFormVisible';
+            deleteForm.method = 'POST';
+            
+            // Afficher la modal
+            modal.style.display = 'flex';
+        });
+    });
+
+    // Fermer modal - bouton X
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Fermer modal - bouton Annuler
+    cancelBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Fermer si clic en dehors
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Le formulaire se soumet normalement
+});
+</script>
+
+{% endblock %}
+
+

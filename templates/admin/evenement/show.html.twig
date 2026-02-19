@@ -1,0 +1,26 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Détails Événement - Admin{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left"><h1>{{ evenement.nom }}</h1><p class="header-subtitle">#{{ evenement.id }}</p></div>
+    <div style="display:flex;gap:0.5rem;">
+        <a href="{{ path('back_evenement_edit', {id: evenement.id}) }}" style="padding:0.5rem 1rem;background:#1976d2;color:white;border-radius:8px;text-decoration:none;">Modifier</a>
+        <a href="{{ path('back_evenement_index') }}" style="padding:0.5rem 1rem;color:#666;text-decoration:none;">← Liste</a>
+    </div>
+</header>
+<div style="background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <p><strong>Nom:</strong> {{ evenement.nom }}</p>
+    <p><strong>Artisan:</strong> {{ evenement.artisan }}</p>
+    <p><strong>Lieu:</strong> {{ evenement.lieu }}</p>
+    <p><strong>Début:</strong> {{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '' }}</p>
+    <p><strong>Fin:</strong> {{ evenement.dateFin ? evenement.dateFin|date('d/m/Y H:i') : '' }}</p>
+    <p><strong>Capacité:</strong> {{ evenement.capacite }}</p>
+    <p><strong>Description:</strong> {{ evenement.description }}</p>
+    <form method="post" action="{{ path('back_evenement_delete', {id: evenement.id}) }}" style="margin-top:1rem;" onsubmit="return confirm('Supprimer ?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+        <button type="submit" style="padding:0.5rem 1rem;background:#c62828;color:white;border:none;border-radius:8px;cursor:pointer;">Supprimer</button>
+    </form>
+</div>
+{% endblock %}

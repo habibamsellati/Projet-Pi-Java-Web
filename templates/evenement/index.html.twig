@@ -1,0 +1,61 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}AfkArt | Événements{% endblock %}
+
+{% block body %}
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: #3D3229;">Événements</h1>
+            <p style="color: #5C4A3D; font-size: 1.1rem;">
+                Découvrez nos ateliers, expositions et rencontres artistiques.
+            </p>
+        </div>
+        {% if app.user and (is_granted('ARTISANT') or app.user.role == 'ARTISANT') %}
+            <a href="{{ path('app_evenement_new') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 9999px; font-weight: 600; background: #8b5e4a; color: white; border: none;">
+                <span>+ Nouvel Événement</span>
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; margin-top: 1rem;">
+        {% for evenement in evenements %}
+            <div style="background: white; border-radius: 2rem; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); transition: transform 0.3s;" onmouseover="this.style.transform='translateY(-5px)';" onmouseout="this.style.transform='translateY(0)';">
+                <div style="padding: 2rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="color: #8b5e4a; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05rem; margin-bottom: 0.25rem;">
+                            {{ evenement.dateDebut ? evenement.dateDebut|date('d F Y') : 'Date à venir' }}
+                        </div>
+                        <h3 style="font-size: 1.4rem; color: #3D3229; margin: 0; line-height: 1.2;">{{ evenement.nom }}</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: #5C4A3D; font-size: 0.95rem;">
+                            <span>🕒</span>
+                            <span>{{ evenement.dateDebut ? evenement.dateDebut|date('H:i') : '' }}{% if evenement.dateFin %} - {{ evenement.dateFin|date('H:i') }}{% endif %}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: #5C4A3D; font-size: 0.95rem;">
+                            <span>📍</span><span>{{ evenement.lieu }}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: #5C4A3D; font-size: 0.95rem;">
+                            <span>👥</span><span>Capacité : {{ evenement.capacite }} places</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; border-top: 1px solid #F5F0E8; padding-top: 1.5rem;">
+                        <a href="{{ path('app_evenement_show', {id: evenement.id}) }}" class="btn btn-primary" style="flex: 1; text-align: center; padding: 0.8rem;">Voir Détails</a>
+                        {% if app.user and (is_granted('ARTISANT') or app.user.role == 'ARTISANT') %}
+                            <a href="{{ path('app_evenement_edit', {id: evenement.id}) }}" class="btn btn-outline" style="padding: 0.8rem;">✏️</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; background: white; border-radius: 2rem; color: #5C4A3D;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Aucun événement</h3>
+                <p style="margin-bottom: 1.5rem;">Revenez bientôt pour découvrir nos prochaines activités.</p>
+                {% if app.user and (is_granted('ARTISANT') or app.user.role == 'ARTISANT') %}
+                    <a href="{{ path('app_evenement_new') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 9999px; font-weight: 600; background: #8b5e4a; color: white;">+ Créer un événement</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

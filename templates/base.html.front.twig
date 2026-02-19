@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}AfkArt{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# front.css was a Tailwind source file (@import 'tailwindcss') - not usable in browser; front-home.css has all frontoffice styles #}
+    <link rel="stylesheet" href="{{ asset('Assets/css/front-home.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+        <style>
+            /* Header auth buttons (small, local override) */
+            .header .auth-btn{
+                padding: 10px 20px;
+                border-radius: 28px;
+                font-weight: 600;
+                text-decoration: none;
+                display: inline-block;
+                font-family: inherit;
+                margin-left: 10px;
+            }
+            .header .auth-btn-outline{
+                background: transparent;
+                color: var(--color-foreground, #2b2b2b);
+                border: 1px solid rgba(0,0,0,0.25);
+            }
+            .header .auth-btn-filled{
+                background: #C4704B; /* terracotta */
+                color: #fff;
+                border: 1px solid #C4704B;
+            }
+            .header .auth-btn:hover{ opacity: .95; }
+            /* Ensure header is clickable above overlays */
+            .header{ position:relative; z-index:1200; }
+            .header .nav a{ pointer-events:auto; }
+            .header .nav { display: flex; align-items: center; gap: 15px; }
+            .header .user-actions { display: flex; align-items: center; gap: 10px; }
+            .header .nav-list .nav-link:hover { color: #8b5e4a; background: rgba(139, 94, 74, 0.08); }
+            .header .logo span { color: #8b5e4a; }
+            
+            /* Admin verification modal */
+            .admin-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000;
+            }
+            .admin-modal.show { display: flex; }
+            .admin-modal-content {
+                background: white;
+                padding: 2rem;
+                border-radius: 1rem;
+                max-width: 400px;
+                width: 90%;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            }
+            .admin-modal-content h2 {
+                margin-bottom: 1.5rem;
+                color: #2b2b2b;
+                font-size: 1.5rem;
+            }
+            .admin-modal-content .form-group {
+                margin-bottom: 1.5rem;
+            }
+            .admin-modal-content label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: #2b2b2b;
+            }
+            .admin-modal-content input {
+                width: 100%;
+                padding: 0.75rem;
+                border: 1px solid #ddd;
+                border-radius: 0.5rem;
+                font-size: 1rem;
+                font-family: inherit;
+            }
+            .admin-modal-content input:focus {
+                outline: none;
+                border-color: #C4704B;
+                box-shadow: 0 0 0 3px rgba(196, 112, 75, 0.1);
+            }
+            .admin-modal-buttons {
+                display: flex;
+                gap: 1rem;
+            }
+            .admin-modal-buttons button {
+                flex: 1;
+                padding: 0.75rem;
+                border: none;
+                border-radius: 0.5rem;
+                font-weight: 500;
+                cursor: pointer;
+                font-size: 1rem;
+                font-family: inherit;
+                transition: opacity 0.2s;
+            }
+            .admin-modal-buttons button:hover { opacity: 0.9; }
+            .btn-submit-admin {
+                background: #C4704B;
+                color: white;
+            }
+            .btn-cancel-admin {
+                background: #e5e5e5;
+                color: #2b2b2b;
+            }
+        </style>
+        {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-inner container">
+            <a class="logo" href="{{ path('home') }}">Afk<span>Art</span></a>
+            <nav class="nav">
+                <ul class="nav-list" style="list-style:none;margin:0;padding:0;display:flex;align-items:center;gap:0.5rem;margin-right:1rem;">
+                    <li><a href="{{ path('home') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Accueil</a></li>
+                    {% if app.user %}
+                    <li><a href="{{ path('app_article_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Blog</a></li>
+                    <li><a href="{{ path('app_livraison_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Livraisons</a></li>
+                    <li><a href="{{ path('app_suivi_livraison_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Suivi Livraison</a></li>
+                    <li><a href="{{ path('app_produit_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Produits</a></li>
+                    <li><a href="{{ path('app_proposition_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Propositions</a></li>
+                    <li><a href="{{ path('app_evenement_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Événements</a></li>
+                    {% if app.user and (app.user.role == 'CLIENT' or app.user.role == 'ARTISANT') %}
+                    <li><a href="{{ path('app_reservation_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">{{ app.user.role == 'CLIENT' ? 'Mes réservations' : 'Réservations' }}</a></li>
+                    {% endif %}
+                    {% endif %}
+                    {% if app.user and (app.user.role == 'CLIENT' or app.user.role == 'ARTISANT') %}
+                    <li><a href="{{ path('app_reclamation_index') }}" class="nav-link" style="padding:0.5rem 0.85rem;color:#5a5450;text-decoration:none;font-weight:500;border-radius:8px;">Réclamations</a></li>
+                    {% endif %}
+                </ul>
+                {% if app.user %}
+                    <span style="margin-right:0.5rem;">{{ app.user.prenom }} {{ app.user.nom }} ({{ app.user.role }})</span>
+                    <div class="user-actions">
+                        {% if app.user.role == 'ADMIN' %}
+                            <button id="btn-dashboard" class="auth-btn auth-btn-filled">Aller au Dashboard</button>
+                        {% endif %}
+                        <a href="{{ path('app_logout') }}" class="auth-btn auth-btn-outline">Se déconnecter</a>
+                    </div>
+                {% else %}
+                    <a href="{{ path('app_login') }}" id="header-login-link" class="auth-btn auth-btn-outline">Connexion</a>
+                    <a href="{{ path('app_register') }}" id="header-register-link" class="auth-btn auth-btn-filled">Rejoindre</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    {# Auth modal (hidden by default) #}
+    <div id="auth-modal" class="auth-modal" aria-hidden="true" style="display:none;">
+        <div class="auth-modal-backdrop"></div>
+        <div class="auth-modal-content">
+            <button type="button" id="auth-close" class="auth-close" aria-label="Fermer">×</button>
+            <div class="auth-forms">
+                <div id="auth-login" class="auth-form">{% include '_auth/login_form.html.twig' %}</div>
+                <div id="auth-register" class="auth-form" style="display:none;">{% include '_auth/register_form.html.twig' %}</div>
+            </div>
+        </div>
+    </div>
+
+    {# Admin verification modal #}
+    <div id="admin-modal" class="admin-modal">
+        <div class="admin-modal-content">
+            <h2>Vérification Administrateur</h2>
+            
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="flash {{ label }}" style="margin-bottom: 1rem; padding: 0.75rem; border-radius: 0.5rem; {% if label == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;{% else %}background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            
+            <form id="admin-verify-form" method="POST" action="{{ path('verify_admin') }}">
+                <div class="form-group">
+                    <label for="admin_password">Mot de passe administrateur</label>
+                    <input type="password" id="admin_password" name="admin_password" required autofocus />
+                </div>
+                
+                <div class="admin-modal-buttons">
+                    <button type="submit" class="btn-submit-admin">Vérifier</button>
+                    <button type="button" class="btn-cancel-admin" id="cancel-admin">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% block body %}{% endblock %}
+
+        <script>
+        // Auth modal show/hide
+        (function(){
+            function qs(sel, ctx){ return (ctx||document).querySelector(sel); }
+            function qsa(sel, ctx){ return (ctx||document).querySelectorAll(sel); }
+
+            var modal = qs('#auth-modal');
+            var loginPanel = qs('#auth-login');
+            var registerPanel = qs('#auth-register');
+            var closeBtn = qs('#auth-close');
+
+            function showPanel(name){
+                if(!modal) return;
+                modal.style.display = 'block';
+                modal.setAttribute('aria-hidden','false');
+                if(name==='login'){
+                    loginPanel.style.display = 'block';
+                    registerPanel.style.display = 'none';
+                } else {
+                    loginPanel.style.display = 'none';
+                    registerPanel.style.display = 'block';
+                }
+            }
+
+            function hideModal(){ if(!modal) return; modal.style.display='none'; modal.setAttribute('aria-hidden','true'); }
+
+            // header links: only open modal if link explicitly requests modal (data-modal="true")
+            var hLogin = qs('#header-login-link');
+            var hRegister = qs('#header-register-link');
+            if(hLogin && hLogin.dataset.modal === 'true') hLogin.addEventListener('click', function(e){ e.preventDefault(); showPanel('login'); });
+            if(hRegister && hRegister.dataset.modal === 'true') hRegister.addEventListener('click', function(e){ e.preventDefault(); showPanel('register'); });
+            // Fallback: if link click doesn't navigate (e.g. prevented), force navigation for normal links
+            if(hLogin && hLogin.dataset.modal !== 'true'){
+                hLogin.addEventListener('click', function(e){
+                    var href = hLogin.getAttribute('href');
+                    if(!href) return;
+                    setTimeout(function(){ if(location.pathname !== new URL(href, location.origin).pathname) location.href = href; }, 50);
+                });
+                // more aggressive: pointerdown fallback in case click is prevented
+                hLogin.addEventListener('pointerdown', function(){ var href = hLogin.getAttribute('href'); if(href) location.href = href; });
+            }
+            if(hRegister && hRegister.dataset.modal !== 'true'){
+                hRegister.addEventListener('click', function(e){
+                    var href = hRegister.getAttribute('href');
+                    if(!href) return;
+                    setTimeout(function(){ if(location.pathname !== new URL(href, location.origin).pathname) location.href = href; }, 50);
+                });
+                hRegister.addEventListener('pointerdown', function(){ var href = hRegister.getAttribute('href'); if(href) location.href = href; });
+            }
+
+            // close
+            if(closeBtn) closeBtn.addEventListener('click', hideModal);
+            // switch links inside modal
+            qsa('.switch-auth').forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); showPanel(a.dataset.target); }); });
+            // click backdrop to close
+            var backdrop = qs('.auth-modal-backdrop');
+            if(backdrop) backdrop.addEventListener('click', hideModal);
+        })();
+        </script>
+
+        <script>
+        // Admin verification modal
+        (function(){
+            function qs(sel, ctx){ return (ctx||document).querySelector(sel); }
+            
+            var adminModal = qs('#admin-modal');
+            var btnDashboard = qs('#btn-dashboard');
+            var btnCancelAdmin = qs('#cancel-admin');
+            
+            if(btnDashboard) {
+                btnDashboard.addEventListener('click', function(e){
+                    e.preventDefault();
+                    if(adminModal) {
+                        adminModal.classList.add('show');
+                        qs('#admin_password', adminModal).focus();
+                    }
+                });
+            }
+            
+            if(btnCancelAdmin) {
+                btnCancelAdmin.addEventListener('click', function(e){
+                    e.preventDefault();
+                    if(adminModal) {
+                        adminModal.classList.remove('show');
+                    }
+                });
+            }
+            
+            // Fermer la modal en cliquant en dehors
+            if(adminModal) {
+                adminModal.addEventListener('click', function(e){
+                    if(e.target === adminModal) {
+                        adminModal.classList.remove('show');
+                    }
+                });
+            }
+        })();
+        </script>
+
+        <script src="{{ asset('Assets/js/front-home.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

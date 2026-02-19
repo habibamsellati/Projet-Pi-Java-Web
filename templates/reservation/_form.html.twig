@@ -1,0 +1,66 @@
+{% if reservation is defined and reservation.id and reservation.createdAt %}
+    {% set expiry = reservation.createdAt|date_modify("+3 hours") %}
+    {% set now_u = "now"|date("U") %}
+    {% set expiry_u = expiry|date("U") %}
+    {% set diff = expiry_u - now_u %}
+    <div style="margin-bottom: 1.5rem; padding: 1.25rem; border-radius: 12px; background: {% if diff > 0 %}#fefce8{% else %}#fff1f2{% endif %}; border: 1px solid {% if diff > 0 %}#fef08a{% else %}#fecdd3{% endif %};">
+        <h5 style="margin: 0 0 0.5rem 0; color: {% if diff > 0 %}#854d0e{% else %}#991b1b{% endif %}; display: flex; align-items: center; gap: 0.5rem;">
+            {% if diff > 0 %}⏱️ Délai de confirmation{% else %}⚠️ Délai expiré{% endif %}
+        </h5>
+        <p style="margin: 0; font-size: 0.9rem; color: #5C4A3D;">
+            {% if diff > 0 %}
+                Vous avez jusqu'au <strong>{{ expiry|date('d/m/Y H:i:s') }}</strong> pour confirmer ou modifier cette réservation.
+                Temps restant : <strong><span id="reservation-timer">{{ (diff // 3600) }}h {{ (diff % 3600 // 60) }}m</span></strong>.
+            {% else %}
+                Le délai de 3 heures est dépassé. Toute modification vers le statut « Confirmé » sera rejetée.
+                {% if reservation.statut == 'annule' %}
+                    <br><span style="color: #991b1b; font-weight: 600;">Cette réservation a été annulée suite au dépassement du délai.</span>
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+    {% if diff > 0 %}
+    <script>
+    (function() {
+        var expiryU = {{ expiry_u }};
+        function updateTimer() {
+            var now = Math.floor(Date.now() / 1000);
+            var d = expiryU - now;
+            var el = document.getElementById('reservation-timer');
+            if (!el) return;
+            if (d <= 0) { el.textContent = '0h 0m (expiré)'; return; }
+            var h = Math.floor(d / 3600);
+            var m = Math.floor((d % 3600) / 60);
+            el.textContent = h + 'h ' + m + 'm';
+        }
+        updateTimer();
+        setInterval(updateTimer, 60000);
+    })();
+    </script>
+    {% endif %}
+{% endif %}
+
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+{% set widget_attr = {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;'} %}
+<div class="form-group" style="margin-bottom: 1.25rem;">
+    {{ form_label(form.evenement) }}
+    {{ form_widget(form.evenement, {'attr': widget_attr}) }}
+    {{ form_errors(form.evenement) }}
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+        {{ form_label(form.dateReservation) }}
+        {{ form_widget(form.dateReservation, {'attr': widget_attr}) }}
+        {{ form_errors(form.dateReservation) }}
+    </div>
+    <div class="form-group" style="margin-bottom: 1.25rem;">
+        {{ form_label(form.statut) }}
+        {{ form_widget(form.statut, {'attr': widget_attr}) }}
+        {{ form_errors(form.statut) }}
+    </div>
+</div>
+<div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+    <button type="submit" style="background: #8b5e4a; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer;">{{ button_label|default('Enregistrer') }}</button>
+    <a href="{{ path('app_reservation_index') }}" style="color: #5a5450; text-decoration: none;">Annuler</a>
+</div>
+{{ form_end(form) }}

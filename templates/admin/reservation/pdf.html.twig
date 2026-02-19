@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Réservations</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Réservations</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Événement</th>
+                <th>Date Réservation</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.id }}</td>
+                <td>{{ reservation.evenement ? reservation.evenement.nom : 'N/A' }}</td>
+                <td>{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '' }}</td>
+                <td>{{ reservation.statut }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

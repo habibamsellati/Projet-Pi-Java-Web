@@ -1,0 +1,41 @@
+{% extends 'admin/index.html.twig' %}
+
+{% block title %}Gestion Evenements{% endblock %}
+
+{% block admin_header_title %}Evenements{% endblock %}
+{% block admin_header_subtitle %}Gestion des evenements{% endblock %}
+
+{% block admin_main %}
+<section class="content-section">
+    <div class="data-table-card">
+        <div class="card-header">
+            <h3>Apercu</h3>
+        </div>
+        <p style="color: var(--text-muted);">Espace de gestion des evenements et des reservations.</p>
+        <div class="quick-actions" style="grid-template-columns: repeat(3, 1fr); margin-top: 16px;">
+            <button class="quick-action-btn">
+                <span>Creer evenement</span>
+            </button>
+            <button class="quick-action-btn">
+                <span>Planning</span>
+            </button>
+            <button class="quick-action-btn">
+                <span>Reservations</span>
+            </button>
+        </div>
+    </div>
+    <div class="activity-card">
+        <div class="card-header">
+            <h3>Notes</h3>
+        </div>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-content">
+                    <p>Module pret pour integrer la liste des evenements.</p>
+                    <span class="activity-time">Mise en place initiale</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

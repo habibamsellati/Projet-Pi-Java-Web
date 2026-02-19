@@ -1,0 +1,38 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}AfkArt | {{ evenement.nom }}{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 1000px; margin: 0 auto; padding: 2rem 1rem;">
+    <a href="{{ path('app_evenement_index') }}" style="text-decoration: none; color: #8b5e4a; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">← Retour aux événements</a>
+    <h1 style="font-size: 2.5rem; color: #3D3229; line-height: 1.2;">{{ evenement.nom }}</h1>
+    <div style="display: flex; justify-content: flex-start; gap: 2rem; margin-top: 1rem; color: #5C4A3D;">
+        <span>📍 {{ evenement.lieu }}</span>
+        <span>👤 Artisan: <strong style="color: #8b5e4a;">{{ evenement.artisan }}</strong></span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 2rem; align-items: start; margin-top: 2rem;">
+        <div style="background: white; padding: 2rem; border-radius: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+            <h3 style="font-size: 1.25rem; margin-bottom: 1rem; color: #3D3229;">À propos</h3>
+            <div style="color: #5C4A3D; line-height: 1.8; white-space: pre-wrap;">{{ evenement.description|nl2br }}</div>
+        </div>
+        <div style="background: #fdfbf9; padding: 2rem; border-radius: 1.5rem; border: 1px solid #eee;">
+            <h4 style="font-size: 0.9rem; text-transform: uppercase; color: #8b5e4a; margin-bottom: 1rem;">Calendrier</h4>
+            <p><strong>Début:</strong> {{ evenement.dateDebut|date('d/m/Y H:i') }}</p>
+            <p><strong>Fin:</strong> {{ evenement.dateFin|date('d/m/Y H:i') }}</p>
+            <h4 style="font-size: 0.9rem; text-transform: uppercase; color: #8b5e4a; margin: 1.5rem 0 0.5rem;">Disponibilité</h4>
+            {% set res_count = evenement.reservations|length %}
+            <p>{{ res_count }} / {{ evenement.capacite }} places réservées. Il reste <strong>{{ evenement.capacite - res_count }}</strong> places.</p>
+            <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+                {% if is_granted('CLIENT') %}
+                    <a href="{{ path('app_reservation_new', {event: evenement.id}) }}" class="btn btn-primary">Réserver</a>
+                {% endif %}
+                {% if is_granted('ARTISANT') %}
+                    <a href="{{ path('app_evenement_edit', {id: evenement.id}) }}" class="btn btn-outline">Modifier</a>
+                    {{ include('evenement/_delete_form.html.twig') }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Interface Admin{% endblock %}
+
+{% block body %}
+<section class="categories">
+  <div class="container">
+    <div class="section-header">
+      <h2>Espace Admin</h2>
+      <p>Supervision generale, gestion des comptes et suivi des activites.</p>
+    </div>
+    <div class="categories-grid" style="justify-content:center;">
+      <div class="category-card">
+        <div class="category-icon">👤</div>
+        <h3>Comptes</h3>
+        <p>Creation, modification et suppression.</p>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">📦</div>
+        <h3>Produits</h3>
+        <p>Gestion des produits recyclables.</p>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🧾</div>
+        <h3>Reclamations</h3>
+        <p>Suivi et resolution des tickets.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

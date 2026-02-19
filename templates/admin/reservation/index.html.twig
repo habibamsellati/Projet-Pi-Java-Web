@@ -1,0 +1,107 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Gestion des Réservations - Admin{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left">
+        <h1>Gestion des Réservations</h1>
+        <p class="header-subtitle">Liste de toutes les réservations</p>
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+        <a href="{{ path('back_reservation_pdf') }}" style="padding:0.5rem 1rem;background:#c62828;color:white;border-radius:8px;text-decoration:none;">PDF</a>
+        <a href="{{ path('back_reservation_new') }}" style="padding:0.6rem 1.2rem;background:#8b5e4a;color:white;border-radius:8px;text-decoration:none;">+ Ajouter</a>
+    </div>
+</header>
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:1.25rem;align-items:start;margin-bottom:1.5rem;">
+    <div style="background:#fff;padding:1.25rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <h3 style="margin:0 0 1rem;color:#666;font-size:1rem;text-transform:uppercase;">Répartition des Statuts</h3>
+        <div style="height:250px;display:flex;align-items:center;justify-content:center;">
+            {% if stats.total > 0 %}
+                <canvas id="reservationStatusChart"></canvas>
+            {% else %}
+                <p style="text-align:center;color:#999;margin:0;">Aucune réservation</p>
+            {% endif %}
+        </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;">
+        <div style="background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><h4 style="margin:0;font-size:0.8rem;color:#666;">TOTAL</h4><p style="margin:0.25rem 0 0;font-size:1.5rem;font-weight:700;">{{ stats.total }}</p></div>
+        <div style="background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><h4 style="margin:0;font-size:0.8rem;color:#666;">EN ATTENTE</h4><p style="margin:0.25rem 0 0;font-size:1.5rem;font-weight:700;color:#FF9800;">{{ stats.pending }}</p></div>
+        <div style="background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><h4 style="margin:0;font-size:0.8rem;color:#666;">CONFIRMÉ</h4><p style="margin:0.25rem 0 0;font-size:1.5rem;font-weight:700;color:#4CAF50;">{{ stats.confirmed }}</p></div>
+        <div style="background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><h4 style="margin:0;font-size:0.8rem;color:#666;">ANNULÉ</h4><p style="margin:0.25rem 0 0;font-size:1.5rem;font-weight:700;color:#F44336;">{{ stats.canceled }}</p></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if stats.total > 0 %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('reservationStatusChart');
+    if (!ctx) return;
+    new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['En attente', 'Confirmé', 'Annulé'],
+            datasets: [{
+                data: [{{ stats.pending }}, {{ stats.confirmed }}, {{ stats.canceled }}],
+                backgroundColor: ['#FF9800', '#4CAF50', '#F44336'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } },
+            cutout: '70%'
+        }
+    });
+});
+</script>
+{% endif %}
+
+<form method="get" action="{{ path('back_reservation_index') }}" style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+    <input type="text" name="q" value="{{ app.request.query.get('q') }}" placeholder="Rechercher..." style="padding:0.5rem 0.75rem;border:1px solid #ddd;border-radius:8px;">
+    <select name="sort"><option value="">Trier</option><option value="dateReservation" {{ app.request.query.get('sort') == 'dateReservation' ? 'selected' : '' }}>Date</option><option value="statut" {{ app.request.query.get('sort') == 'statut' ? 'selected' : '' }}>Statut</option><option value="evenement" {{ app.request.query.get('sort') == 'evenement' ? 'selected' : '' }}>Événement</option></select>
+    <select name="order"><option value="ASC" {{ app.request.query.get('order') == 'ASC' ? 'selected' : '' }}>Asc</option><option value="DESC" {{ app.request.query.get('order') != 'ASC' ? 'selected' : '' }}>Desc</option></select>
+    <button type="submit" style="padding:0.5rem 1rem;background:#8b5e4a;color:white;border:none;border-radius:8px;">Rechercher</button>
+</form>
+
+<div style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f8f6f3;font-size:0.8rem;text-transform:uppercase;color:#666;">
+                <th style="padding:1rem;">Id</th>
+                <th style="padding:1rem;">Événement</th>
+                <th style="padding:1rem;">Date</th>
+                <th style="padding:1rem;">Statut</th>
+                <th style="padding:1rem;text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:1rem;">{{ reservation.id }}</td>
+                <td style="padding:1rem;">{{ reservation.evenement ? reservation.evenement.nom : 'N/A' }}</td>
+                <td style="padding:1rem;">{{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '' }}</td>
+                <td style="padding:1rem;">
+                    {% if reservation.statut == 'confirme' %}<span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:4px;">Confirmé</span>
+                    {% elseif reservation.statut == 'annule' %}<span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:4px;">Annulé</span>
+                    {% else %}<span style="background:#fff3e0;color:#ef6c00;padding:2px 8px;border-radius:4px;">En attente</span>{% endif %}
+                </td>
+                <td style="padding:1rem;text-align:right;">
+                    <a href="{{ path('back_reservation_show', {id: reservation.id}) }}" style="margin-right:0.5rem;">Voir</a>
+                    <a href="{{ path('back_reservation_edit', {id: reservation.id}) }}" style="margin-right:0.5rem;">Modifier</a>
+                    <form method="post" action="{{ path('back_reservation_delete', {id: reservation.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                        <button type="submit" style="background:none;border:none;color:#c62828;cursor:pointer;">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="padding:2rem;text-align:center;color:#999;">Aucune réservation.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

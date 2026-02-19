@@ -1,0 +1,23 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Statistiques Livraisons - Admin{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <h1>Statistiques des livraisons par adresse</h1>
+        </header>
+        <div style="background: white; padding: 1.5rem; border-radius: 12px; max-width: 800px;">
+            <canvas id="livraisonChart" width="400" height="200"></canvas>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            new Chart(document.getElementById('livraisonChart'), {
+                type: 'bar',
+                data: {
+                    labels: {{ stats|map(s => s.adresse)|json_encode|raw }},
+                    datasets: [{ data: {{ stats|map(s => s.total)|json_encode|raw }}, backgroundColor: '#8b5e4a', borderRadius: 8 }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        </script>
+{% endblock %}

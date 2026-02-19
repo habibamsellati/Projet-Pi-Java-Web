@@ -1,0 +1,31 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Interface Artisan{% endblock %}
+
+{% block body %}
+<section class="categories">
+  <div class="container">
+    <div class="section-header">
+      <h2>Espace Artisan</h2>
+      <p>Gerez vos oeuvres, commandes et evenements.</p>
+    </div>
+    <div class="categories-grid" style="justify-content:center;">
+      <div class="category-card">
+        <div class="category-icon">🎨</div>
+        <h3>Catalogue</h3>
+        <p>Gestion des oeuvres.</p>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">📦</div>
+        <h3>Commandes</h3>
+        <p>Suivi des ventes.</p>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">📅</div>
+        <h3>Evenements</h3>
+        <p>Planning et reservation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,51 @@
+<!-- Modal d'accès responsable -->
+<div id="responsableModal" class="modal-access">
+    <div class="modal-access-content">
+        <div class="modal-access-header">
+            <h2 id="responsableModalTitle">Acces responsable</h2>
+            <button type="button" class="modal-access-close">&times;</button>
+        </div>
+        <div class="modal-access-body">
+            <p id="responsableModalDesc">Veuillez saisir les identifiants du responsable.</p>
+            <div class="modal-access-error" id="responsableModalError"></div>
+            <form id="responsableAccessForm" method="post">
+                <input type="hidden" name="module" id="responsableModule" />
+                <div class="form-group">
+                    <label for="responsableUsername">Username *</label>
+                    <input type="text" id="responsableUsername" name="username" placeholder="username" required />
+                </div>
+                <div class="form-group">
+                    <label for="responsablePassword">Mot de passe *</label>
+                    <input type="password" id="responsablePassword" name="password" placeholder="••••••••" required />
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-auth btn-cancel-auth" id="responsableCancel">Annuler</button>
+                    <button type="submit" class="btn-auth btn-primary-auth">Valider</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal aller au front -->
+<div id="frontModal" class="modal-access">
+    <div class="modal-access-content">
+        <div class="modal-access-header">
+            <h2>Vérification Administrateur</h2>
+            <button type="button" class="modal-access-close" id="frontModalClose">&times;</button>
+        </div>
+        <div class="modal-access-body">
+            <p>Veuillez saisir votre mot de passe pour accéder au site public.</p>
+            <form id="frontAccessForm" method="post" action="{{ path('verify_front') }}">
+                <div class="form-group">
+                    <label for="frontPassword">Mot de passe *</label>
+                    <input type="password" id="frontPassword" name="admin_password" placeholder="••••••••" required />
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-auth btn-cancel-auth" id="frontCancel">Annuler</button>
+                    <button type="submit" class="btn-auth btn-primary-auth">Valider</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
