@@ -1,0 +1,18 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Modifier le Suivi | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 500px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #3d2817; text-align: center; margin-bottom: 1.5rem;">Modifier le Suivi</h1>
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_row(form.livraison) }}
+    {{ form_row(form.datesuivi) }}
+    {{ form_row(form.etat) }}
+    {{ form_row(form.localisation) }}
+    {{ form_row(form.commentaire) }}
+    <button type="submit" style="width: 100%; padding: 0.75rem; background: #8b5e4a; color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Enregistrer</button>
+    {{ form_end(form) }}
+    <p style="margin-top: 1rem;"><a href="{{ path('app_suivi_livraison_index') }}" style="color: #8b5e4a; text-decoration: none;">← Retour</a></p>
+</section>
+{% endblock %}

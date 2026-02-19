@@ -1,0 +1,23 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Détails Réservation - Admin{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left"><h1>Réservation #{{ reservation.id }}</h1></div>
+    <div style="display:flex;gap:0.5rem;">
+        <a href="{{ path('back_reservation_edit', {id: reservation.id}) }}" style="padding:0.5rem 1rem;background:#1976d2;color:white;border-radius:8px;text-decoration:none;">Modifier</a>
+        <a href="{{ path('back_reservation_index') }}" style="padding:0.5rem 1rem;color:#666;text-decoration:none;">← Liste</a>
+    </div>
+</header>
+<div style="background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <p><strong>Événement:</strong> {{ reservation.evenement ? reservation.evenement.nom : 'N/A' }}</p>
+    <p><strong>Date réservation:</strong> {{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '' }}</p>
+    <p><strong>Statut:</strong> {{ reservation.statut }}</p>
+    <p><strong>Utilisateur:</strong> {% if reservation.user %}{{ reservation.user.prenom }} {{ reservation.user.nom }}{% else %}—{% endif %}</p>
+    <form method="post" action="{{ path('back_reservation_delete', {id: reservation.id}) }}" style="margin-top:1rem;" onsubmit="return confirm('Supprimer ?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+        <button type="submit" style="padding:0.5rem 1rem;background:#c62828;color:white;border:none;border-radius:8px;">Supprimer</button>
+    </form>
+</div>
+{% endblock %}

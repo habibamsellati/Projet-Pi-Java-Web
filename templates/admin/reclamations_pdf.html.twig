@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Export PDF - Réclamations</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; }
+        h1 { color: #333; font-size: 18px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f6f3; font-weight: 600; }
+        .statut { padding: 2px 8px; border-radius: 4px; font-size: 10px; }
+        .description { font-size: 10px; color: #555; max-width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Réclamations</h1>
+    <p>Export généré le {{ "now"|date("d/m/Y à H:i") }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reclamations %}
+            <tr>
+                <td>{{ r.titre }}</td>
+                <td>{% if r.user %}{{ r.user.prenom }} {{ r.user.nom }}{% else %}—{% endif %}</td>
+                <td>{{ r.datecreation ? r.datecreation|date('d/m/Y H:i') : '—' }}</td>
+                <td class="description">{{ (r.descripition|default('—'))|slice(0, 100) }}{% if (r.descripition|default(''))|length > 100 %}...{% endif %}</td>
+                <td><span class="statut">{{ r.statut }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Aucune réclamation.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

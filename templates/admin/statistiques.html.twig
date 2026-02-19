@@ -1,0 +1,160 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Statistiques - Admin AfkArt{% endblock %}
+
+{% block admin_container_class %}stats-page{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .stats-page .header h1 { margin-bottom: 0.25rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .stat-card { background: var(--card-bg, #fff); border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card__icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.5rem; }
+        .stat-card__icon--articles { background: linear-gradient(135deg, #8b5e4a 0%, #a67c6a 100%); color: white; }
+        .stat-card__icon--commandes { background: linear-gradient(135deg, #2d7a4f 0%, #3d9a5f 100%); color: white; }
+        .stat-card__icon--reclamations { background: linear-gradient(135deg, #dc3545 0%, #e85565 100%); color: white; }
+        .stat-card__icon--artisans { background: linear-gradient(135deg, #8b5e4a 0%, #a67c6a 100%); color: white; }
+        .stat-card__icon--clients { background: linear-gradient(135deg, #5c3d4a 0%, #7a5568 100%); color: white; }
+        .stat-card__icon--commentaires { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); color: white; }
+        .stat-card__value { font-size: 2rem; font-weight: 700; color: #2d2d2d; line-height: 1.2; }
+        .stat-card__label { font-size: 0.9rem; color: #666; margin-top: 0.25rem; }
+        .stats-section { background: var(--card-bg, #fff); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.06); }
+        .stats-section__title { font-size: 1.25rem; font-weight: 600; color: #2d2d2d; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #8b5e4a; }
+        .bar-chart { display: flex; flex-direction: column; gap: 1rem; }
+        .bar-item { display: flex; align-items: center; gap: 1rem; }
+        .bar-label { min-width: 110px; flex-shrink: 0; font-size: 0.9rem; color: #666; }
+        .bar-track { flex: 1; min-width: 80px; height: 32px; background: #f5f0eb; border-radius: 8px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; min-width: 8px; }
+        .bar-fill--primary { background: linear-gradient(90deg, #8b5e4a 0%, #a67c6a 100%); }
+        .bar-fill--success { background: linear-gradient(90deg, #2d7a4f 0%, #3d9a5f 100%); }
+        .bar-fill--danger { background: linear-gradient(90deg, #dc3545 0%, #e85565 100%); }
+        .bar-value { font-weight: 600; color: #2d2d2d; min-width: 40px; text-align: right; }
+        .top-list { list-style: none; padding: 0; margin: 0; }
+        .top-list li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; background: #f8f6f3; border-radius: 8px; margin-bottom: 0.5rem; border-left: 4px solid #8b5e4a; }
+        .top-list li span:first-child { font-weight: 500; flex: 1; }
+        .top-list li span:last-child { font-weight: 600; white-space: nowrap; }
+        .revenue-wrap { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .revenue-big { font-size: 2rem; font-weight: 700; color: #2d7a4f; text-align: center; padding: 0.5rem 0; }
+        .stats-charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
+        .header-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+    </style>
+{% endblock %}
+
+{% block back_main %}
+    <header class="header">
+        <div class="header-left">
+            <h1>Statistiques</h1>
+            <p class="header-subtitle">Vue d'ensemble articles, commandes, réclamations et utilisateurs</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ path('back_articles') }}" class="btn-stats" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.2rem;background:#8b5e4a;color:white;border-radius:8px;text-decoration:none;">← Articles</a>
+            <a href="{{ path('back_reclamations') }}" class="btn-stats" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.2rem;background:#8b5e4a;color:white;border-radius:8px;text-decoration:none;">Réclamations</a>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--articles">📄</div>
+            <div class="stat-card__value">{{ articleCount }}</div>
+            <div class="stat-card__label">Articles publiés</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--commandes">🛒</div>
+            <div class="stat-card__value">{{ commandeCount }}</div>
+            <div class="stat-card__label">Commandes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--reclamations">⚠️</div>
+            <div class="stat-card__value">{{ reclamationCount }}</div>
+            <div class="stat-card__label">Réclamations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--artisans">🔧</div>
+            <div class="stat-card__value">{{ artisansCount }}</div>
+            <div class="stat-card__label">Artisans</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--clients">👤</div>
+            <div class="stat-card__value">{{ clientsCount }}</div>
+            <div class="stat-card__label">Clients</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--commentaires">💬</div>
+            <div class="stat-card__value">{{ commentaireCount }}</div>
+            <div class="stat-card__label">Commentaires</div>
+        </div>
+    </div>
+
+    <div class="stats-charts-grid">
+        <div class="stats-section">
+            <h2 class="stats-section__title">Articles par catégorie</h2>
+            {% set maxCat = statsArticlesByCategorie|length > 0 ? max(statsArticlesByCategorie|map(v => v)) : 1 %}
+            <div class="bar-chart">
+                {% for cat, cnt in statsArticlesByCategorie %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ cat }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill--primary" style="width: {{ (cnt / maxCat) * 100 }}%;"></div>
+                    </div>
+                    <span class="bar-value">{{ cnt }}</span>
+                </div>
+                {% else %}
+                <p style="color: #888;">Aucun article par catégorie.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2 class="stats-section__title">Top artisans (par nombre d'articles)</h2>
+            <ul class="top-list">
+                {% for a in topArtisans %}
+                <li><span>{{ a.nom }}</span><span>{{ a.count }} article{{ a.count > 1 ? 's' : '' }}</span></li>
+                {% else %}
+                <li><span>Aucun artisan avec des articles</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="stats-section">
+            <h2 class="stats-section__title">Commandes par statut</h2>
+            {% set maxCmd = statsCommandesByStatut|length > 0 ? max(statsCommandesByStatut|map(v => v)) : 1 %}
+            <div class="bar-chart">
+                {% for statut, cnt in statsCommandesByStatut %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ statut|capitalize }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill--success" style="width: {{ (cnt / maxCmd) * 100 }}%;"></div>
+                    </div>
+                    <span class="bar-value">{{ cnt }}</span>
+                </div>
+                {% else %}
+                <p style="color: #888;">Aucune commande.</p>
+                {% endfor %}
+            </div>
+            <div class="revenue-wrap">
+                <div class="revenue-big">{{ totalRevenue|number_format(2, ',', ' ') }}&nbsp;DT</div>
+                <p style="text-align: center; color: #666; font-size: 0.9rem;">Chiffre d'affaires (commandes validées)</p>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2 class="stats-section__title">Réclamations par statut</h2>
+            {% set maxRec = statsReclamationsByStatut|length > 0 ? max(statsReclamationsByStatut|map(v => v)) : 1 %}
+            <div class="bar-chart">
+                {% for statut, cnt in statsReclamationsByStatut %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ statut|replace({'_': ' '})|capitalize }}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill bar-fill--danger" style="width: {{ (cnt / maxRec) * 100 }}%;"></div>
+                    </div>
+                    <span class="bar-value">{{ cnt }}</span>
+                </div>
+                {% else %}
+                <p style="color: #888;">Aucune réclamation.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

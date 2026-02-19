@@ -1,0 +1,49 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Liste des suivis - Admin{% endblock %}
+
+{% block admin_container_class %}suivi-livraison-page{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <h1>Liste des Suivis de Livraison</h1>
+        </header>
+        <div style="margin-bottom: 1rem;">
+            <a href="{{ path('back_suivi_livraison_new') }}" style="display: inline-block; padding: 0.5rem 1rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none; margin-right: 0.5rem;">Ajouter un suivi</a>
+            <a href="{{ path('back_suivi_livraison_pdf') }}" style="display: inline-block; padding: 0.5rem 1rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none; margin-right: 0.5rem;">📄 PDF</a>
+            <a href="{{ path('back_suivi_livraison_index', {'order': current_order == 'ASC' ? 'DESC' : 'ASC'}) }}" style="display: inline-block; padding: 0.5rem 1rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none;">{% if current_order == 'ASC' %}🔽{% else %}🔼{% endif %} Trier</a>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <thead>
+                <tr style="background: #f8f6f3;">
+                    <th style="padding: 1rem;">ID</th>
+                    <th style="padding: 1rem;">Date du suivi</th>
+                    <th style="padding: 1rem;">État</th>
+                    <th style="padding: 1rem;">Localisation</th>
+                    <th style="padding: 1rem;">Commentaire</th>
+                    <th style="padding: 1rem;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for suivi in suivis %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 1rem;">{{ suivi.id }}</td>
+                    <td style="padding: 1rem;">{{ suivi.datesuivi ? suivi.datesuivi|date('Y-m-d H:i') : '' }}</td>
+                    <td style="padding: 1rem;">{{ suivi.etat }}</td>
+                    <td style="padding: 1rem;">{{ suivi.localisation }}</td>
+                    <td style="padding: 1rem;">{{ suivi.commentaire|default('—') }}</td>
+                    <td style="padding: 1rem;">
+                        <a href="{{ path('back_suivi_livraison_show', {'id': suivi.id}) }}" style="margin-right: 0.5rem; color: #8b5e4a;">Afficher</a>
+                        <a href="{{ path('back_suivi_livraison_edit', {'id': suivi.id}) }}" style="margin-right: 0.5rem; color: #8b5e4a;">Modifier</a>
+                        <form method="post" action="{{ path('back_suivi_livraison_delete', {'id': suivi.id}) }}" style="display: inline;" onsubmit="return confirm('Supprimer ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ suivi.id) }}">
+                            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer;">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" style="padding: 2rem; text-align: center; color: #666;">Aucun suivi trouvé.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

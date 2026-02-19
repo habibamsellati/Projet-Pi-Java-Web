@@ -1,0 +1,62 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Nouveau produit | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #3d2817; margin-bottom: 1.5rem;">Créer un produit</h1>
+    <div style="background: white; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        {% set widget_attr = {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;'} %}
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.nomproduit) }}
+            {{ form_widget(form.nomproduit, {'attr': widget_attr}) }}
+            {{ form_errors(form.nomproduit) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.typemateriau) }}
+            {{ form_widget(form.typemateriau, {'attr': widget_attr}) }}
+            {{ form_errors(form.typemateriau) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.etat) }}
+            {{ form_widget(form.etat, {'attr': widget_attr}) }}
+            {{ form_errors(form.etat) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.quantite) }}
+            {{ form_widget(form.quantite, {'attr': widget_attr}) }}
+            {{ form_errors(form.quantite) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.origine) }}
+            {{ form_widget(form.origine, {'attr': widget_attr}) }}
+            {{ form_errors(form.origine) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.impactecologique) }}
+            {{ form_widget(form.impactecologique, {'attr': widget_attr}) }}
+            {{ form_errors(form.impactecologique) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.dateajout) }}
+            {{ form_widget(form.dateajout, {'attr': widget_attr}) }}
+            {{ form_errors(form.dateajout) }}
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description, {'attr': {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;min-height:120px;resize:vertical;'}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button type="submit" style="background: #8b5e4a; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer;">Enregistrer</button>
+            <a href="{{ path('app_produit_index') }}" style="color: #5a5450; text-decoration: none;">Annuler</a>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</section>
+<style>
+    .form-error-message { color: #b91c1c; font-size: 0.875rem; margin-top: 0.25rem; }
+    label { display: block; font-weight: 600; color: #374151; margin-bottom: 0.35rem; font-size: 0.9rem; }
+</style>
+{% endblock %}
