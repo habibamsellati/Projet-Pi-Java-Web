@@ -1,0 +1,150 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Modifier l'Article - AfkArt Blog{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background-color: #faf6f1; color: #3d2817; }
+        .form-container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
+        .form-header { text-align: center; margin-bottom: 3rem; }
+        .form-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: #8b5e4a; margin-bottom: 0.5rem; letter-spacing: 1px; }
+        .form-header p { font-size: 1rem; color: #7a6e68; max-width: 500px; margin: 0 auto; }
+        .article-form { background: white; border-radius: 12px; padding: 2.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+        .form-group { margin-bottom: 2rem; }
+        .form-group label { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: #8b5e4a; margin-bottom: 0.75rem; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.875rem 1rem; border: 1.5px solid #d4c4b8; border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 1rem; color: #3d2817; background-color: #fefdfb; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #c9a17a; background-color: white; box-shadow: 0 0 0 3px rgba(201, 161, 122, 0.1); }
+        .form-group textarea { resize: vertical; min-height: 200px; line-height: 1.6; }
+        .image-upload-wrapper { margin-bottom: 2rem; }
+        .image-input-label { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: #8b5e4a; margin-bottom: 0.75rem; }
+        .file-input-wrapper { position: relative; display: inline-block; width: 100%; }
+        .file-input-wrapper input[type="file"], .file-input-wrapper .file-input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 1; }
+        .file-input-label { display: flex; align-items: center; justify-content: center; width: 100%; padding: 2.5rem; border: 2px dashed #c9a17a; border-radius: 8px; background-color: #fefdfb; cursor: pointer; transition: all 0.3s ease; text-align: center; flex-direction: column; gap: 0.75rem; }
+        .file-input-label:hover { border-color: #8b5e4a; background-color: #faf6f1; }
+        .file-input-icon { font-size: 2.5rem; color: #c9a17a; }
+        .file-input-text { color: #8b5e4a; font-size: 1rem; font-weight: 500; }
+        .file-input-subtext { color: #7a6e68; font-size: 0.875rem; }
+        .existing-image-section { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #e5ddd4; }
+        .existing-image-label { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 500; color: #7a6e68; margin-bottom: 1rem; }
+        .existing-image-container { position: relative; display: inline-block; width: 100%; max-width: 300px; }
+        .existing-image { width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .image-preview { margin-top: 1.5rem; border-radius: 8px; overflow: hidden; max-height: 300px; display: none; }
+        .image-preview.show { display: block; }
+        .image-preview img { width: 100%; height: auto; object-fit: cover; border-radius: 8px; }
+        .article-meta { background-color: #faf6f1; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .meta-item { display: flex; flex-direction: column; }
+        .meta-label { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: #7a6e68; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 1px; }
+        .meta-value { font-size: 1rem; color: #3d2817; font-weight: 500; }
+        .submit-btn-wrapper { display: flex; gap: 1rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e5ddd4; flex-wrap: wrap; }
+        button[type="submit"] { flex: 1; min-width: 140px; padding: 1rem 2rem; background-color: #8b5e4a; color: white; border: none; border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+        button[type="submit"]:hover { background-color: #6d4936; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(139, 94, 74, 0.2); }
+        .btn-cancel { flex: 1; min-width: 140px; padding: 1rem 2rem; background-color: #e5ddd4; color: #8b5e4a; border: none; border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+        .btn-cancel:hover { background-color: #d4c4b8; transform: translateY(-2px); }
+        .btn-delete { flex: 0.5; min-width: 100px; padding: 1rem 2rem; background-color: #c9292d; color: white; border: none; border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+        .btn-delete:hover { background-color: #a01f24; transform: translateY(-2px); }
+        .form-errors { background-color: #fee; border: 1px solid #fcc; border-radius: 6px; padding: 1rem; margin-bottom: 2rem; color: #c33; }
+        .field-error { color: #c33; font-size: 0.875rem; margin-top: 0.5rem; display: block; }
+        .form-group input.error, .form-group textarea.error, .form-group select.error { border-color: #c33; }
+        @media (max-width: 640px) { .form-header h1 { font-size: 2rem; } .article-form { padding: 1.5rem; } .article-meta { grid-template-columns: 1fr; } }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Modifier l'Article</h1>
+            <p>Mettez à jour les informations de votre article et partagez vos modifications</p>
+        </div>
+
+        <div class="article-meta">
+            <div class="meta-item"><span class="meta-label">Date de publication</span><span class="meta-value">{{ article.date ? article.date|date('d M Y') : 'Non définie' }}</span></div>
+            <div class="meta-item"><span class="meta-label">Auteur</span><span class="meta-value">{% if article.artisan %}{{ article.artisan.prenom }} {{ article.artisan.nom }}{% else %}Non spécifié{% endif %}</span></div>
+            <div class="meta-item"><span class="meta-label">Commentaires</span><span class="meta-value">{{ article.commentaires|length }} commentaire(s)</span></div>
+            <div class="meta-item"><span class="meta-label">ID Article</span><span class="meta-value">#{{ article.id }}</span></div>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'article-form', 'novalidate': 'novalidate'}}) }}
+            {% if form_errors(form) %}<div class="form-errors"><strong>Erreurs détectées :</strong> {{ form_errors(form) }}</div>{% endif %}
+
+            {% if article.image %}
+                <div class="existing-image-section">
+                    <label class="existing-image-label">Image actuelle</label>
+                    <div class="existing-image-container">
+                        <img src="{{ asset('image/' ~ article.image) }}" alt="{{ article.titre }}" class="existing-image">
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="image-upload-wrapper">
+                <label class="image-input-label">{% if article.image %}Changer la photo de couverture{% else %}Ajouter une photo de couverture{% endif %}</label>
+                <div class="file-input-wrapper">
+                    {{ form_widget(form.image, {'attr': {'id': 'image', 'accept': 'image/*', 'class': 'file-input'}}) }}
+                    <label for="image" class="file-input-label">
+                        <div class="file-input-icon">📸</div>
+                        <div class="file-input-text">Cliquez pour télécharger une image</div>
+                        <div class="file-input-subtext">ou glissez-déposez votre fichier</div>
+                    </label>
+                </div>
+                <div id="imagePreview" class="image-preview"><img id="previewImg" src="" alt="Aperçu"></div>
+                {% if form_errors(form.image) %}<div class="field-error">{{ form_errors(form.image) }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="titre">Titre de l'Article *</label>
+                {{ form_widget(form.titre, {'attr': {'placeholder': 'Entrez le titre', 'class': form.titre.vars.errors|length > 0 ? 'error' : ''}}) }}
+                {% if form_errors(form.titre) %}{{ form_errors(form.titre) }}{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="contenu">Description & Contenu *</label>
+                {{ form_widget(form.contenu, {'attr': {'placeholder': 'Description détaillée...', 'class': form.contenu.vars.errors|length > 0 ? 'error' : ''}}) }}
+                {% if form_errors(form.contenu) %}{{ form_errors(form.contenu) }}{% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.categorie) }}
+                {{ form_widget(form.categorie, {'attr': {'class': form.categorie.vars.errors|length > 0 ? 'error' : ''}}) }}
+                {{ form_errors(form.categorie) }}
+            </div>
+
+            <div class="form-group">
+                <label for="prix">Prix (DT)</label>
+                {{ form_widget(form.prix, {'attr': {'placeholder': '0.00', 'class': form.prix.vars.errors|length > 0 ? 'error' : ''}}) }}
+                {% if form_errors(form.prix) %}{{ form_errors(form.prix) }}{% endif %}
+            </div>
+
+            {{ form_rest(form) }}
+
+            <div class="submit-btn-wrapper">
+                <button type="submit" name="save">Mettre à Jour l'Article</button>
+                <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn-cancel">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+        <div class="submit-btn-wrapper" style="margin-top: 0.5rem;">
+            <form method="POST" action="{{ path('app_article_delete', {'id': article.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+                <button type="submit" class="btn-delete">Supprimer l'article</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            var fileInput = document.getElementById('image');
+            var imagePreview = document.getElementById('imagePreview');
+            var previewImg = document.getElementById('previewImg');
+            if (fileInput && imagePreview && previewImg) {
+                fileInput.addEventListener('change', function(e) {
+                    var file = e.target.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onload = function(event) { previewImg.src = event.target.result; imagePreview.classList.add('show'); };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        })();
+    </script>
+{% endblock %}

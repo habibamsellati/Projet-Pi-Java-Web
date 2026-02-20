@@ -1,0 +1,111 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Articles - Admin{% endblock %}
+
+{% block admin_container_class %}articles-page{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .articles-page .header h1 { margin-bottom: 0.25rem; }
+        .articles-list { margin-top: 1.5rem; }
+        .article-block { background: var(--card-bg, #fff); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); }
+        .article-block-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, #f8f6f3 0%, #f0ede8 100%); border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .article-block-title { font-size: 1.25rem; font-weight: 600; color: #2d2d2d; margin: 0; }
+        .article-block-meta { font-size: 0.875rem; color: #666; margin-top: 0.25rem; }
+        .article-block-actions { display: flex; align-items: center; gap: 0.5rem; }
+        .btn-delete-article { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; background: #dc3545; color: #fff; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+        .btn-delete-article:hover { background: #c82333; }
+        .comments-section { padding: 1rem 1.5rem 1.25rem; }
+        .comments-section-title { font-size: 0.95rem; font-weight: 600; color: #555; margin-bottom: 0.75rem; }
+        .comment-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; background: #fafafa; border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid #eee; }
+        .comment-text { flex: 1; font-size: 0.9rem; color: #333; margin: 0; }
+        .comment-meta { font-size: 0.75rem; color: #888; margin-top: 0.25rem; }
+        .btn-delete-comment { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.6rem; background: #dc3545; color: #fff; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: background 0.2s; }
+        .btn-delete-comment:hover { background: #c82333; }
+        .no-comments { font-size: 0.9rem; color: #888; padding: 0.5rem 0; }
+        .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+        .empty-articles { text-align: center; padding: 3rem; color: #666; background: #f8f8f8; border-radius: 12px; }
+        .filters-section { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 250px; }
+        .search-box input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e0d5ca; border-radius: 8px; font-size: 0.95rem; }
+        .filter-group select { padding: 0.75rem 1rem; border: 1px solid #e0d5ca; border-radius: 8px; font-size: 0.95rem; background-color: white; cursor: pointer; }
+    </style>
+{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <div class="header-left">
+                <h1>Articles</h1>
+                <p class="header-subtitle">Liste des articles et commentaires – supprimer un article ou un commentaire</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="{{ path('back_statistiques') }}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none; font-size: 0.9rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Statistiques</span>
+                </a>
+            </div>
+        </header>
+
+        {% for message in app.flashes('success') %}<div class="alert alert-success">{{ message }}</div>{% endfor %}
+        {% for message in app.flashes('error') %}<div class="alert alert-error">{{ message }}</div>{% endfor %}
+
+        <div class="filters-section">
+            <form method="GET" action="{{ path('back_articles') }}" class="search-box" style="display: flex; gap: 0.5rem; flex: 1;">
+                <input type="text" name="recherche" value="{{ filters.recherche|default('') }}" placeholder="Rechercher par titre, contenu ou auteur...">
+                <input type="hidden" name="tri" value="{{ filters.tri|default('date_desc') }}">
+                <button type="submit" style="padding: 0.6rem 1rem; background: #8b5e4a; color: white; border: none; border-radius: 8px; cursor: pointer;">Rechercher</button>
+            </form>
+            <form method="GET" action="{{ path('back_articles') }}" class="filter-group">
+                <input type="hidden" name="recherche" value="{{ filters.recherche|default('') }}">
+                <select name="tri" onchange="this.form.submit()">
+                    <option value="date_desc" {{ (filters.tri|default('date_desc')) == 'date_desc' ? 'selected' : '' }}>Date (récentes)</option>
+                    <option value="date_asc" {{ (filters.tri|default('')) == 'date_asc' ? 'selected' : '' }}>Date (anciennes)</option>
+                    <option value="titre_asc" {{ (filters.tri|default('')) == 'titre_asc' ? 'selected' : '' }}>Titre (A-Z)</option>
+                    <option value="titre_desc" {{ (filters.tri|default('')) == 'titre_desc' ? 'selected' : '' }}>Titre (Z-A)</option>
+                </select>
+            </form>
+        </div>
+
+        {% if articles|length > 0 %}
+            <div class="articles-list">
+                {% for article in articles %}
+                    <div class="article-block">
+                        <div class="article-block-header">
+                            <div>
+                                <h2 class="article-block-title">{{ article.titre }}</h2>
+                                <div class="article-block-meta">{% if article.artisan %}{{ article.artisan.prenom }} {{ article.artisan.nom }}{% endif %}{% if article.date %} · {{ article.date|date('d/m/Y') }}{% endif %}</div>
+                            </div>
+                            <div class="article-block-actions">
+                                <form method="post" action="{{ path('back_article_delete', { id: article.id }) }}" style="display: inline;" onsubmit="return confirm('Supprimer cet article et tous ses commentaires ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('back_article_delete' ~ article.id) }}">
+                                    <button type="submit" class="btn-delete-article">Supprimer l'article</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="comments-section">
+                            <div class="comments-section-title">Commentaires ({{ article.commentaires|length }})</div>
+                            {% if article.commentaires|length > 0 %}
+                                {% for comment in article.commentaires %}
+                                    <div class="comment-item">
+                                        <div>
+                                            <p class="comment-text">{{ comment.contenu }}</p>
+                                            <div class="comment-meta">{% if comment.user %}{{ comment.user.prenom }} {{ comment.user.nom }}{% else %}Anonyme{% endif %}{% if comment.datepub %} · {{ comment.datepub|date('d/m/Y H:i') }}{% endif %}</div>
+                                        </div>
+                                        <form method="post" action="{{ path('back_comment_delete', { id: comment.id }) }}" style="display: inline;" onsubmit="return confirm('Supprimer ce commentaire ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('back_comment_delete' ~ comment.id) }}">
+                                            <button type="submit" class="btn-delete-comment">Supprimer</button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            {% else %}<p class="no-comments">Aucun commentaire.</p>{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-articles"><p>Aucun article pour le moment.</p></div>
+        {% endif %}
+{% endblock %}

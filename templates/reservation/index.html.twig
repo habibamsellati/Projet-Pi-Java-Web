@@ -1,0 +1,42 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}AfkArt | Mes Réservations{% endblock %}
+
+{% block body %}
+<div class="container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">{{ app.user.role == 'CLIENT' ? 'Mes Réservations' : 'Réservations' }}</h1>
+        <p style="color: #5C4A3D;">{{ app.user.role == 'CLIENT' ? 'Gérez vos réservations aux ateliers et événements.' : 'Consultez les réservations (seuls les clients peuvent en créer).' }}</p>
+    </div>
+    {% if app.user.role == 'CLIENT' %}
+    <a href="{{ path('app_reservation_new') }}" class="btn btn-primary">+ Nouvelle Réservation</a>
+    {% endif %}
+</div>
+
+<div class="container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem;">
+    {% for reservation in reservations %}
+        <div style="background: white; border-radius: 1.5rem; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #eee;">
+            <div style="color: #8b5e4a; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.25rem;">RÉSERVATION #{{ reservation.id }}</div>
+            <h3 style="font-size: 1.25rem; color: #3D3229; margin: 0 0 1rem;">{{ reservation.evenement ? reservation.evenement.nom : 'Événement' }}</h3>
+            {% set status_info = {'confirme': {'bg': '#dcfce7', 'color': '#166534', 'label': 'Confirmé'}, 'annule': {'bg': '#fee2e2', 'color': '#991b1b', 'label': 'Annulé'}, 'en_attente': {'bg': '#fefce8', 'color': '#854d0e', 'label': 'En attente'} } %}
+            {% set status = status_info[reservation.statut]|default(status_info.en_attente) %}
+            <span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; background: {{ status.bg }}; color: {{ status.color }};">{{ status.label }}</span>
+            <p style="margin: 1rem 0 0; color: #5C4A3D; font-size: 0.9rem;">📅 {{ reservation.dateReservation ? reservation.dateReservation|date('d/m/Y H:i') : '' }}</p>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-outline" style="flex:1;text-align:center;padding:0.5rem;">Détails</a>
+                <a href="{{ path('app_reservation_edit', {id: reservation.id}) }}" class="btn btn-primary" style="flex:1;text-align:center;padding:0.5rem;">Modifier</a>
+                <form method="post" action="{{ path('app_reservation_delete', {id: reservation.id}) }}" onsubmit="return confirm('Supprimer ?');" style="margin:0;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                    <button type="submit" class="btn" style="padding: 0.5rem; color: #991b1b; border: 1px solid #fecaca;">🗑️</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: white; border-radius: 1.5rem; color: #5C4A3D;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+            <h3 style="font-size: 1.5rem;">Aucune réservation</h3>
+            <a href="{{ path('app_evenement_index') }}" class="btn btn-primary" style="margin-top: 1rem;">Explorer les événements</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Produits recyclables | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #3d2817;">Produits recyclables</h1>
+        {% if can_manage|default(false) %}
+        <a href="{{ path('app_produit_new') }}" style="background: #8b5e4a; color: white; padding: 0.6rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600;">+ Nouveau produit</a>
+        {% endif %}
+    </div>
+    {% for message in app.flashes('success') %}
+        <div style="background: #ECFDF5; color: #065F46; padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem;">{{ message }}</div>
+    {% endfor %}
+    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f6f3;">
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Nom</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Matériau</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">État</th>
+                    <th style="padding: 1rem; text-align: center; font-size: 0.8rem; text-transform: uppercase; color: #666;">Quantité</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Origine</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Date</th>
+                    <th style="padding: 1rem; text-align: right; font-size: 0.8rem; text-transform: uppercase; color: #666;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produit in produits %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 1rem; font-weight: 600; color: #8b5e4a;">{{ produit.nomproduit }}</td>
+                    <td style="padding: 1rem;">{{ produit.typemateriau }}</td>
+                    <td style="padding: 1rem;"><span style="background: #f5f0eb; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.8rem;">{{ produit.etat }}</span></td>
+                    <td style="padding: 1rem; text-align: center;">{{ produit.quantite }}</td>
+                    <td style="padding: 1rem;">{{ produit.origine }}</td>
+                    <td style="padding: 1rem;">{{ produit.dateajout ? produit.dateajout|date('d/m/y') : '-' }}</td>
+                    <td style="padding: 1rem; text-align: right;">
+                        <a href="{{ path('app_produit_show', {'id': produit.id}) }}" style="color: #8b5e4a; text-decoration: none; margin-right: 0.75rem;">Voir</a>
+                        {% if can_manage|default(false) %}
+                        <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" style="color: #5a5450; text-decoration: none; margin-right: 0.75rem;">Modifier</a>
+                        {% if produit.propositions is empty %}
+                        <form method="post" action="{{ path('app_produit_delete', {'id': produit.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce produit ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+                            <button type="submit" style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Supprimer</button>
+                        </form>
+                        {% else %}
+                        <span style="color: #999; font-size: 0.85rem;" title="Produit lié à des propositions">—</span>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" style="padding: 2rem; text-align: center; color: #999;">Aucun produit.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

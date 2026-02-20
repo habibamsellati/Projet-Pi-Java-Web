@@ -1,0 +1,213 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Profil - AfkArt{% endblock %}
+
+{% block body %}
+<style>
+  :root {
+    --color-cream: #FAF7F2;
+    --color-terracotta: #C4704B;
+    --color-terracotta-dark: #A85D3B;
+    --color-brown: #3D3229;
+    --color-brown-light: #5C4A3D;
+    --color-sage: #8FAE8B;
+  }
+  body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background: var(--color-cream);
+    color: var(--color-brown);
+  }
+  .profile-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  .profile-card {
+    width: 100%;
+    max-width: 860px;
+    background: #fff;
+    border-radius: 1.5rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .profile-header {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 2rem 2.25rem;
+    background: linear-gradient(135deg, #fff, #f6efe6);
+    border-bottom: 1px solid #efe5d8;
+  }
+  .profile-avatar {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 20px rgba(61, 50, 41, 0.18);
+  }
+  .profile-title h1 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2.1rem;
+    margin: 0 0 .35rem 0;
+  }
+  .profile-title p {
+    margin: 0;
+    color: var(--color-brown-light);
+  }
+  .profile-body {
+    padding: 2rem 2.25rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2rem;
+  }
+  .info-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  .info-item {
+    background: #f9f4ee;
+    border: 1px solid #efe5d8;
+    border-radius: 1rem;
+    padding: 0.9rem 1.1rem;
+  }
+  .info-item span {
+    display: block;
+    font-size: .82rem;
+    letter-spacing: .02em;
+    color: var(--color-brown-light);
+    margin-bottom: .25rem;
+    text-transform: uppercase;
+  }
+  .info-item strong {
+    font-weight: 600;
+  }
+  .password-card {
+    background: #fff;
+    border: 1px solid #efe5d8;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+  }
+  .password-card h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.6rem;
+    margin: 0 0 1rem 0;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: .45rem;
+    font-weight: 500;
+  }
+  .form-group input {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: .8rem;
+    padding: .75rem 1rem;
+    font-family: inherit;
+  }
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-terracotta);
+    color: #fff;
+    padding: .8rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .btn:hover { background: var(--color-terracotta-dark); }
+  .flash {
+    padding: .85rem 1rem;
+    border-radius: .75rem;
+    margin-bottom: 1rem;
+    font-size: .92rem;
+  }
+  .flash.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .flash.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  @media (max-width: 900px) {
+    .profile-body { grid-template-columns: 1fr; }
+  }
+</style>
+
+{% set _fallbackAvatar = user.sexe == 'HOMME' ? asset('uploads/avatars/default_homme.svg') : (user.sexe == 'FEMME' ? asset('uploads/avatars/default_femme.svg') : asset('uploads/avatars/default_autre.svg')) %}
+
+<div class="profile-wrap">
+  <div class="profile-card">
+    <div class="profile-header">
+      <img class="profile-avatar" src="{{ user.avatar ?: _fallbackAvatar }}" alt="Avatar">
+      <div class="profile-title">
+        <h1>{{ user.prenom }} {{ user.nom }}</h1>
+        <p>{{ user.email }}</p>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <div>
+        {% for label, messages in app.flashes %}
+          {% for message in messages %}
+            <div class="flash {{ label }}">{{ message }}</div>
+          {% endfor %}
+        {% endfor %}
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span>Role</span>
+            <strong>{{ user.role }}</strong>
+          </div>
+          <div class="info-item">
+            <span>Sexe</span>
+            <strong>{{ user.sexe ?: 'Non defini' }}</strong>
+          </div>
+          <div class="info-item">
+            <span>Statut</span>
+            <strong>{{ user.statut }}</strong>
+          </div>
+          <div class="info-item">
+            <span>Date de creation</span>
+            <strong>{{ user.datecreation ? user.datecreation|date('d/m/Y') : 'N/A' }}</strong>
+          </div>
+        </div>
+
+        <div class="password-card" style="margin-top:1.25rem;">
+          <h2>Informations du profil</h2>
+          <form method="post" action="{{ path('app_profile') }}">
+            <div class="form-group">
+              <label for="nom">Nom</label>
+              <input type="text" id="nom" name="nom" value="{{ user.nom }}" required>
+            </div>
+            <div class="form-group">
+              <label for="prenom">Prenom</label>
+              <input type="text" id="prenom" name="prenom" value="{{ user.prenom }}" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" value="{{ user.email }}" required>
+            </div>
+            <button class="btn" type="submit">Mettre a jour le profil</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="password-card">
+        <h2>Mettre a jour le mot de passe</h2>
+        <form method="post" action="{{ path('app_profile') }}">
+          <div class="form-group">
+            <label for="password">Nouveau mot de passe</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <div class="form-group">
+            <label for="password_confirm">Confirmer le mot de passe</label>
+            <input type="password" id="password_confirm" name="password_confirm" required>
+          </div>
+          <button class="btn" type="submit">Enregistrer</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
