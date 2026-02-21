@@ -1,0 +1,452 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Modifier proposition | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 750px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #3d2817; margin-bottom: 1.5rem;">Modifier la proposition</h1>
+    {% for message in app.flashes('error') %}
+        <div style="background: #FEE2E2; color: #991B1B; padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem;">{{ message }}</div>
+    {% endfor %}
+
+    <div style="background: white; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'proposition-form'}}) }}
+        {% set widget_attr = {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;transition:border-color 0.3s, box-shadow 0.3s;'} %}
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.titre) }}
+            {{ form_widget(form.titre, {'attr': widget_attr}) }}
+            {{ form_errors(form.titre) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.description) }}
+            <div style="position: relative;">
+                {{ form_widget(form.description, {'attr': {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;min-height:100px;resize:vertical;'}}) }}
+                <button type="button" id="btn-generate-ai" style="position: absolute; right: 10px; bottom: 10px; background: #8b5e4a; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.3s;">✨ Générer Image IA</button>
+            </div>
+            {{ form_errors(form.description) }}
+        </div>
+
+        <div id="ai-preview-container" style="margin-bottom: 1.5rem; display: block;">
+            <p style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.9rem;">Aperçu de l'image générée :</p>
+            <div style="position: relative; width: 100%; height: 280px; border-radius: 12px; overflow: hidden; background: #f3f4f6; border: 2px solid #8b5e4a;">
+                <img id="ai-preview-img" src="" alt="Aperçu IA" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                <div id="ai-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; color: #9ca3af;">
+                    <span style="font-size: 2rem;">🖼️</span>
+                    <span style="font-size: 0.85rem;">Image actuelle</span>
+                </div>
+                <div id="ai-error" style="width: 100%; height: 100%; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; padding: 1rem; text-align: center;">
+                    <span style="font-size: 2rem;">⚠️</span>
+                    <span id="ai-error-msg" style="font-size: 0.85rem; color: #b91c1c; font-weight: 600;">Service IA indisponible</span>
+                    <span style="font-size: 0.75rem; color: #6b7280;">Vérifiez votre connexion ou réessayez plus tard</span>
+                    <button type="button" id="btn-retry-ai" style="margin-top: 0.5rem; background: #8b5e4a; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; cursor: pointer;">🔄 Réessayer</button>
+                </div>
+                <div id="ai-loading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(249,250,251,0.95); display: none; flex-direction: column; justify-content: center; align-items: center;">
+                    <div class="loader"></div>
+                    <p style="margin-top: 10px; font-size: 0.8rem; color: #8b5e4a;">L'IA crée votre image...</p>
+                </div>
+            </div>
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.date) }}
+            {{ form_widget(form.date, {'attr': widget_attr}) }}
+            {{ form_errors(form.date) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;" id="field-produit">
+            {{ form_label(form.produit) }}
+            {{ form_widget(form.produit, {'attr': widget_attr}) }}
+            {{ form_errors(form.produit) }}
+        </div>
+
+        {# ═══════════════════════════════════════════════
+           BLOC IA 1 — Estimation automatique du prix
+           ═══════════════════════════════════════════════ #}
+        <div style="margin-bottom: 1.25rem;" id="field-prix">
+            {{ form_label(form.prixPropose) }}
+            <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                <div style="flex: 1;">
+                    {{ form_widget(form.prixPropose, {'attr': {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;transition:border-color 0.3s, box-shadow 0.3s;', 'id': 'prix-input'}}) }}
+                </div>
+                <button type="button" id="btn-estimate-price" class="ia-action-btn ia-price-btn">
+                    💰 Estimer IA
+                </button>
+            </div>
+            {{ form_errors(form.prixPropose) }}
+            <div id="price-estimation-result" class="ia-result-box" style="display: none;"></div>
+        </div>
+
+        {# ═══════════════════════════════════════════════
+           BLOC IA 2 — Recommandation d'artisans
+           ═══════════════════════════════════════════════ #}
+        <div class="ia-recommend-box" id="artisan-recommend-box" style="display: none;">
+            <div class="ia-recommend-header">
+                <span class="ia-recommend-icon">🎨</span>
+                <div>
+                    <h4 class="ia-recommend-title">Artisans recommandés par l'IA</h4>
+                    <p class="ia-recommend-subtitle">Basé sur la catégorie du produit sélectionné</p>
+                </div>
+            </div>
+            <div id="artisan-loading" class="ia-loading" style="display: none;">
+                <div class="ia-spinner"></div>
+                <span>Recherche des meilleurs artisans...</span>
+            </div>
+            <div id="artisan-list" class="ia-artisan-list"></div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.clientPhone) }}
+            {{ form_widget(form.clientPhone, {'attr': widget_attr}) }}
+            {{ form_errors(form.clientPhone) }}
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-top: 1.5rem;">
+            <button type="submit" style="background: #8b5e4a; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer;">Mettre à jour</button>
+            <a href="{{ path('app_proposition_index') }}" style="color: #5a5450; text-decoration: none;">Annuler</a>
+            <button type="button" onclick="if(confirm('Supprimer cette proposition ?')) document.getElementById('delete-form').submit();" style="background: none; border: none; color: #b91c1c; cursor: pointer; text-decoration: underline; margin-left: auto;">Supprimer</button>
+        </div>
+        {{ form_end(form) }}
+
+        <form id="delete-form" method="post" action="{{ path('app_proposition_delete', {'id': proposition.id}) }}" style="display: none;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ proposition.id) }}">
+        </form>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════
+   STYLES IA PROPOSITION
+   ═══════════════════════════════════════════ #}
+<style>
+    .form-error-message { color: #b91c1c; font-size: 0.875rem; margin-top: 0.25rem; }
+    label { display: block; font-weight: 600; color: #374151; margin-bottom: 0.35rem; font-size: 0.9rem; }
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #8b5e4a; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .ia-action-btn {
+        border: none; border-radius: 10px; padding: 0.5rem 1rem;
+        font-size: 0.82rem; font-weight: 700; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        transition: all 0.3s ease; white-space: nowrap;
+    }
+    .ia-action-btn:hover { transform: translateY(-1px); }
+    .ia-action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .ia-price-btn {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white; box-shadow: 0 3px 10px rgba(217,119,6,0.25);
+    }
+    .ia-price-btn:hover { box-shadow: 0 5px 16px rgba(217,119,6,0.35); }
+
+    .ia-result-box {
+        margin-top: 0.75rem;
+        background: linear-gradient(135deg, #fefce8, #fef3c7);
+        border: 1px solid #fbbf24; border-radius: 12px;
+        padding: 1rem 1.25rem; animation: ia-slide-in 0.4s ease-out;
+    }
+    @keyframes ia-slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .ia-price-range { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .ia-price-main {
+        font-size: 1.6rem; font-weight: 800;
+        background: linear-gradient(135deg, #d97706, #92400e);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .ia-price-minmax { font-size: 0.78rem; color: #92400e; background: rgba(245,158,11,0.15); padding: 0.2rem 0.6rem; border-radius: 50px; }
+    .ia-price-confidence { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: #78716c; }
+    .ia-conf-bar { flex: 1; max-width: 120px; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .ia-conf-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #f59e0b, #d97706); transition: width 0.8s ease-out; }
+    .ia-price-breakdown { margin-top: 0.5rem; font-size: 0.72rem; color: #a16207; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .ia-breakdown-tag { background: rgba(255,255,255,0.7); padding: 0.15rem 0.5rem; border-radius: 50px; border: 1px solid rgba(245,158,11,0.2); }
+    .ia-price-apply {
+        margin-top: 0.6rem;
+        background: linear-gradient(135deg, #059669, #047857);
+        color: white; border: none; padding: 0.35rem 0.8rem;
+        border-radius: 50px; font-size: 0.78rem; font-weight: 600;
+        cursor: pointer; transition: all 0.3s;
+    }
+    .ia-price-apply:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(5,150,105,0.3); }
+
+    .ia-recommend-box {
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+        border: 2px solid #8b5cf6; border-radius: 16px;
+        padding: 1.25rem; animation: ia-slide-in 0.5s ease-out;
+    }
+    .ia-recommend-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .ia-recommend-icon {
+        width: 44px; height: 44px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; box-shadow: 0 4px 12px rgba(139,92,246,0.3);
+    }
+    .ia-recommend-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: #5b21b6; margin: 0; }
+    .ia-recommend-subtitle { font-size: 0.78rem; color: #7c3aed; margin: 0.1rem 0 0; }
+    .ia-artisan-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .ia-artisan-card {
+        background: rgba(255,255,255,0.9); border: 1px solid rgba(139,92,246,0.15);
+        border-radius: 12px; padding: 0.75rem 1rem;
+        display: flex; align-items: center; gap: 0.75rem;
+        transition: all 0.3s; animation: ia-card-slide 0.3s ease-out backwards;
+    }
+    .ia-artisan-card:nth-child(1) { animation-delay: 0.1s; }
+    .ia-artisan-card:nth-child(2) { animation-delay: 0.2s; }
+    .ia-artisan-card:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes ia-card-slide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    .ia-artisan-card:hover { border-color: #8b5cf6; box-shadow: 0 2px 8px rgba(139,92,246,0.15); }
+    .ia-artisan-rank {
+        width: 32px; height: 32px;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        border-radius: 50%; color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.85rem; flex-shrink: 0;
+    }
+    .ia-artisan-rank.gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .ia-artisan-rank.silver { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .ia-artisan-rank.bronze { background: linear-gradient(135deg, #d97706, #92400e); }
+    .ia-artisan-info { flex: 1; min-width: 0; }
+    .ia-artisan-name { font-weight: 700; color: #1f2937; font-size: 0.9rem; }
+    .ia-artisan-reason { font-size: 0.72rem; color: #6b7280; margin-top: 0.1rem; }
+    .ia-artisan-score {
+        font-size: 0.72rem; font-weight: 700;
+        background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+        color: #7c3aed; padding: 0.2rem 0.5rem; border-radius: 50px; flex-shrink: 0;
+    }
+    .ia-loading { display: flex; align-items: center; gap: 0.75rem; color: #7c3aed; font-size: 0.85rem; font-weight: 500; padding: 0.5rem 0; }
+    .ia-spinner { width: 22px; height: 22px; border: 3px solid #ddd6fe; border-top: 3px solid #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+    @keyframes field-flash {
+        0% { box-shadow: 0 0 0 0 rgba(5,150,105,0.4); border-color: #059669; }
+        50% { box-shadow: 0 0 0 6px rgba(5,150,105,0.1); }
+        100% { box-shadow: 0 0 0 0 rgba(5,150,105,0); border-color: #ddd; }
+    }
+    .field-autofilled input, .field-autofilled select { animation: field-flash 1.2s ease-out; }
+    .field-autofilled::after {
+        content: '✓ Suggéré par IA'; display: block; font-size: 0.72rem;
+        color: #059669; font-weight: 600; margin-top: 0.2rem;
+        animation: ia-slide-in 0.3s ease-out;
+    }
+    .ia-no-artisans { text-align: center; color: #7c3aed; font-size: 0.85rem; padding: 0.5rem; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ═══════════════════════════════════════
+    //  IA 1 — Estimation du prix
+    // ═══════════════════════════════════════
+    const produitSelect = document.querySelector('select[name*="[produit]"]');
+    const prixInput = document.getElementById('prix-input') || document.querySelector('input[name*="[prixPropose]"]');
+    const btnEstimate = document.getElementById('btn-estimate-price');
+    const priceResult = document.getElementById('price-estimation-result');
+    const artisanBox = document.getElementById('artisan-recommend-box');
+    const artisanList = document.getElementById('artisan-list');
+    const artisanLoading = document.getElementById('artisan-loading');
+
+    function getSelectedProduitCategory() {
+        if (!produitSelect || !produitSelect.value) return null;
+        const option = produitSelect.options[produitSelect.selectedIndex];
+        return option ? option.textContent.trim() : null;
+    }
+
+    if (produitSelect) {
+        produitSelect.addEventListener('change', function() {
+            const category = getSelectedProduitCategory();
+            if (category) { loadRecommendedArtisans(category); }
+            else { artisanBox.style.display = 'none'; }
+        });
+        if (produitSelect.value) {
+            const cat = getSelectedProduitCategory();
+            if (cat) loadRecommendedArtisans(cat);
+        }
+    }
+
+    btnEstimate.addEventListener('click', async function() {
+        const category = getSelectedProduitCategory();
+        if (!category) { alert('Veuillez d\'abord sélectionner un produit.'); return; }
+
+        btnEstimate.disabled = true;
+        btnEstimate.textContent = '⏳ Estimation...';
+
+        try {
+            const response = await fetch('{{ path("app_ai_estimate_price") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: category, state: 'Moyen', type: 'Réutilisable', quantity: 1 })
+            });
+            const data = await response.json();
+            if (data.status === 'success') { displayPriceEstimation(data.estimation); }
+            else { alert('Erreur: ' + (data.error || 'Estimation impossible')); }
+        } catch (err) {
+            console.error('Price estimation error:', err);
+            alert('Erreur réseau lors de l\'estimation.');
+        } finally {
+            btnEstimate.disabled = false;
+            btnEstimate.textContent = '💰 Estimer IA';
+        }
+    });
+
+    function displayPriceEstimation(est) {
+        priceResult.innerHTML = `
+            <div class="ia-price-range">
+                <span class="ia-price-main">${est.estimated} ${est.currency}</span>
+                <span class="ia-price-minmax">📉 ${est.min} — 📈 ${est.max} ${est.currency}</span>
+            </div>
+            <div class="ia-price-confidence">
+                <span>Confiance :</span>
+                <div class="ia-conf-bar"><div class="ia-conf-fill" style="width: 0%"></div></div>
+                <span>${est.confidence}%</span>
+            </div>
+            <div class="ia-price-breakdown">
+                <span class="ia-breakdown-tag">📦 ${est.breakdown.category}</span>
+                <span class="ia-breakdown-tag">📊 ${est.breakdown.state} (×${est.breakdown.state_multiplier})</span>
+                <span class="ia-breakdown-tag">🏷️ ${est.breakdown.type} (×${est.breakdown.type_multiplier})</span>
+                ${est.market_avg ? `<span class="ia-breakdown-tag">📈 Marché: ${est.market_avg} ${est.currency}</span>` : ''}
+            </div>
+            <button type="button" class="ia-price-apply" onclick="applyPrice(${est.estimated})">
+                ✅ Appliquer ${est.estimated} ${est.currency}
+            </button>
+        `;
+        priceResult.style.display = 'block';
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                const bar = priceResult.querySelector('.ia-conf-fill');
+                if (bar) bar.style.width = est.confidence + '%';
+            }, 50);
+        });
+    }
+
+    window.applyPrice = function(price) {
+        if (prixInput) {
+            prixInput.value = price;
+            prixInput.dispatchEvent(new Event('change'));
+            const field = document.getElementById('field-prix');
+            if (field) { field.classList.remove('field-autofilled'); void field.offsetWidth; field.classList.add('field-autofilled'); setTimeout(() => field.classList.remove('field-autofilled'), 3000); }
+        }
+    };
+
+    // ═══════════════════════════════════════
+    //  IA 2 — Recommandation d'artisans
+    // ═══════════════════════════════════════
+    async function loadRecommendedArtisans(category) {
+        artisanBox.style.display = 'block';
+        artisanLoading.style.display = 'flex';
+        artisanList.innerHTML = '';
+
+        try {
+            const response = await fetch('{{ path("app_ai_recommend_artisans") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ category: category, limit: 5 })
+            });
+            const data = await response.json();
+            if (data.status === 'success') { displayArtisans(data.artisans); }
+        } catch (err) {
+            console.error('Artisan recommendation error:', err);
+            artisanList.innerHTML = '<p class="ia-no-artisans">Impossible de charger les recommandations</p>';
+        } finally {
+            artisanLoading.style.display = 'none';
+        }
+    }
+
+    function displayArtisans(artisans) {
+        if (!artisans || artisans.length === 0) {
+            artisanList.innerHTML = '<p class="ia-no-artisans">Aucun artisan trouvé pour cette catégorie</p>';
+            return;
+        }
+        const rankClasses = ['gold', 'silver', 'bronze', '', ''];
+        artisanList.innerHTML = artisans.map((a, i) => `
+            <div class="ia-artisan-card">
+                <div class="ia-artisan-rank ${rankClasses[i] || ''}">${i + 1}</div>
+                <div class="ia-artisan-info">
+                    <div class="ia-artisan-name">${a.prenom} ${a.nom}</div>
+                    <div class="ia-artisan-reason">${a.match_reason || 'Artisan disponible'} • ${a.articles_count} œuvre(s)</div>
+                </div>
+                <div class="ia-artisan-score">⭐ ${a.score}</div>
+            </div>
+        `).join('');
+    }
+
+    // ═══════════════════════════════════════
+    //  Image IA Generation
+    // ═══════════════════════════════════════
+    const btn = document.getElementById('btn-generate-ai');
+    const btnRetry = document.getElementById('btn-retry-ai');
+    const descField = document.querySelector('textarea[name*="[description]"]');
+    const imageField = document.querySelector('input[type="hidden"][name*="[image]"]');
+    const previewContainer = document.getElementById('ai-preview-container');
+    const previewImg = document.getElementById('ai-preview-img');
+    const placeholder = document.getElementById('ai-placeholder');
+    const loading = document.getElementById('ai-loading');
+    const aiError = document.getElementById('ai-error');
+    const aiErrorMsg = document.getElementById('ai-error-msg');
+
+    function showError(msg) {
+        loading.style.display = 'none'; previewImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        if (aiError) { aiError.style.display = 'flex'; }
+        if (aiErrorMsg) aiErrorMsg.textContent = msg || 'Service IA indisponible';
+    }
+    function showImage(url, fallbackUrl = null) {
+        previewImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        previewImg.onload = null; previewImg.onerror = null;
+        previewImg.onload = function() { loading.style.display = 'none'; previewImg.style.display = 'block'; };
+        previewImg.onerror = function() {
+            if (fallbackUrl && previewImg.src !== fallbackUrl) { previewImg.src = fallbackUrl; return; }
+            loading.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'flex';
+            previewImg.style.display = 'none';
+        };
+        previewImg.src = url;
+    }
+
+    if (imageField && imageField.value && imageField.value.trim() !== '' && !imageField.value.endsWith('.svg')) {
+        previewContainer.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+        showImage(imageField.value);
+    }
+
+    async function generateImage() {
+        const description = descField ? descField.value : '';
+        if (description.length < 10) { alert('Veuillez écrire au moins 10 caractères.'); return; }
+        btn.disabled = true;
+        const originalText = btn.innerText;
+        btn.innerText = 'Génération...';
+        loading.style.display = 'flex';
+        previewContainer.style.display = 'block';
+        previewImg.style.display = 'none';
+
+        try {
+            const response = await fetch('{{ path("app_ai_generate_image") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: description })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                if (data.is_fallback) {
+                    showError('Service IA indisponible — réessayez plus tard.');
+                    btn.disabled = false; btn.innerText = '✨ Réessayer';
+                } else {
+                    if (imageField) imageField.value = data.image_url;
+                    btn.disabled = false; btn.innerText = '✨ Régénérer';
+                    showImage(data.preview_data || data.preview_url || data.image_url, data.external_url || data.image_url);
+                }
+            } else {
+                alert('Erreur IA: ' + data.error);
+                loading.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'flex';
+                btn.disabled = false; btn.innerText = originalText;
+            }
+        } catch (error) {
+            console.error('AI Error:', error);
+            showError('Erreur réseau');
+            btn.disabled = false; btn.innerText = '✨ Réessayer';
+        }
+    }
+
+    btn.addEventListener('click', generateImage);
+    if (btnRetry) btnRetry.addEventListener('click', generateImage);
+    if (descField) {
+        descField.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateImage(); } });
+        descField.addEventListener('blur', function() { if (imageField && !imageField.value && descField.value.length >= 10) { generateImage(); } });
+    }
+});
+</script>
+{% endblock %}

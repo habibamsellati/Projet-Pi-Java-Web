@@ -1,0 +1,551 @@
+﻿{% extends 'base.html.front.twig' %}
+
+{% block title %}{{ article.titre }} - AfkArt{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background-color: #faf8f6; color: #3d3d3d; }
+        .article-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        .breadcrumb { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; font-size: 14px; }
+        .breadcrumb a { color: #b8956a; text-decoration: none; transition: color 0.3s; }
+        .breadcrumb a:hover { color: #8b6f47; }
+        .article-header { margin-bottom: 40px; }
+        .article-image { width: 100%; max-height: 500px; object-fit: cover; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); }
+        .article-title { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 600; color: #3d3d3d; margin-bottom: 20px; line-height: 1.2; }
+        .article-metadata { display: flex; flex-wrap: wrap; gap: 30px; align-items: center; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #e8dcc8; }
+        .meta-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #6b6b6b; }
+        .meta-label { font-weight: 600; color: #b8956a; }
+        .article-actions { display: flex; gap: 15px; align-items: center; margin-bottom: 40px; flex-wrap: wrap; }
+        .action-btn { display: flex; align-items: center; gap: 8px; padding: 12px 24px; border: 2px solid #b8956a; background-color: transparent; color: #b8956a; cursor: pointer; border-radius: 8px; font-size: 14px; font-weight: 500; transition: all 0.3s; text-decoration: none; }
+        .action-btn:hover { background-color: #b8956a; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(184, 149, 106, 0.3); }
+        .action-btn.active { background-color: #b8956a; color: white; }
+        .action-btn.like-btn.active { background-color: #e74c3c; border-color: #e74c3c; }
+        .action-btn.favorite-btn.active { background-color: #f39c12; border-color: #f39c12; }
+        .article-content { font-size: 18px; line-height: 1.8; margin-bottom: 50px; color: #4d4d4d; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        .article-content p { margin-bottom: 20px; }
+        .comments-section { margin-top: 60px; padding-top: 40px; border-top: 2px solid #e8dcc8; }
+        .comments-title { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 600; color: #3d3d3d; margin-bottom: 30px; }
+        .comments-list { margin-bottom: 40px; }
+        .comment-item { background-color: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border-left: 4px solid #b8956a; transition: transform 0.2s, box-shadow 0.2s; }
+        .comment-item:hover { transform: translateX(5px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .comment-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .comment-author { font-weight: 600; color: #3d3d3d; font-size: 16px; }
+        .comment-date { font-size: 13px; color: #999; }
+        .comment-text { color: #4d4d4d; line-height: 1.7; margin-bottom: 12px; font-size: 15px; }
+        .comment-text.translated { background-color: #f0f8ff; padding: 10px; border-radius: 6px; border-left: 3px solid #4a90e2; }
+        .translate-controls { display: flex; align-items: center; gap: 8px; margin-top: 8px; margin-bottom: 8px; }
+        .translate-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: #4a90e2; color: white; border: none; border-radius: 5px; font-size: 12px; cursor: pointer; transition: background 0.2s; }
+        .translate-btn:hover { background: #357abd; }
+        .translate-btn.translating { background: #95a5a6; cursor: wait; }
+        .language-select { padding: 4px 8px; border: 1px solid #d8c4a6; border-radius: 5px; font-size: 12px; background: white; cursor: pointer; }
+        .original-text { display: none; }
+        .translation-info { font-size: 11px; color: #7a7268; font-style: italic; margin-top: 4px; }
+        .comment-actions { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.5rem; font-size: 13px; }
+        .comment-reactions { display: inline-flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem; }
+        .comment-reaction-btn { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid #e8dcc8; border-radius: 999px; padding: 0.2rem 0.55rem; background: #fff; color: #8b6f47; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .comment-reaction-btn:hover { background: #f5f1eb; border-color: #d8c4a6; }
+        .comment-reaction-btn.is-active.like { background: #ffe9e6; border-color: #e74c3c; color: #c0392b; }
+        .comment-reaction-btn.is-active.dislike { background: #edf3ff; border-color: #3d6fd8; color: #2c5ec0; }
+        .comment-reaction-count { font-weight: 600; }
+        .comment-action-form { display: inline; }
+        .comment-action { display: inline-flex; align-items: center; gap: 0.35rem; color: #b8956a; cursor: pointer; text-decoration: none; background: none; border: none; padding: 0; font-size: inherit; transition: color 0.2s; }
+        .comment-action:hover { color: #8b6f47; }
+        .comment-action--delete:hover { color: #c9302c; }
+        .comment-action .icon-pencil, .comment-action .icon-trash { flex-shrink: 0; }
+        .replies-list { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px dashed #e8dcc8; }
+        .reply-item { margin-left: 1.2rem; margin-top: 0.65rem; padding: 0.75rem 0.9rem; background: #fcfaf7; border-left: 3px solid #d8c4a6; border-radius: 8px; }
+        .reply-author { font-weight: 600; color: #8b5e4a; font-size: 13px; margin-bottom: 0.2rem; }
+        .reply-text { font-size: 14px; color: #4d4d4d; line-height: 1.5; }
+        .reply-form { margin-top: 0.8rem; }
+        .reply-input { width: 100%; border: 1px solid #d8c4a6; border-radius: 8px; min-height: 90px; padding: 0.65rem; font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 0.5rem; }
+        .reply-submit { border: none; border-radius: 8px; background: #8b5e4a; color: #fff; padding: 0.45rem 0.9rem; font-size: 13px; cursor: pointer; }
+        .reply-submit:hover { background: #6b4535; }
+        .no-comments { text-align: center; padding: 60px 20px; color: #999; font-style: italic; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        .comment-form-section { background-color: white; padding: 40px; border-radius: 12px; margin-top: 40px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+        .comment-form-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #3d3d3d; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 500; color: #3d3d3d; margin-bottom: 10px; font-size: 15px; }
+        .form-control { width: 100%; padding: 15px; border: 2px solid #e8dcc8; border-radius: 8px; font-family: 'Outfit', sans-serif; font-size: 15px; color: #3d3d3d; transition: border-color 0.3s; resize: vertical; }
+        .form-control:focus { outline: none; border-color: #b8956a; background-color: #faf8f6; }
+        textarea.form-control { min-height: 120px; line-height: 1.6; }
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.75rem; }
+        .emoji-btn { border: 1px solid #e8dcc8; background: #fff; border-radius: 8px; padding: 0.25rem 0.45rem; cursor: pointer; font-size: 18px; line-height: 1; }
+        .emoji-btn:hover { background: #f5f1eb; }
+        .form-submit { background-color: #b8956a; color: white; padding: 14px 35px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+        .form-submit:hover { background-color: #8b6f47; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(184, 149, 106, 0.3); }
+        .login-prompt { text-align: center; padding: 40px; background-color: #f5f1eb; border-radius: 8px; margin-top: 20px; }
+        .login-prompt p { color: #6b6b6b; margin-bottom: 15px; font-size: 15px; }
+        .login-prompt a { color: #b8956a; text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .login-prompt a:hover { color: #8b6f47; text-decoration: underline; }
+        .alert { padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: #b8956a; text-decoration: none; font-weight: 500; transition: color 0.3s; margin-top: 30px; font-size: 15px; }
+        .back-link:hover { color: #8b6f47; }
+        .similar-section { margin-top: 60px; padding-top: 32px; border-top: 2px solid #e8dcc8; }
+        .similar-title { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; color: #3d3d3d; margin-bottom: 20px; }
+        .similar-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+        .similar-card { display: block; background: #fff; border: 1px solid #eee2d1; border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; transition: transform .2s, box-shadow .2s; }
+        .similar-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0,0,0,.08); }
+        .similar-thumb { width: 100%; height: 140px; object-fit: cover; background: linear-gradient(135deg, #d9b38f 0%, #b99a74 100%); }
+        .similar-body { padding: 12px 14px; }
+        .similar-card-title { font-size: 16px; font-weight: 600; color: #3d3d3d; margin-bottom: 6px; line-height: 1.3; }
+        .similar-meta { font-size: 13px; color: #7a7268; }
+        @media (max-width: 768px) {
+            .article-title { font-size: 32px; }
+            .article-metadata { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .action-btn { flex: 1; justify-content: center; }
+            .comment-form-section { padding: 25px; }
+            .article-content { padding: 25px; font-size: 16px; }
+            .similar-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            document.querySelectorAll('.emoji-picker').forEach(function (picker) {
+                var targetId = picker.getAttribute('data-emoji-target');
+                var input = targetId ? document.getElementById(targetId) : null;
+                if (!input) {
+                    return;
+                }
+
+                picker.querySelectorAll('.emoji-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var emoji = btn.getAttribute('data-emoji') || '';
+                        var start = input.selectionStart || 0;
+                        var end = input.selectionEnd || 0;
+                        var value = input.value || '';
+                        input.value = value.slice(0, start) + emoji + value.slice(end);
+                        input.focus();
+                        var next = start + emoji.length;
+                        if (typeof input.setSelectionRange === 'function') {
+                            input.setSelectionRange(next, next);
+                        }
+                    });
+                });
+            });
+
+            // Google Translate functionality for comments
+            window.translateComment = async function(commentId, targetLang) {
+                const textElement = document.getElementById('comment-text-' + commentId);
+                const originalElement = document.getElementById('comment-original-' + commentId);
+                const translateBtn = document.getElementById('translate-btn-' + commentId);
+                const infoElement = document.getElementById('translation-info-' + commentId);
+                
+                if (!textElement || !translateBtn) return;
+                
+                // If showing translation, revert to original
+                if (translateBtn.dataset.state === 'translated') {
+                    textElement.innerHTML = originalElement.textContent;
+                    textElement.classList.remove('translated');
+                    translateBtn.textContent = '🌐 Traduire';
+                    translateBtn.dataset.state = 'original';
+                    if (infoElement) infoElement.style.display = 'none';
+                    return;
+                }
+                
+                // Store original text if not already stored
+                if (!originalElement.textContent) {
+                    originalElement.textContent = textElement.innerHTML;
+                }
+                
+                const originalText = textElement.textContent.trim();
+                if (!originalText) return;
+                
+                translateBtn.textContent = '⏳ Traduction...';
+                translateBtn.classList.add('translating');
+                translateBtn.disabled = true;
+                
+                try {
+                    // Using MyMemory Translation API - default source language is French
+                    const sourceLang = 'fr'; // Assuming comments are in French
+                    const response = await fetch(
+                        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(originalText)}&langpair=${sourceLang}|${targetLang}`
+                    );
+                    
+                    if (!response.ok) throw new Error('Translation failed');
+                    
+                    const data = await response.json();
+                    
+                    if (data.responseData && data.responseData.translatedText) {
+                        textElement.innerHTML = data.responseData.translatedText;
+                        textElement.classList.add('translated');
+                        translateBtn.textContent = '↩️ Original';
+                        translateBtn.dataset.state = 'translated';
+                        
+                        if (infoElement) {
+                            infoElement.textContent = `Traduit automatiquement vers ${getLanguageName(targetLang)}`;
+                            infoElement.style.display = 'block';
+                        }
+                    } else {
+                        throw new Error('Invalid response');
+                    }
+                } catch (error) {
+                    console.error('Translation error:', error);
+                    alert('Erreur lors de la traduction. Veuillez réessayer.');
+                    translateBtn.textContent = '🌐 Traduire';
+                    translateBtn.dataset.state = 'original';
+                } finally {
+                    translateBtn.classList.remove('translating');
+                    translateBtn.disabled = false;
+                }
+            };
+            
+            function getLanguageName(code) {
+                const languages = {
+                    'fr': 'français',
+                    'en': 'anglais',
+                    'es': 'espagnol',
+                    'de': 'allemand',
+                    'it': 'italien',
+                    'ar': 'arabe',
+                    'zh': 'chinois'
+                };
+                return languages[code] || code;
+            }
+
+            // Bad word filter for comments (client-side check)
+            const commentForm = document.querySelector('form[name="commentaire"]');
+            if (commentForm) {
+                commentForm.addEventListener('submit', async function(e) {
+                    const textarea = this.querySelector('textarea[name="commentaire[contenu]"]');
+                    if (!textarea) return;
+                    
+                    const text = textarea.value.trim();
+                    if (!text) return;
+                    
+                    // Show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn ? submitBtn.textContent : '';
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Vérification...';
+                    }
+                    
+                    try {
+                        const response = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${encodeURIComponent(text)}`);
+                        const hasBadWords = (await response.text()).toLowerCase().trim() === 'true';
+                        
+                        if (hasBadWords) {
+                            e.preventDefault();
+                            alert('⚠️ Votre commentaire contient des mots inappropriés. Veuillez modifier votre message.');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalBtnText;
+                            }
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Bad word check failed:', error);
+                        // Allow submission if check fails - server will validate
+                    }
+                    
+                    // If we get here, allow form to submit normally
+                    // Server-side will check custom words
+                    if (submitBtn) {
+                        submitBtn.textContent = 'Envoi...';
+                    }
+                });
+            }
+
+            // Bad word filter for replies
+            document.querySelectorAll('.reply-form').forEach(function(form) {
+                form.addEventListener('submit', async function(e) {
+                    const textarea = this.querySelector('textarea[name="contenu"]');
+                    if (!textarea) return;
+                    
+                    const text = textarea.value.trim();
+                    if (!text) return;
+                    
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalBtnText = submitBtn ? submitBtn.textContent : '';
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Vérification...';
+                    }
+                    
+                    try {
+                        const response = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${encodeURIComponent(text)}`);
+                        const hasBadWords = (await response.text()).toLowerCase().trim() === 'true';
+                        
+                        if (hasBadWords) {
+                            e.preventDefault();
+                            alert('⚠️ Votre réponse contient des mots inappropriés. Veuillez modifier votre message.');
+                            if (submitBtn) {
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = originalBtnText;
+                            }
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Bad word check failed:', error);
+                        // Allow submission if check fails - server will validate
+                    }
+                    
+                    // If we get here, allow form to submit normally
+                    if (submitBtn) {
+                        submitBtn.textContent = 'Envoi...';
+                    }
+                });
+            });
+        })();
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="article-container">
+    <div class="breadcrumb">
+        <a href="{{ path('app_article_index') }}">Articles</a>
+        <span>/</span>
+        <span>{{ article.titre }}</span>
+    </div>
+
+    {% for message in app.flashes('success') %}<div class="alert alert-success">{{ message }}</div>{% endfor %}
+    {% for message in app.flashes('error') %}<div class="alert alert-error" id="error-message">{{ message }}</div>{% endfor %}
+
+    <script>
+        // Scroll to error message if it exists
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMsg = document.getElementById('error-message');
+            if (errorMsg) {
+                errorMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add a highlight animation
+                errorMsg.style.animation = 'pulse 0.5s ease-in-out 3';
+            }
+        });
+    </script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); box-shadow: 0 4px 20px rgba(220, 53, 69, 0.4); }
+        }
+    </style>
+
+    <div class="article-header">
+        {% if article.image %}
+            <img src="{{ asset('image/' ~ article.image) }}" alt="{{ article.titre }}" class="article-image">
+        {% else %}
+            <div class="article-image" style="background: linear-gradient(135deg, #c9a17a 0%, #a8935f 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">Pas d'image disponible</div>
+        {% endif %}
+
+        <h1 class="article-title">{{ article.titre }}</h1>
+
+        <div class="article-metadata">
+            <div class="meta-item"><span class="meta-label">Par:</span> <span>{% if article.artisan %}{{ article.artisan.prenom }} {{ article.artisan.nom }}{% else %}Non spécifié{% endif %}</span></div>
+            <div class="meta-item"><span class="meta-label">Date:</span> <span>{{ article.date ? article.date|date('d M Y') : 'Date non disponible' }}</span></div>
+            <div class="meta-item"><span class="meta-label">Commentaires:</span> <span>{{ article.commentaires|length }}</span></div>
+            {% if article.categorie %}<div class="meta-item"><span class="meta-label">Catégorie:</span> <span>{{ article.categorie }}</span></div>{% endif %}
+            {% if article.prix is not null and article.prix != '' %}<div class="meta-item"><span class="meta-label">Prix:</span> <span>{{ article.prix }} DT</span></div>{% endif %}
+        </div>
+
+        <div class="article-actions">
+            {% if canLikeArticle %}
+                <form method="POST" action="{{ path('app_article_like', {'id': article.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('like' ~ article.id) }}">
+                    <button type="submit" class="action-btn like-btn {{ hasLikedArticle ? 'active' : '' }}" title="Aimer cet article">
+                        ❤️ <span>{{ hasLikedArticle ? 'Aimé' : 'Aimer' }} ({{ articleLikesCount }})</span>
+                    </button>
+                </form>
+            {% endif %}
+            {% if isClient %}
+                <form method="POST" action="{{ path('app_article_favorite', {'id': article.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('favorite' ~ article.id) }}">
+                    <button type="submit" class="action-btn favorite-btn" title="Ajouter aux favoris">⭐ <span>Favoris</span></button>
+                </form>
+            {% endif %}
+            {% if user and (isAdmin or (isArtisan and article.artisan and article.artisan.id == user.id)) %}
+                <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="action-btn" title="Modifier l'article">✏️ Modifier</a>
+                <form method="POST" action="{{ path('app_article_delete', {'id': article.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+                    <button type="submit" class="action-btn" style="border-color: #c9302c; color: #c9302c;" title="Supprimer l'article">🗑️ Supprimer</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="article-content">
+        {{ article.contenu|nl2br }}
+    </div>
+
+    <div class="comments-section">
+        <h2 class="comments-title">Commentaires ({{ article.commentaires|length }})</h2>
+
+        {% if article.commentaires|length > 0 %}
+            <div class="comments-list">
+                {% for comment in article.commentaires %}
+                    {% if comment.parent is null %}
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">{% if comment.user %}{{ comment.user.prenom }} {{ comment.user.nom }}{% else %}Anonyme{% endif %}</span>
+                            <span class="comment-date">{{ comment.datepub ? comment.datepub|date('d M Y à H:i') : 'Date non disponible' }}</span>
+                        </div>
+                        <div class="translate-controls">
+                            <button type="button" id="translate-btn-{{ comment.id }}" class="translate-btn" data-state="original" onclick="translateComment({{ comment.id }}, document.getElementById('lang-select-{{ comment.id }}').value)">
+                                🌐 Traduire
+                            </button>
+                            <select id="lang-select-{{ comment.id }}" class="language-select">
+                                <option value="fr">Français</option>
+                                <option value="en">English</option>
+                                <option value="es">Español</option>
+                                <option value="de">Deutsch</option>
+                                <option value="it">Italiano</option>
+                                <option value="ar">العربية</option>
+                                <option value="zh">中文</option>
+                            </select>
+                        </div>
+                        <div id="comment-text-{{ comment.id }}" class="comment-text">{{ comment.contenu|nl2br }}</div>
+                        <div id="comment-original-{{ comment.id }}" class="original-text"></div>
+                        <div id="translation-info-{{ comment.id }}" class="translation-info" style="display: none;"></div>
+                        <div class="comment-actions">
+                            <div class="comment-reactions">
+                                {% if isClient %}
+                                    {% set userReaction = userReactions[comment.id]|default(null) %}
+                                    <form method="post" action="{{ path('app_commentaire_reaction', { commentaire: comment.id, type: 'like' }) }}" class="comment-action-form">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('commentaire_reaction_' ~ comment.id ~ '_like') }}">
+                                        <button type="submit" class="comment-reaction-btn like {{ userReaction == 'like' ? 'is-active' : '' }}" title="Like">
+                                            <span>👍</span>
+                                            <span class="comment-reaction-count">{{ comment.likes }}</span>
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{{ path('app_commentaire_reaction', { commentaire: comment.id, type: 'dislike' }) }}" class="comment-action-form">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('commentaire_reaction_' ~ comment.id ~ '_dislike') }}">
+                                        <button type="submit" class="comment-reaction-btn dislike {{ userReaction == 'dislike' ? 'is-active' : '' }}" title="Dislike">
+                                            <span>👎</span>
+                                            <span class="comment-reaction-count">{{ comment.dislikes }}</span>
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="comment-reaction-btn" title="Likes">
+                                        <span>👍</span>
+                                        <span class="comment-reaction-count">{{ comment.likes }}</span>
+                                    </span>
+                                    <span class="comment-reaction-btn" title="Dislikes">
+                                        <span>👎</span>
+                                        <span class="comment-reaction-count">{{ comment.dislikes }}</span>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if isClient and user and comment.user and comment.user.id == user.id %}
+                        <div class="comment-actions">
+                            <a href="{{ path('app_commentaire_modifier', { commentaire: comment.id }) }}" class="comment-action comment-action--edit" title="Modifier le commentaire">
+                                <svg class="icon-pencil" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                Modifier
+                            </a>
+                            <form method="post" action="{{ path('app_commentaire_supprimer', { commentaire: comment.id }) }}" class="comment-action-form" onsubmit="return confirm('Supprimer ce commentaire ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('commentaire_supprimer' ~ comment.id) }}">
+                                <button type="submit" class="comment-action comment-action--delete" title="Supprimer le commentaire">
+                                    <svg class="icon-trash" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                    Supprimer
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+
+                        {% if comment.replies|length > 0 %}
+                            <div class="replies-list">
+                                {% for reply in comment.replies %}
+                                    <div class="reply-item">
+                                        <div class="reply-author">
+                                            {% if reply.user %}{{ reply.user.prenom }} {{ reply.user.nom }}{% else %}Artisan{% endif %}
+                                            <span style="font-weight: 400; color: #999; margin-left: 0.35rem;">{{ reply.datepub ? reply.datepub|date('d M Y à H:i') : '' }}</span>
+                                        </div>
+                                        <div class="reply-text">{{ reply.contenu|nl2br }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        {% if canReplyToComments %}
+    <form method="post" action="{{ path('app_commentaire_repondre', { commentaire: comment.id }) }}" class="reply-form">
+        <input type="hidden" name="_token" value="{{ csrf_token('commentaire_repondre' ~ comment.id) }}">
+        {% set replyFieldId = 'reply_input_' ~ comment.id %}
+        <div class="emoji-picker" data-emoji-target="{{ replyFieldId }}">
+            <button type="button" class="emoji-btn" data-emoji="😀">😀</button>
+            <button type="button" class="emoji-btn" data-emoji="😊">😊</button>
+            <button type="button" class="emoji-btn" data-emoji="😍">😍</button>
+            <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+            <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
+            <button type="button" class="emoji-btn" data-emoji="👏">👏</button>
+            <button type="button" class="emoji-btn" data-emoji="😢">😢</button>
+            <button type="button" class="emoji-btn" data-emoji="😡">😡</button>
+        </div>
+        <textarea id="{{ replyFieldId }}" name="contenu" class="reply-input" rows="3" minlength="5" maxlength="255" placeholder="Répondre à {{ comment.user ? (comment.user.prenom ~ ' ' ~ comment.user.nom) : 'cet utilisateur' }}..." required></textarea>
+        <button type="submit" class="reply-submit">Envoyer la réponse</button>
+    </form>
+{% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-comments"><p>Aucun commentaire pour le moment. Soyez le premier à commenter !</p></div>
+        {% endif %}
+
+        <div class="comment-form-section">
+            <h3 class="comment-form-title">Ajouter un commentaire</h3>
+            {% if isClient %}
+                <p style="margin-bottom: 15px; color: #6b6b6b; font-size: 14px;">Connecté en tant que: <strong>{{ user.prenom }} {{ user.nom }}</strong> | <a href="{{ path('app_logout') }}" style="color: #b8956a; text-decoration: none;">Déconnexion</a></p>
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    {% set commentFieldId = form.contenu.vars.id %}
+                    <div class="form-group">
+                        {{ form_label(form.contenu) }}
+                        <div class="emoji-picker" data-emoji-target="{{ commentFieldId }}">
+                            <button type="button" class="emoji-btn" data-emoji="😀">😀</button>
+                            <button type="button" class="emoji-btn" data-emoji="😊">😊</button>
+                            <button type="button" class="emoji-btn" data-emoji="😍">😍</button>
+                            <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+                            <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
+                            <button type="button" class="emoji-btn" data-emoji="👏">👏</button>
+                            <button type="button" class="emoji-btn" data-emoji="😢">😢</button>
+                            <button type="button" class="emoji-btn" data-emoji="😡">😡</button>
+                        </div>
+                        {{ form_widget(form.contenu, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.contenu) }}
+                    </div>
+                    <button type="submit" class="form-submit">Publier le commentaire</button>
+                {{ form_end(form) }}
+            {% else %}
+                <div class="login-prompt">
+                    <p><strong>Vous devez être connecté en tant que client pour commenter.</strong></p>
+                    <p>Connectez-vous pour partager votre avis sur cet article.</p>
+                    <p style="margin-top: 15px;"><a href="{{ path('app_login') }}" style="background-color: #b8956a; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600;">Se connecter</a></p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if similarArticles is defined and similarArticles|length > 0 %}
+        <section class="similar-section">
+            <h2 class="similar-title">Articles similaires</h2>
+            <div class="similar-grid">
+                {% for similar in similarArticles %}
+                    <a href="{{ path('app_article_show', { id: similar.id }) }}" class="similar-card" title="{{ similar.titre }}">
+                        {% if similar.image %}
+                            <img src="{{ asset('image/' ~ similar.image) }}" alt="{{ similar.titre }}" class="similar-thumb">
+                        {% else %}
+                            <div class="similar-thumb"></div>
+                        {% endif %}
+                        <div class="similar-body">
+                            <div class="similar-card-title">{{ similar.titre }}</div>
+                            <div class="similar-meta">
+                                {{ similar.categorie ?: 'Sans categorie' }} • {{ similar.date ? similar.date|date('d/m/Y') : 'Date non disponible' }}
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <a href="{{ path('app_article_index') }}" class="back-link">← Retour à la liste des articles</a>
+</div>
+{% endblock %}
+
+

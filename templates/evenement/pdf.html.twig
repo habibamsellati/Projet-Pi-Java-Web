@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Participants - {{ evenement.nom }}</title>
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.6; }
+        .header { border-bottom: 2px solid #B25B3F; margin-bottom: 30px; padding-bottom: 10px; }
+        .brand { font-size: 24px; color: #1A2238; font-weight: bold; }
+        .doc-title { text-align: right; color: #B25B3F; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
+        .event-info { background: #FAF7F2; padding: 20px; border-radius: 10px; margin-bottom: 40px; }
+        .event-info h1 { margin: 0 0 10px 0; font-size: 28px; color: #1A2238; }
+        .info-grid { display: block; width: 100%; }
+        .info-item { font-size: 14px; margin-bottom: 5px; }
+        .info-label { font-weight: bold; color: #708238; width: 150px; display: inline-block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #1A2238; color: white; padding: 12px; text-align: left; font-size: 12px; text-transform: uppercase; }
+        td { border-bottom: 1px solid #EEE; padding: 12px; font-size: 13px; }
+        .total-row { background: #FDFBF7; font-weight: bold; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #EEE; padding-top: 10px; }
+        .summary-box { margin-top: 30px; text-align: right; }
+        .val { font-size: 18px; color: #1A2238; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table style="border:none; margin:0;">
+            <tr>
+                <td style="border:none; padding:0;" width="50%"><span class="brand">AfkArt.</span></td>
+                <td style="border:none; padding:0; text-align:right" width="50%"><span class="doc-title">Liste d'Émargement</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="event-info">
+        <h1>{{ evenement.nom }}</h1>
+        <div class="info-item"><span class="info-label">Date :</span> {{ evenement.dateDebut|date('d F Y') }}</div>
+        <div class="info-item"><span class="info-label">Lieu :</span> {{ evenement.lieu }}</div>
+        <div class="info-item"><span class="info-label">Artisan :</span> {{ evenement.artisan }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom & Prénom</th>
+                <th>Contact (Email/Tel)</th>
+                <th style="text-align: center;">Places</th>
+                <th style="text-align: right;">Total Reglé</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set totalRev = 0 %}
+            {% set totalSeats = 0 %}
+            {% for r in reservations %}
+                <tr>
+                    <td>{{ r.user ? r.user.prenom ~ ' ' ~ r.user.nom : 'Participant Invité' }}</td>
+                    <td>
+                        {{ r.user ? r.user.email : 'N/A' }}<br>
+                        <small style="color:#888">{{ r.user and r.user.telephone ? r.user.telephone : 'Non renseigné' }}</small>
+                    </td>
+                    <td style="text-align: center;">{{ r.nbPlaces }}</td>
+                    <td style="text-align: right;">
+                        {% set p = r.nbPlaces * (evenement.prix ?: 0) %}
+                        {{ p|number_format(0) }} DT
+                        {% set totalRev = totalRev + p %}
+                        {% set totalSeats = totalSeats + r.nbPlaces %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 50px;">Aucun participant inscrit pour le moment.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        {% if reservations is not empty %}
+            <tfoot class="total-row">
+                <tr>
+                    <td colspan="2">TOTAL GÉNÉRAL</td>
+                    <td style="text-align: center;">{{ totalSeats }}</td>
+                    <td style="text-align: right;">{{ totalRev|number_format(0) }} DT</td>
+                </tr>
+            </tfoot>
+        {% endif %}
+    </table>
+
+    <div class="summary-box">
+        <div style="font-size: 12px; color: #AAA;">REVENUS GÉNÉRÉS PAR L'ÉVÉNEMENT</div>
+        <div class="val">{{ totalRev|number_format(0) }} DT</div>
+    </div>
+
+    <div class="footer">
+        Document officiel AfkArt - Généré le {{ "now"|date("d/m/Y à H:i") }}<br>
+        Confidentialité : Ce document contient des données personnelles.
+    </div>
+</body>
+</html>

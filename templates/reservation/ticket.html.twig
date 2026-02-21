@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { margin: 0px; }
+        body { 
+            font-family: 'Helvetica', 'Arial', sans-serif; 
+            background-color: #FAF9F6; 
+            margin: 0; 
+            padding: 40px;
+            color: #1A1A1A;
+        }
+        .ticket-wrapper {
+            width: 100%;
+            margin-top: 40px;
+        }
+        .ticket-card {
+            width: 100%;
+            background-color: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.05);
+            border: 1px solid #F0F0F0;
+        }
+        .ticket-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .main-content {
+            padding: 60px;
+            vertical-align: top;
+        }
+        .stub {
+            width: 260px;
+            background-color: #1A1A1A;
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            vertical-align: middle;
+            border-left: 2px dashed #333;
+        }
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background-color: #F8F1EE;
+            color: #C4704B;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+        .serial {
+            color: #888;
+            font-size: 10px;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .title {
+            font-size: 42px;
+            line-height: 1.1;
+            margin: 0 0 40px 0;
+            color: #1A1A1A;
+            font-weight: 300;
+        }
+        .info-group {
+            margin-bottom: 30px;
+        }
+        .label {
+            color: #AAA;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .qr-box {
+            background-color: white;
+            padding: 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .price-tag {
+            margin-top: 40px;
+        }
+        .amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+        .currency {
+            font-size: 12px;
+            opacity: 0.5;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 12px; letter-spacing: 5px; color: #C4704B; font-weight: 800; margin-bottom: 10px;">AFKART PLATFORM</div>
+        <div style="font-size: 24px; color: #1A1A1A; font-weight: 300;">Billet de Collectionneur Officiel</div>
+    </div>
+
+    <div class="ticket-wrapper">
+        <div class="ticket-card">
+            <table class="ticket-table">
+                <tr>
+                    <td class="main-content">
+                        <div class="serial">BATCH ID: AFK-{{ reservation.id|format('%05d') }}</div>
+                        <div class="badge">Authenticité Vérifiée</div>
+                        <h2 class="title">{{ reservation.evenement.nom }}</h2>
+                        
+                        <table width="100%">
+                            <tr>
+                                <td width="55%" class="info-group">
+                                    <div class="label">Emplacement</div>
+                                    <div class="value">{{ reservation.evenement.lieu }}</div>
+                                </td>
+                                <td width="45%" class="info-group">
+                                    <div class="label">Date & Heure</div>
+                                    <div class="value">{{ reservation.evenement.dateDebut|date('d F Y') }}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="info-group">
+                                    <div class="label">Titulaire</div>
+                                    <div class="value">{{ reservation.user.prenom }} {{ reservation.user.nom }}</div>
+                                </td>
+                                <td class="info-group">
+                                    <div class="label">Nombre de Places</div>
+                                    <div class="value">{{ reservation.nbPlaces }} Accès Privé</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td class="stub">
+                        <div class="qr-box" style="width: 150px; height: 150px; display: flex; align-items: center; justify-content: center;">
+                            <img src="{{ qrCode }}" style="width: 140px; height: 140px;" alt="QR Code">
+                        </div>
+                        <div style="font-size: 10px; letter-spacing: 2px; color: #666; font-weight: 700; margin-bottom: 40px;">SCAN TO VERIFY</div>
+                        
+                        <div class="price-tag">
+                            <div class="amount">{{ (reservation.nbPlaces * reservation.evenement.prix)|number_format(2) }}</div>
+                            <div class="currency">TND SECURED</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="margin-top: 60px; text-align: center; font-size: 10px; color: #AAA; line-height: 1.8; max-width: 500px; margin-left: auto; margin-right: auto;">
+        Ce document numérique est une preuve d'achat officielle. AfkArt s'engage pour la protection des droits des artisans et des collectionneurs. Merci de présenter ce code QR à l'entrée de l'événement.<br>
+        <span style="color: #CCC;">Généré par le système AfkArt le {{ "now"|date('d/m/Y') }}</span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Mon Historique | AfkArt{% endblock %}
+
+{% block body %}
+<style>
+    .livreur-header { position: fixed; top: 0; width: 100%; background: rgba(250,247,242,0.95); backdrop-filter: blur(8px); z-index: 100; border-bottom: 1px solid rgba(61,50,41,0.1); }
+    .livreur-header-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem; }
+    .livreur-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; text-decoration: none; color: #3D3229; font-weight: bold; }
+    .livreur-logo span { color: #8b5e4a; }
+    .livreur-nav { display: flex; gap: 1.5rem; align-items: center; }
+    .livreur-nav a { text-decoration: none; color: #5C4A3D; font-size: 0.9rem; font-weight: 500; }
+    .livreur-nav a:hover { color: #8b5e4a; }
+    .livreur-page { padding: 120px 20px 60px; min-height: 100vh; }
+    .livreur-main-title { font-family: 'Cormorant Garamond', serif; text-align: center; font-size: 2.2rem; margin-bottom: 0.25rem; }
+    .livreur-main-title span { color: #8b5e4a; }
+    .livreur-sub-title { text-align: center; color: #5C4A3D; font-style: italic; margin-bottom: 2rem; font-size: 1rem; }
+    .mission-container { max-width: 800px; margin: 0 auto; }
+    .history-card { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06); border-left: 4px solid #28a745; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .history-info-label { display: block; font-size: 0.65rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem; font-weight: 700; }
+    .history-address { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #3D3229; margin: 0; }
+    .date-badge { background: #f5f0eb; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.8rem; color: #5C4A3D; }
+    .status-done { color: #28a745; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem; }
+</style>
+
+<header class="livreur-header">
+    <div class="livreur-header-inner">
+        <a href="{{ path('home') }}" class="livreur-logo">Afk<span>Art</span></a>
+        <nav class="livreur-nav">
+            <a href="{{ path('app_livreur_dashboard', {'id': livreur.id}) }}">← Mes missions</a>
+            <a href="{{ path('app_livraison_index') }}">Livraisons</a>
+            <a href="{{ path('app_suivi_livraison_index') }}">Suivis</a>
+        </nav>
+    </div>
+</header>
+
+<main class="livreur-page">
+    <div class="mission-container">
+        <h1 class="livreur-main-title">Mon <span>Historique</span></h1>
+        <p class="livreur-sub-title">Missions accomplies avec succès</p>
+
+        <div class="history-list">
+            {% for livraison in historique %}
+                <div class="history-card">
+                    <div>
+                        <span class="history-info-label">Destination</span>
+                        <h3 class="history-address">📍 {{ livraison.addresslivraison }}</h3>
+                        <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="date-badge">📅 {{ livraison.datelivraison|date('d/m/Y') }}</span>
+                            <span style="color: #ddd; font-size: 0.8rem;">ID #{{ livraison.id }}</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="status-done">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            TERMINÉE
+                        </span>
+                        <p style="margin: 0.25rem 0 0; font-size: 0.7rem; color: #999;">Commande #{{ livraison.commande ? livraison.commande.id : 'N/A' }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 3rem 1.5rem; background: white; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.2;">📜</div>
+                    <p style="color: #5C4A3D; font-size: 1rem; font-style: italic;">Votre historique est encore vierge.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

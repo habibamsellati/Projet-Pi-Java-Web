@@ -1,0 +1,31 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Interface Client{% endblock %}
+
+{% block body %}
+<section class="categories">
+  <div class="container">
+    <div class="section-header">
+      <h2>Espace Client</h2>
+      <p>Decouvrez les nouvelles oeuvres et suivez vos commandes.</p>
+    </div>
+    <div class="categories-grid" style="justify-content:center;">
+      <div class="category-card">
+        <div class="category-icon">🪵</div>
+        <h3>Bois recycle</h3>
+        <p>Pieces uniques en bois revalorise.</p>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🪙</div>
+        <h3>Metal</h3>
+        <p>Designs modernes et solides.</p>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🌿</div>
+        <h3>Decoration</h3>
+        <p>Ambiance naturelle et durable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

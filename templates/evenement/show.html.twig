@@ -1,0 +1,194 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}{{ evenement.nom }} - AfkArt{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'components/_ai_concierge.html.twig' %}
+{% endblock %}
+
+{% block body %}
+<div class="event-details-page" style="padding-top: 100px; padding-bottom: 80px; position: relative;">
+    
+    {# Floating Back Button #}
+    <div class="container" style="position: absolute; top: 120px; left: 50%; transform: translateX(-50%); z-index: 100;">
+        <a href="{{ canManage ? path('app_artisan_events') : path('app_evenement_index') }}" 
+           style="background: white; color: #2b2b2b; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: all 0.3s ease; border: 1px solid rgba(0,0,0,0.05);"
+           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.2)';"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.15)';"
+        >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            {{ canManage ? 'Retour à mes événements' : 'Retour à la liste' }}
+        </a>
+    </div>
+
+    {# Hero Section with Cover Image #}
+    <div style="position: relative; height: 60vh; min-height: 400px; overflow: hidden;">
+        {% if evenement.image and '/uploads/events/covers/' in evenement.image %}
+            <img src="{{ evenement.image }}" alt="{{ evenement.nom }}" style="width: 100%; height: 100%; object-fit: cover;">
+        {% else %}
+            <div style="width: 100%; height: 100%; background: #2b2b2b; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 2rem; font-family: 'Cormorant Garamond', serif; letter-spacing: 2px;">AfkArt Collection</div>
+        {% endif %}
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.7));"></div>
+        
+        <div class="container" style="position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); text-align: center; color: white;">
+            <div style="font-family: 'Outfit', sans-serif; text-transform: uppercase; letter-spacing: 3px; font-size: 0.9rem; margin-bottom: 15px; background: rgba(255,255,255,0.1); display: inline-block; padding: 8px 16px; border-radius: 30px; backdrop-filter: blur(10px);">
+                {{ evenement.typeArt }}
+            </div>
+            <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 4rem; margin: 0 0 20px 0; line-height: 1.1;">{{ evenement.nom }}</h1>
+            <div style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; opacity: 0.9; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                <span>📅 {{ evenement.dateDebut|date('d M Y') }}</span>
+                <span>📍 {{ evenement.lieu }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="margin-top: -60px; position: relative; z-index: 10;">
+        <div style="background: white; border-radius: 30px; padding: 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);">
+            
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 60px;">
+                
+                {# Left Column: Description & Gallery #}
+                <div>
+                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; margin-bottom: 25px;">À propos de l'événement</h2>
+                    <p style="font-family: 'Outfit', sans-serif; color: #555; line-height: 1.8; font-size: 1.1rem; white-space: pre-line; margin-bottom: 40px;">
+                        {{ evenement.description }}
+                    </p>
+
+                    {# Gallery : Only show manual uploads #}
+                    {% set manual_images = [] %}
+                    {% for img in evenement.images %}
+                        {% if '/uploads/events/gallery/' in img.url %}
+                            {% set manual_images = manual_images|merge([img]) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if manual_images|length > 0 %}
+                        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 20px;">Galerie Visuelle</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px;">
+                            {% for img in manual_images %}
+                                <div style="position: relative; height: 180px; border-radius: 12px; overflow: hidden; cursor: pointer; background: #f5f5f5;">
+                                    <img src="{{ img.url }}" 
+                                         alt="Image de l'événement" 
+                                         loading="lazy"
+                                         style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;" 
+                                         onmouseover="this.style.transform='scale(1.1)'" 
+                                         onmouseout="this.style.transform='scale(1)'"
+                                         onerror="this.style.display='none'">
+                                    
+                                    {% if img.caption %}
+                                        <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 8px; background: rgba(0,0,0,0.6); color: white; font-size: 0.75rem;">
+                                            {{ img.caption }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Right Column: Info & Actions #}
+                <div>
+                    {# Admin Panel for Artisan Owner #}
+                    {% if canManage %}
+                        <div style="background: #FFF5F2; padding: 30px; border-radius: 20px; border: 1px solid #FFE0D6; margin-bottom: 30px;">
+                            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: #C4704B; margin-top: 0; margin-bottom: 20px;">
+                                🛠 Espace Artisan
+                            </h3>
+
+                            {# SmartFill AI Widget #}
+                            {% if aiData is defined and aiData is not null %}
+                                {{ include('components/smartfill_widget.html.twig', { 
+                                    evenement: evenement,
+                                    prediction: aiData.prediction, 
+                                    insights: aiData.insights,
+                                    elasticity: aiData.elasticity,
+                                    successScore: aiData.successScore,
+                                    brief: aiData.brief
+                                }) }}
+                            {% endif %}
+
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="btn-action" style="background: white; color: #C4704B; border: 1px solid #C4704B;">
+                                    Modifier l'événement
+                                </a>
+
+                                <form method="post" action="{{ path('app_evenement_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');" style="width: 100%;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+                                    <button class="btn-action" style="background: white; color: #991b1b; border: 1px solid #fecaca; width: 100%;">
+                                        Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {# Info Card #}
+                    <div style="background: #f9f9f9; padding: 30px; border-radius: 20px; border: 1px solid #eee;">
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 0.9rem; color: #888; text-transform: uppercase;">Prix du billet</div>
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #2b2b2b;">{{ evenement.prix }} <span style="font-size: 1.2rem;">TND</span></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 25px;">
+                            <div style="font-size: 0.9rem; color: #888; text-transform: uppercase;">Date & Heure</div>
+                            <div style="color: #2b2b2b; font-weight: 500;">
+                                Du {{ evenement.dateDebut|date('d/m/Y H:i') }}<br>
+                                Au {{ evenement.dateFin|date('d/m/Y H:i') }}
+                            </div>
+                        </div>
+
+                         <div style="margin-bottom: 30px;">
+                            <div style="font-size: 0.9rem; color: #888; text-transform: uppercase;">Places disponibles</div>
+                            <div style="color: #2b2b2b; font-weight: 500;">
+                                {{ evenement.capacite - evenement.reservations|length }} restantes
+                            </div>
+                        </div>
+
+                        {% if canReserve %}
+                            <a href="{{ path('app_reservation_new', {'event': evenement.id}) }}" class="btn-action" style="background: #C4704B; color: white; border: none; font-size: 1.1rem; letter-spacing: 1px; padding: 20px; box-shadow: 0 10px 30px rgba(196, 112, 75, 0.2);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;"><path d="M7.22 9.5a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0ZM3.5 12h17M3.5 7h17m-17 10h17"></path></svg>
+                                Réserver ma place
+                            </a>
+                        {% elseif canManage %}
+                            <div style="text-align: center; color: #888; font-size: 0.95rem; font-style: italic; border-top: 1px dashed #DDD; padding-top: 25px; margin-top: 10px;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                Vous êtes l'organisateur
+                            </div>
+                        {% elseif not app.user %}
+                            <a href="{{ path('app_login') }}" class="btn-action" style="background: #2b2b2b; color: white; border: none; padding: 20px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                                Se connecter pour réserver
+                            </a>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-action {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        text-align: center;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

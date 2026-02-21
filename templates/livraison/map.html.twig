@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Suivi de ma livraison{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; width: 100%; border-radius: 15px; border: 2px solid #ddd; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .client-popup { text-align: center; font-family: 'Poppins', sans-serif; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; color: white; display: inline-block; margin-bottom: 10px; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 text-center mb-4">
+            <h2 class="display-6"><i class="fas fa-shipping-fast text-primary"></i> Suivi en temps réel</h2>
+            
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <div id="map"></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    {% if livraisons is not empty %}
+                        <div class="alert {{ livraisons[0].couleur == '#e74c3c' ? 'alert-danger' : 'alert-success' }} py-2" style="font-size: 0.9em;">
+                            <i class="fas fa-info-circle"></i> {{ livraisons[0].status ?? 'Calcul en cours...' }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info py-2" style="font-size: 0.9em;">
+                            <i class="fas fa-info-circle"></i> Aucune livraison avec coordonnées GPS disponible.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([{{ currentLat }}, {{ currentLng }}], 11);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // Icône personnalisée pour le colis (Client)
+        const packageIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/679/679821.png',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40]
+        });
+
+       {% for l in livraisons %}
+    L.circleMarker([{{ l.lat }}, {{ l.lng }}], {
+        radius: 12,
+        fillColor: "{{ l.couleur }}",
+        color: "#fff",
+        weight: 2,
+        fillOpacity: 0.9
+    })
+    .addTo(map)
+    .bindPopup(`
+    <div style="text-align:center; min-width: 200px;">
+        <span class="badge" style="background-color:{{ l.couleur }}; color:white; padding:6px 12px; border-radius:20px; text-transform:uppercase; font-size:0.8em;">
+            {{ l.statutActuel }}
+        </span>
+        <hr style="margin: 10px 0;">
+
+        {% if l.statutActuel == 'en_cours' %}
+            <div style="font-size: 1.1em; color: #2c3e50;">
+                <i class="fas fa-shipping-fast"></i> <b>IA : Livraison en route</b><br>
+                <span style="font-size: 1.8em; color:{{ l.couleur }}; font-weight:bold;">{{ l.eta }} min</span>
+            </div>
+            <small class="text-muted">Distance : {{ l.distance }} km</small>
+
+        {% elseif l.statutActuel == 'en_attente' %}
+            <div style="color:#7f8c8d; padding: 10px 0;">
+                <i class="fas fa-pause-circle fa-2x"></i><br>
+                <b style="display:block; margin-top:5px;">En attente de départ</b>
+                <small>L'estimation IA s'affichera dès que le livreur démarrera la course.</small>
+            </div>
+
+        {% elseif l.statutActuel == 'livre' %}
+            <div style="color:#2ecc71; padding: 10px 0;">
+                <i class="fas fa-check-circle fa-2x"></i><br>
+                <b style="display:block; margin-top:5px;">Colis réceptionné !</b>
+                <small class="text-muted">Merci de votre confiance.</small>
+            </div>
+        {% endif %}
+
+        <p style="font-size: 0.8em; color: #999; margin-top:10px; border-top: 1px solid #eee; pt-2;">
+            {{ l.adresse }}
+        </p>
+    </div>
+`);
+{% endfor %}
+    </script>
+{% endblock %}

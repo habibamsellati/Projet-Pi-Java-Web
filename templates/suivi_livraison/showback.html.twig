@@ -1,0 +1,17 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Détails Suivi - Admin{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <h1>Détails du Suivi #{{ suivi.id }}</h1>
+        </header>
+        <div style="background: white; padding: 1.5rem; border-radius: 12px; max-width: 500px;">
+            <div style="margin-bottom: 1rem;"><strong>Livraison</strong><br>#{{ suivi.livraison.id }}</div>
+            <div style="margin-bottom: 1rem;"><strong>Date</strong><br>{{ suivi.datesuivi ? suivi.datesuivi|date('d/m/Y H:i') : '—' }}</div>
+            <div style="margin-bottom: 1rem;"><strong>État</strong><br>{{ suivi.etat }}</div>
+            <div style="margin-bottom: 1rem;"><strong>Localisation</strong><br>{{ suivi.localisation }}</div>
+            <div style="margin-bottom: 1rem;"><strong>Commentaire</strong><br>{{ suivi.commentaire|default('—') }}</div>
+            <a href="{{ path('back_suivi_livraison_index') }}" style="color: #8b5e4a;">Retour</a>
+        </div>
+{% endblock %}

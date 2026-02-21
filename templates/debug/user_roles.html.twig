@@ -1,0 +1,76 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Debug - Rôles Utilisateur{% endblock %}
+
+{% block body %}
+<div style="max-width: 800px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h1 style="color: var(--color-brown); margin-bottom: 30px;">🔍 Debug - Informations Utilisateur</h1>
+    
+    {% if app.user %}
+        <div style="background: #f0f9f8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="color: var(--color-terracotta); margin-bottom: 15px;">Utilisateur Connecté</h2>
+            <p><strong>Email:</strong> {{ app.user.email }}</p>
+            <p><strong>Nom:</strong> {{ app.user.nom ?? 'N/A' }}</p>
+        </div>
+        
+        <div style="background: #fff5f0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="color: var(--color-terracotta); margin-bottom: 15px;">Rôles (app.user.roles)</h2>
+            <ul style="list-style: none; padding: 0;">
+                {% for role in app.user.roles %}
+                    <li style="padding: 8px; background: white; margin: 5px 0; border-left: 4px solid var(--color-sage);">
+                        <code style="color: var(--color-brown); font-weight: bold;">{{ role }}</code>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div style="background: #f5f0ff; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <h2 style="color: var(--color-terracotta); margin-bottom: 15px;">Tests de Vérification</h2>
+            
+            <p>✅ <code>'ROLE_ARTISAN' in app.user.roles</code> = 
+                <strong style="color: {{ 'ROLE_ARTISAN' in app.user.roles ? 'green' : 'red' }};">
+                    {{ 'ROLE_ARTISAN' in app.user.roles ? 'TRUE' : 'FALSE' }}
+                </strong>
+            </p>
+            
+            <p>✅ <code>'ROLE_CLIENT' in app.user.roles</code> = 
+                <strong style="color: {{ 'ROLE_CLIENT' in app.user.roles ? 'green' : 'red' }};">
+                    {{ 'ROLE_CLIENT' in app.user.roles ? 'TRUE' : 'FALSE' }}
+                </strong>
+            </p>
+            
+            <p>✅ <code>is_granted('ROLE_ARTISAN')</code> = 
+                <strong style="color: {{ is_granted('ROLE_ARTISAN') ? 'green' : 'red' }};">
+                    {{ is_granted('ROLE_ARTISAN') ? 'TRUE' : 'FALSE' }}
+                </strong>
+            </p>
+            
+            <p>✅ <code>is_granted('ROLE_CLIENT')</code> = 
+                <strong style="color: {{ is_granted('ROLE_CLIENT') ? 'green' : 'red' }};">
+                    {{ is_granted('ROLE_CLIENT') ? 'TRUE' : 'FALSE' }}
+                </strong>
+            </p>
+        </div>
+        
+        <div style="background: #fff; padding: 20px; border-radius: 8px; border: 2px solid var(--color-terracotta);">
+            <h2 style="color: var(--color-terracotta); margin-bottom: 15px;">📋 Recommandation</h2>
+            <p>Si vous êtes artisan et que <code>'ROLE_ARTISAN' in app.user.roles</code> est <strong>FALSE</strong>, alors votre rôle dans la base de données n'est pas correct.</p>
+            <p>Vérifiez la valeur exacte dans votre table <code>user</code>, colonne <code>roles</code>.</p>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="{{ path('app_evenement_index') }}" style="display: inline-block; padding: 12px 30px; background: var(--color-terracotta); color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                ← Retour aux Événements
+            </a>
+        </div>
+    {% else %}
+        <div style="background: #ffe0e0; padding: 20px; border-radius: 8px; text-align: center;">
+            <h2 style="color: #d32f2f;">❌ Vous n'êtes pas connecté</h2>
+            <p>Veuillez vous connecter pour voir les informations de debug.</p>
+            <a href="{{ path('app_login') }}" style="display: inline-block; margin-top: 15px; padding: 12px 30px; background: var(--color-terracotta); color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                Se connecter
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

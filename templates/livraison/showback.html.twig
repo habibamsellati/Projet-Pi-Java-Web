@@ -1,0 +1,22 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Détails Livraison - Admin{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <h1>Détails de la Livraison</h1>
+        </header>
+        <div style="background: white; padding: 1.5rem; border-radius: 12px; max-width: 500px;">
+            <div style="margin-bottom: 1rem;"><strong>Date prévue</strong><br>{{ livraison.datelivraison ? livraison.datelivraison|date('d F Y à H:i') : 'Non planifiée' }}</div>
+            <div style="margin-bottom: 1rem;"><strong>Adresse</strong><br>{{ livraison.addresslivraison }}</div>
+            <div style="margin-bottom: 1rem;"><strong>Statut</strong><br><span style="color: #8b5e4a;">{{ livraison.statutlivraison }}</span></div>
+            <div style="margin-top: 1.5rem;">
+                <a href="{{ path('back_livraison_index') }}" style="margin-right: 0.5rem; color: #8b5e4a;">Retour</a>
+                <a href="{{ path('back_livraison_edit', {'id': livraison.id}) }}" style="margin-right: 0.5rem; color: #8b5e4a;">Modifier</a>
+                <form method="post" action="{{ path('back_livraison_delete', {'id': livraison.id}) }}" style="display: inline;" onsubmit="return confirm('Supprimer ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ livraison.id) }}">
+                    <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer;">Supprimer</button>
+                </form>
+            </div>
+        </div>
+{% endblock %}

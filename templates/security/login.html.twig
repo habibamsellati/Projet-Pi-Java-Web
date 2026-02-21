@@ -1,0 +1,399 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Connexion - AfkArt{% endblock %}
+
+{% block body %}
+<style>
+  :root {
+    --color-cream: #FAF7F2;
+    --color-cream-dark: #F5F0E8;
+    --color-terracotta: #C4704B;
+    --color-terracotta-dark: #A85D3B;
+    --color-sage: #8FAE8B;
+    --color-sage-light: #B8D4B4;
+    --color-brown: #3D3229;
+    --color-brown-light: #5C4A3D;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background-color: var(--color-cream);
+    color: var(--color-brown);
+    line-height: 1.6;
+  }
+  
+  h1, h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .form-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  
+  .form-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 450px;
+  }
+  
+  .form-card h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-brown);
+  }
+  
+  .form-card h1 span {
+    color: var(--color-terracotta);
+  }
+  
+  .form-description {
+    color: var(--color-brown-light);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-group label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--color-brown);
+    font-size: 0.95rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.4rem;
+    transition: all 0.3s ease;
+  }
+  
+  .label-invalid {
+    background-color: #fee2e2; /* Red pastel */
+    color: #991b1b !important;
+  }
+  
+  .label-valid {
+    background-color: #d1fae5; /* Green pastel */
+    color: #065f46 !important;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--color-terracotta);
+    box-shadow: 0 0 0 3px rgba(196, 112, 75, 0.1);
+  }
+
+  .password-input-wrap {
+    position: relative;
+  }
+
+  .password-input-wrap input {
+    padding-right: 3rem;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid #e7ddd1;
+    background: linear-gradient(135deg, #fff, #f7efe5);
+    cursor: pointer;
+    color: var(--color-terracotta);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .password-toggle:hover {
+    transform: translateY(-50%) scale(1.05);
+    border-color: #d4b598;
+    box-shadow: 0 6px 14px rgba(196, 112, 75, 0.2);
+  }
+
+  .password-toggle svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+  }
+  
+  .btn-primary {
+    background: var(--color-terracotta);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--color-terracotta-dark);
+  }
+
+  .oauth-divider {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0 0.8rem 0;
+    color: var(--color-brown-light);
+    font-size: 0.85rem;
+  }
+
+  .oauth-divider::before,
+  .oauth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e6ddd2;
+  }
+
+  .oauth-divider span {
+    padding: 0 .8rem;
+  }
+
+  .btn-oauth {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    border-radius: 999px;
+    padding: .72rem 1.1rem;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: .55rem;
+    border: 1px solid #e6ddd2;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+
+  .btn-oauth:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(61, 50, 41, .1);
+    border-color: #d8c5b2;
+  }
+
+  .btn-oauth-google {
+    background: #fff;
+    color: #3D3229;
+  }
+
+  .btn-oauth-facebook {
+    background: #f5f8ff;
+    color: #213a84;
+  }
+  
+  .flash {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .flash.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+  
+  .flash.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  
+  .form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--color-brown-light);
+    font-size: 0.95rem;
+  }
+  
+  .form-footer a {
+    color: var(--color-terracotta);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .form-footer a:hover {
+    text-decoration: underline;
+  }
+
+  .turnstile-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+
+</style>
+
+<div class="form-container">
+  <div class="form-card">
+    <h1>Se <span>connecter</span></h1>
+    <p class="form-description">Accédez à votre compte AfkArt</p>
+    
+    {% for label, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="flash {{ label }}">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
+    
+    {% if error %}
+      <div class="flash error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+    
+    <form id="login-form" action="{{ path('app_login') }}" method="post">
+      <div class="form-group">
+        <label for="username" id="label-email">Email</label>
+        <input type="text" id="username" name="_username" value="{{ last_username }}" />
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <div class="password-input-wrap">
+          <input type="password" id="password" name="_password" />
+          <button type="button" class="password-toggle" data-target="password" aria-label="Afficher le mot de passe">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path class="eye-shape" d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {% if turnstile_site_key is defined and turnstile_site_key is not empty %}
+        <div class="turnstile-wrap">
+          <div
+            id="turnstile-login"
+            class="cf-turnstile"
+            data-sitekey="{{ turnstile_site_key }}"
+            data-theme="light"
+            data-size="normal"
+            data-language="fr"
+            data-appearance="always"
+          ></div>
+        </div>
+      {% endif %}
+      
+      <button type="submit" class="btn btn-primary">Se connecter</button>
+    </form>
+
+    <div class="oauth-divider"><span>ou continuer avec</span></div>
+    <a class="btn-oauth btn-oauth-google js-oauth-popup" href="{{ path('app_oauth_start', {'provider': 'google', 'popup': 1}) }}">
+      <span>G</span> Google
+    </a>
+    <a class="btn-oauth btn-oauth-facebook js-oauth-popup" href="{{ path('app_oauth_start', {'provider': 'facebook', 'popup': 1}) }}">
+      <span>f</span> Facebook
+    </a>
+
+    <div class="form-footer" style="margin-top: .85rem;">
+      <a href="{{ path('app_forgot_password') }}">Mot de passe oublie ?</a>
+    </div>
+    
+    <div class="form-footer">
+      Pas encore de compte? <a href="{{ path('app_register') }}">S'inscrire</a>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var emailInput = document.getElementById('username');
+    var label = document.getElementById('label-email');
+    if (!emailInput || !label) return;
+
+    function updateStyle() {
+      var ok = emailInput.value.indexOf('@') !== -1;
+      if (ok) {
+        label.classList.add('label-valid');
+        label.classList.remove('label-invalid');
+      } else {
+        label.classList.add('label-invalid');
+        label.classList.remove('label-valid');
+      }
+    }
+
+    emailInput.addEventListener('input', updateStyle);
+    updateStyle();
+
+    var toggles = document.querySelectorAll('.password-toggle');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var targetId = btn.getAttribute('data-target');
+        var input = document.getElementById(targetId);
+        if (!input) return;
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+        var eyeShape = btn.querySelector('.eye-shape');
+        if (eyeShape) {
+          eyeShape.setAttribute('d', show
+            ? 'M3 3l18 18M2 12s3.5-6 10-6c2.2 0 4.1.7 5.7 1.7M22 12s-3.5 6-10 6c-2.2 0-4.1-.7-5.7-1.7'
+            : 'M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z');
+        }
+      });
+    });
+
+    var oauthButtons = document.querySelectorAll('.js-oauth-popup');
+    oauthButtons.forEach(function (btn) {
+      btn.addEventListener('click', function (event) {
+        event.preventDefault();
+        var w = 560;
+        var h = 680;
+        var left = Math.max(0, (window.screen.width - w) / 2);
+        var top = Math.max(0, (window.screen.height - h) / 2);
+        var popup = window.open(
+          btn.href,
+          'oauthPopup',
+          'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top + ',resizable=yes,scrollbars=yes'
+        );
+        if (!popup) {
+          window.location.href = btn.href;
+        }
+      });
+    });
+
+  });
+</script>
+{% if turnstile_site_key is defined and turnstile_site_key is not empty %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+{% endblock %}

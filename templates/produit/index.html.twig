@@ -1,0 +1,104 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Galerie des Produits | AfkArt AI{% endblock %}
+
+{% block body %}
+<section style="max-width: 1300px; margin: 0 auto; padding: 4rem 2rem; background: #fdfbf9;">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; color: #2d1e12; margin-bottom: 1rem;">Catalogue de Revalorisation</h1>
+        <p style="color: #8b5e4a; font-family: 'Outfit', sans-serif; font-size: 1.1rem; letter-spacing: 1px; text-transform: uppercase;">Propulsé par l'Intelligence Artificielle AfkArt</p>
+        <div style="width: 80px; height: 3px; background: #8b5e4a; margin: 1.5rem auto;"></div>
+        
+        {% if can_manage|default(false) %}
+            <a href="{{ path('app_produit_new') }}" style="display: inline-block; background: #2d1e12; color: white; padding: 1rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; margin-top: 1rem; transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">+ Ajouter un Produit</a>
+        {% endif %}
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div style="background: #e6fffa; color: #2c7a7b; padding: 1.2rem; border-radius: 15px; margin-bottom: 2rem; border-left: 6px solid #38b2ac; font-weight: 500;">{{ message }}</div>
+    {% endfor %}
+
+    {# Extraction des noms de produits uniques #}
+    {% set prod_names = [] %}
+    {% for p in produits %}
+        {% if p.nomproduit not in prod_names %}
+            {% set prod_names = prod_names|merge([p.nomproduit]) %}
+        {% endif %}
+    {% endfor %}
+
+    {% for name in prod_names %}
+        <div style="margin-bottom: 5rem;">
+            <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 3rem;">
+                <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: #8b5e4a; white-space: nowrap;">Catégorie : {{ name }}</h2>
+                <div style="flex-grow: 1; height: 1px; background: linear-gradient(to right, #ddd, transparent);"></div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 3rem;">
+                {% for produit in produits %}
+                    {% if produit.nomproduit == name %}
+                    <div class="ia-card" style="background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 15px 45px rgba(0,0,0,0.05); transition: 0.4s; border: 1px solid rgba(139, 94, 74, 0.1);">
+                        {# IMAGE IA EN HAUT #}
+                        <div style="height: 350px; overflow: hidden; position: relative; background: #f3f0ed;">
+                            {% if produit.image %}
+                                <img src="{{ produit.image }}" 
+                                     alt="{{ produit.nomproduit }}" 
+                                     style="width: 100%; height: 100%; object-fit: cover; transition: 0.6s; display: block;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f3f0ed 0%, #e8e0d8 100%); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem;">
+                                    <span style="font-size: 3rem;">🖼️</span>
+                                    <span style="color: #8b5e4a; font-size: 0.85rem; font-weight: 500;">Image IA</span>
+                                </div>
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f3f0ed 0%, #e8e0d8 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem;">
+                                    <span style="font-size: 3rem;">✨</span>
+                                    <span style="color: #bcabbc; font-size: 0.85rem;">Génération IA en attente</span>
+                                </div>
+                            {% endif %}
+                            <div style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.9); padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 700; color: #8b5e4a; backdrop-filter: blur(5px);">
+                                {{ produit.etat|upper }}
+                            </div>
+                        </div>
+                        
+                        {# INFOS EN DESSOUS #}
+                        <div style="padding: 2rem;">
+                            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #2d1e12; margin-bottom: 0.5rem;">{{ produit.nomproduit }}</h3>
+                            <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem; height: 3.2em; overflow: hidden;">{{ produit.description }}</p>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 1.5rem;">
+                                <div>
+                                    <span style="display: block; font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;">Localisation</span>
+                                    <span style="font-weight: 600; color: #2d1e12;">📍 {{ produit.origine }}</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="display: block; font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;">Quantité</span>
+                                    <span style="font-weight: 600; color: #8b5e4a;">{{ produit.quantite }} Unités</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                                <a href="{{ path('app_produit_show', {'id': produit.id}) }}" style="flex: 1; text-align: center; border: 1px solid #2d1e12; color: #2d1e12; padding: 0.8rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: 0.2s;">Détails</a>
+                                {% if can_manage|default(false) %}
+                                    <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" style="background: #f3f0ed; color: #2d1e12; padding: 0.8rem; border-radius: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 6rem; background: white; border-radius: 30px; border: 2px dashed #eee;">
+            <p style="color: #9ca3af; font-size: 1.2rem;">Aucun produit n'a encore été transformé par l'IA.</p>
+        </div>
+    {% endfor %}
+</section>
+
+<style>
+    .ia-card:hover { transform: translateY(-15px); box-shadow: 0 30px 60px rgba(139, 94, 74, 0.15); }
+    .ia-card:hover img { transform: scale(1.1); }
+    .ia-card a:hover { background: #2d1e12; color: white !important; }
+</style>
+{% endblock %}

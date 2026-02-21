@@ -1,0 +1,117 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Gestion des Événements - Admin{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left">
+        <h1>Gestion des Événements</h1>
+        <p class="header-subtitle">Liste de tous les événements</p>
+    </div>
+    <div style="display:flex;gap:0.75rem;align-items:center;">
+        <a href="{{ path('back_evenement_pdf') }}" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:#c62828;color:white;border-radius:8px;text-decoration:none;font-size:0.9rem;">PDF</a>
+        <a href="{{ path('back_evenement_new') }}" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.2rem;background:#8b5e4a;color:white;border-radius:8px;text-decoration:none;">+ Ajouter</a>
+    </div>
+</header>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;">
+    <div style="background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <h4 style="margin:0;font-size:0.8rem;color:#666;">TOTAL</h4>
+        <p style="margin:0.25rem 0 0;font-size:1.5rem;font-weight:700;color:#333;">{{ stats.total }}</p>
+    </div>
+    <div style="background:#fff;padding:1rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <h4 style="margin:0;font-size:0.8rem;color:#666;">CAPACITÉ TOTALE</h4>
+        <p style="margin:0.25rem 0 0;font-size:1.5rem;font-weight:700;color:#2196F3;">{{ stats.capacity }}</p>
+    </div>
+    <div style="grid-column:span 2;background:#fff;padding:1.25rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <h4 style="margin:0 0 1rem;font-size:0.8rem;color:#666;text-transform:uppercase;">Répartition des capacités par événement</h4>
+        <div style="height:250px;">
+            <canvas id="capacityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<form method="get" action="{{ path('back_evenement_index') }}" style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+    <input type="text" name="q" value="{{ app.request.query.get('q') }}" placeholder="Rechercher..." style="padding:0.5rem 0.75rem;border:1px solid #ddd;border-radius:8px;width:220px;">
+    <select name="sort" style="padding:0.5rem;border:1px solid #ddd;border-radius:8px;">
+        <option value="">Trier</option>
+        <option value="nom" {{ app.request.query.get('sort') == 'nom' ? 'selected' : '' }}>Nom</option>
+        <option value="dateDebut" {{ app.request.query.get('sort') == 'dateDebut' ? 'selected' : '' }}>Date</option>
+        <option value="capacite" {{ app.request.query.get('sort') == 'capacite' ? 'selected' : '' }}>Capacité</option>
+    </select>
+    <select name="order" style="padding:0.5rem;border:1px solid #ddd;border-radius:8px;">
+        <option value="ASC" {{ app.request.query.get('order') == 'ASC' ? 'selected' : '' }}>Asc</option>
+        <option value="DESC" {{ app.request.query.get('order') != 'ASC' ? 'selected' : '' }}>Desc</option>
+    </select>
+    <button type="submit" style="padding:0.5rem 1rem;background:#8b5e4a;color:white;border:none;border-radius:8px;cursor:pointer;">Rechercher</button>
+</form>
+
+<div style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f8f6f3;font-size:0.8rem;text-transform:uppercase;color:#666;">
+                <th style="padding:1rem;text-align:left;">Nom</th>
+                <th style="padding:1rem;">Artisan</th>
+                <th style="padding:1rem;">Dates</th>
+                <th style="padding:1rem;">Lieu</th>
+                <th style="padding:1rem;">Capacité</th>
+                <th style="padding:1rem;text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evenement in evenements %}
+            <tr style="border-bottom:1px solid #eee;">
+                <td style="padding:1rem;font-weight:500;">{{ evenement.nom }}</td>
+                <td style="padding:1rem;">{{ evenement.artisan }}</td>
+                <td style="padding:1rem;">{{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '' }} → {{ evenement.dateFin ? evenement.dateFin|date('d/m/Y H:i') : '' }}</td>
+                <td style="padding:1rem;">{{ evenement.lieu }}</td>
+                <td style="padding:1rem;">{{ evenement.capacite }}</td>
+                <td style="padding:1rem;text-align:right;">
+                    <a href="{{ path('back_evenement_show', {id: evenement.id}) }}" style="color:#666;text-decoration:none;margin-right:0.5rem;">Voir</a>
+                    <a href="{{ path('back_evenement_edit', {id: evenement.id}) }}" style="color:#1976d2;text-decoration:none;margin-right:0.5rem;">Modifier</a>
+                    <form method="post" action="{{ path('back_evenement_delete', {id: evenement.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cet événement ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+                        <button type="submit" style="background:none;border:none;color:#c62828;cursor:pointer;padding:0;">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="padding:2rem;text-align:center;color:#999;">Aucun événement.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+    var canvas = document.getElementById('capacityChart');
+    if (!canvas) return;
+    var labels = {{ capacityData|column('label')|json_encode|raw }};
+    var data = {{ capacityData|column('value')|json_encode|raw }};
+    new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Capacité',
+                data: data,
+                backgroundColor: 'rgba(33, 150, 243, 0.2)',
+                borderColor: 'rgba(33, 150, 243, 1)',
+                borderWidth: 2,
+                borderRadius: 5,
+                barThickness: 30
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

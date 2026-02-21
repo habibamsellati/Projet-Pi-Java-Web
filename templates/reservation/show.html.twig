@@ -1,0 +1,189 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}AfkArt | Réservation #{{ reservation.id }}{% endblock %}
+
+{% block body %}
+<style>
+    .ticket-page {
+        background: #FAF9F6;
+        min-height: 100vh;
+        padding: 120px 20px 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .ticket-container {
+        display: flex;
+        background: white;
+        width: 100%;
+        max-width: 900px;
+        border-radius: 40px;
+        box-shadow: 0 40px 100px rgba(0,0,0,0.06);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .ticket-main {
+        flex: 1;
+        padding: 60px;
+        position: relative;
+    }
+    .ticket-sidebar {
+        width: 300px;
+        background: #2b2b2b;
+        color: white;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        border-left: 2px dashed rgba(255,255,255,0.1);
+    }
+    .ticket-sidebar::before, .ticket-sidebar::after {
+        content: '';
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: #FAF9F6;
+        border-radius: 50%;
+        left: -20px;
+    }
+    .ticket-sidebar::before { top: -20px; }
+    .ticket-sidebar::after { bottom: -20px; }
+
+    .ticket-id {
+        font-family: 'Outfit', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-size: 0.75rem;
+        color: #C4704B;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    .ticket-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 3.5rem;
+        line-height: 1.1;
+        color: #2b2b2b;
+        margin-bottom: 30px;
+    }
+    .ticket-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-top: 50px;
+    }
+    .info-item label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #AAA;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+    .info-item span {
+        font-size: 1.2rem;
+        color: #2b2b2b;
+        font-weight: 600;
+    }
+    .qr-placeholder {
+        width: 150px;
+        height: 150px;
+        background: white;
+        border-radius: 20px;
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+    .qr-placeholder img {
+        width: 100%;
+        height: 100%;
+        opacity: 0.8;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+    .status-confirme { background: rgba(196, 112, 75, 0.1); color: #C4704B; }
+    .status-en_attente { background: #f5f5f5; color: #888; }
+</style>
+
+<div class="ticket-page">
+    <div style="text-align: center; margin-bottom: 50px;">
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; color: #2b2b2b;">Votre <span style="color: #C4704B;">Billet d'Art</span></h1>
+        <p style="color: #666;">Présentez ce billet à l'entrée de l'événement.</p>
+    </div>
+
+    <div class="ticket-container">
+        <div class="ticket-main">
+            <div class="ticket-id">Réserve N° #{{ reservation.id|format('%05d') }}</div>
+            <h2 class="ticket-title">{{ reservation.evenement.nom }}</h2>
+            
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 40px;">
+                <div class="status-badge status-{{ reservation.statut }}">
+                    {{ reservation.statut == 'confirme' ? "✓ Confirmé" : "待 En attente" }}
+                </div>
+                <div style="color: #888; font-size: 0.9rem;">Réservé le {{ reservation.createdAt|date('d/m/Y à H:i') }}</div>
+            </div>
+
+            <div class="ticket-info-grid">
+                <div class="info-item">
+                    <label>Lieu</label>
+                    <span>{{ reservation.evenement.lieu }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Date de l'événement</label>
+                    <span>{{ reservation.evenement.dateDebut|date('d F Y') }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Collectionneur</label>
+                    <span>{{ reservation.user.prenom }} {{ reservation.user.nom }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Accès</label>
+                    <span>{{ reservation.nbPlaces }} Place{{ reservation.nbPlaces > 1 ? 's' : '' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ticket-sidebar">
+            <div style="text-align: center;">
+                <div class="qr-placeholder" style="display: flex; align-items: center; justify-content: center; background: white; padding: 10px;">
+                    <img src="{{ qrCode }}" style="width: 100%; height: 100%; object-fit: contain;" alt="QR Code">
+                </div>
+                <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; text-transform: uppercase;">Scannez à l'entrée</div>
+            </div>
+
+            <div style="text-align: center; width: 100%;">
+                <div style="font-size: 2rem; font-family: 'Cormorant Garamond', serif; font-weight: 700; margin-bottom: 5px;">{{ (reservation.nbPlaces * reservation.evenement.prix)|number_format(2) }} TND</div>
+                <div style="font-size: 0.65rem; letter-spacing: 1px; opacity: 0.5; text-transform: uppercase;">Total Sécurisé</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top: 50px; display: flex; gap: 20px; flex-direction: column; align-items: center;">
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <a href="{{ path('app_reservation_download_ticket', {id: reservation.id}) }}" 
+               style="background: #C4704B; color: white; padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Télécharger PDF
+            </a>
+
+        </div>
+        <a href="{{ path('app_reservation_index') }}" style="background: white; border: 1px solid #EEE; color: #2b2b2b; text-decoration: none; padding: 18px 40px; border-radius: 50px; font-weight: 600; transition: all 0.3s;" onmouseover="this.style.background='#f9f9f9'">
+            Retour à mon Carnet
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'components/_ai_concierge.html.twig' %}
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Idées Créatives AfkArt AI{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet">
+    <style>
+        /* --- CALENDRIER THÈME CLAIR ET PETIT --- */
+        #calendar-container {
+            display: none; 
+            max-width: 450px; 
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 20px;
+            color: #3d2817;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+
+        .fc { font-size: 0.8rem !important; font-family: 'Inter', sans-serif !important; }
+        .fc-toolbar-title { font-size: 1rem !important; color: #3d2817 !important; font-weight: 700; }
+        .fc-button { background: #f8f6f3 !important; border: 1px solid #eee !important; color: #3d2817 !important; padding: 4px 8px !important; border-radius: 8px !important; }
+        .fc-button:hover { background: #8b5e4a !important; color: white !important; }
+        .fc-day-today { background: #fdfaf8 !important; }
+        
+        .btn-toggle-cal {
+            display: block;
+            margin: 0 auto 2rem auto;
+            background: #3d2817;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(61, 40, 23, 0.2);
+        }
+        .btn-toggle-cal:hover { background: #8b5e4a; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(139, 94, 74, 0.3); }
+
+        .prop-ia-card:hover { transform: scale(1.02); box-shadow: 0 40px 80px rgba(0,0,0,0.08); border-color: #8b5e4a; }
+        .prop-ia-card:hover img { transform: scale(1.1); }
+    </style>
+{% endblock %}
+
+{% block body %}
+{% set is_admin_or_artisan = app.user and app.user.role|upper in ['ADMIN', 'ROLE_ADMIN', 'ARTISANT', 'ROLE_ARTISANT', 'ARTISAN', 'ROLE_ARTISAN'] %}
+
+<section style="max-width: 1300px; margin: 0 auto; padding: 4rem 2rem; background: #fafafa;">
+    <div style="text-align: center; margin-bottom: 5rem;">
+        <span style="color: #8b5e4a; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem;">Innover par le Recyclage</span>
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; color: #1a1a1a; margin-top: 0.5rem;">Propositions de Transformation</h1>
+        <p style="color: #666; max-width: 600px; margin: 1.5rem auto; line-height: 1.6;">Explorez les visions artistiques générées par notre IA pour donner une seconde vie aux matériaux collectés.</p>
+        
+        {% if can_manage|default(false) %}
+            <a href="{{ path('app_proposition_new') }}" style="display: inline-block; background: #8b5e4a; color: white; padding: 1rem 3rem; border-radius: 12px; text-decoration: none; font-weight: 600; margin-top: 1rem; transition: 0.3s; box-shadow: 0 4px 15px rgba(139, 94, 74, 0.3);">Proposer une Idée</a>
+        {% endif %}
+    </div>
+
+    {# CALENDRIER (Uniquement pour Artisans) #}
+    {% if is_admin_or_artisan %}
+        <button class="btn-toggle-cal" onclick="toggleCalendar()">📅 Mes Propositions sur le Calendrier</button>
+        <div id="calendar-container">
+            <div id="calendar"></div>
+        </div>
+    {% endif %}
+
+    {% for message in app.flashes('success') %}
+        <div style="background: #f0fff4; color: #2f855a; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem; border-left: 5px solid #48bb78;">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('warning') %}
+        <div style="background: #fffaf0; color: #9c4221; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem; border-left: 5px solid #ed8936;">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div style="background: #fff5f5; color: #c53030; padding: 1.25rem; border-radius: 12px; margin-bottom: 1rem; border-left: 5px solid #f56565;">{{ message }}</div>
+    {% endfor %}
+
+    {# Extraction des catégories de produits uniques (nomproduit) pour le groupement #}
+    {% set categories = [] %}
+    {% for prop in propositions %}
+        {% if prop.produit %}
+            {% if prop.produit.nomproduit not in categories %}
+                {% set categories = categories|merge([prop.produit.nomproduit]) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% for category in categories %}
+        <div style="margin-bottom: 6rem;">
+            <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 3rem;">
+                <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: #8b5e4a; white-space: nowrap;">Pour le matériau : {{ category }}</h2>
+                <div style="flex-grow: 1; height: 1px; background: linear-gradient(to right, #ddd, transparent);"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 3.5rem;">
+                {% for prop in propositions %}
+                    {% if prop.produit and prop.produit.nomproduit == category %}
+                    <div class="prop-ia-card" style="background: white; border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.03); border: 1px solid #eee; transition: 0.5s;">
+                        {# IMAGE IA #}
+                        <div style="height: 400px; overflow: hidden; position: relative; background: #f9f9f9;">
+                            {% if prop.image %}
+                                <img src="{{ prop.image }}" 
+                                     alt="{{ prop.titre }}" 
+                                     style="width: 100%; height: 100%; object-fit: cover; transition: 0.8s; display: block;"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5f0eb 0%, #ede5dc 100%); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem;">
+                                    <span style="font-size: 3.5rem;">🎨</span>
+                                    <span style="color: #8b5e4a; font-size: 0.9rem; font-weight: 500;">Visualisation IA</span>
+                                </div>
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f9f9f9 0%, #f0ebe5 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem;">
+                                    <span style="font-size: 3.5rem;">✨</span>
+                                    <span style="color: #ccc; font-size: 0.9rem;">Visualisation IA indisponible</span>
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                        {# INFOS EN-DESSOUS #}
+                        <div style="padding: 2.5rem;">
+                            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #1a1a1a; margin-bottom: 1rem;">{{ prop.titre }}</h3>
+                            <p style="color: #777; font-size: 1.05rem; line-height: 1.7; margin-bottom: 2rem; height: 5.1em; overflow: hidden;">{{ prop.description }}</p>
+
+                            {% if prop.prixPropose %}
+                                <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: linear-gradient(135deg, #fefce8, #fef3c7); border: 1px solid #fbbf24; padding: 0.4rem 0.9rem; border-radius: 50px; margin-bottom: 1rem; font-size: 0.85rem; font-weight: 700; color: #92400e;">
+                                    💰 Prix estimé : {{ prop.prixPropose|number_format(2, '.', ' ') }} TND
+                                </div>
+                            {% endif %}
+
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 1.2rem; border-radius: 20px;">
+                                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                    <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #4a5568;">
+                                        {{ prop.user ? prop.user.prenom|first|upper : '?' }}
+                                    </div>
+                                    <span style="font-weight: 600; color: #2d3748;">{{ prop.user ? prop.user.prenom ~ ' ' ~ prop.user.nom : 'Artisan Externe' }}</span>
+                                </div>
+                                <a href="{{ path('app_proposition_show', {'id': prop.id}) }}" style="color: #8b5e4a; text-decoration: none; font-weight: 700; font-size: 0.9rem;">VOIR →</a>
+                            </div>
+
+                            {% if can_manage|default(false) and (is_admin_or_artisan or (prop.user and prop.user.id == app.user.id)) %}
+                                <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                                    <a href="{{ path('app_proposition_edit', {'id': prop.id}) }}" style="color: #a0aec0; text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        Modifier l'idée
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            {% if is_admin_or_artisan %}
+                                <div style="margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-weight: bold; color: #555; background: #f7fafc; padding: 5px 10px; border-radius: 5px; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                        Statut: 
+                                        {% if prop.statut == 'acceptee' %}
+                                            <span style="color: #48bb78;">✅ Acceptée</span>
+                                        {% elseif prop.statut == 'refusee' %}
+                                            <span style="color: #f56565;">❌ Refusée</span>
+                                        {% elseif prop.statut == 'terminee' %}
+                                            <span style="color: #4299e1;">🎨 Terminée</span>
+                                        {% else %}
+                                            <span style="color: #ed8936;">⏳ En attente</span>
+                                        {% endif %}
+                                    </div>
+                                    <span style="font-size: 0.85rem; color: #a0aec0; font-weight: 500;">
+                                        📅 {{ prop.date ? prop.date|date('d/m/Y') : '' }}
+                                    </span>
+                                </div>
+
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                        {% if prop.statut|default('en_attente') == 'en_attente' %}
+                                            <form method="post" action="{{ path('app_proposition_accepter', {'id': prop.id}) }}" onsubmit="return confirm('Accepter cette proposition ?');" style="margin:0;">
+                                                <button type="submit" style="background: #48bb78; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">Accepter</button>
+                                            </form>
+                                            <form method="post" action="{{ path('app_proposition_refuser', {'id': prop.id}) }}" onsubmit="return confirm('Refuser cette proposition ?');" style="margin:0;">
+                                                <button type="submit" style="background: #f56565; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">Refuser</button>
+                                            </form>
+                                        {% elseif prop.statut == 'acceptee' %}
+                                            <form method="post" action="{{ path('app_proposition_terminer', {'id': prop.id}) }}" onsubmit="return confirm('Marquer comme terminée ?');" style="margin:0;">
+                                                <button type="submit" style="background: #4299e1; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s;">Terminer</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 8rem 2rem;">
+            <p style="color: #a0aec0; font-size: 1.2rem;">L'IA attend vos premières inspirations.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script>
+        let calendar;
+        function toggleCalendar() {
+            const container = document.getElementById('calendar-container');
+            if (container.style.display === "none" || container.style.display === "") {
+                container.style.display = "block";
+                if (!calendar) {
+                    initCalendar();
+                }
+                calendar.render();
+            } else {
+                container.style.display = "none";
+            }
+        }
+
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'fr',
+                height: 'auto',
+                headerToolbar: { 
+                    left: 'prev', 
+                    center: 'title', 
+                    right: 'next' 
+                },
+                events: "{{ path('fc_load_events_recyclable') }}",
+                eventClick: function(info) {
+                    // Redirection vers les détails de la proposition
+                    window.location.href = "/proposition/" + info.event.id;
+                },
+                eventDidMount: function(info) {
+                    if (info.event.extendedProps.description) {
+                        info.el.title = info.event.extendedProps.description;
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}

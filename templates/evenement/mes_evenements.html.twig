@@ -1,0 +1,184 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Gestion des Événements - AfkArt{% endblock %}
+
+{% block body %}
+<div style="background: #FAF9F6; min-height: 100vh; padding-top: 120px; padding-bottom: 80px;">
+    <div class="container">
+        
+        {# Professional Header / Welcome Section #}
+        <div style="background: white; border-radius: 30px; padding: 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.03); margin-bottom: 50px; position: relative; overflow: hidden; border: 1px solid rgba(196, 112, 75, 0.1);">
+            {# Decorative element #}
+            <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(196, 112, 75, 0.05); border-radius: 50%;"></div>
+            
+            <div style="position: relative; z-index: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 30px;">
+                    <div>
+                        <h6 style="color: #C4704B; text-transform: uppercase; letter-spacing: 3px; font-weight: 700; font-size: 0.8rem; margin-bottom: 15px;">Espace Artisan</h6>
+                        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; color: #2b2b2b; margin: 0 0 15px 0; line-height: 1.1;">
+                            Bienvenue dans votre <br><span style="color: #C4704B;">Atelier d'Événements</span>
+                        </h1>
+                        <p style="color: #666; font-size: 1.1rem; max-width: 500px; line-height: 1.6;">
+                            Ici, vous pouvez donner vie à vos projets artistiques et gérer vos expositions.
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px; align-items: flex-end;">
+                        <a href="{{ path('app_evenement_new') }}" style="background: #C4704B; color: white; padding: 18px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; display: inline-flex; align-items: center; gap: 12px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px rgba(196, 112, 75, 0.25);" class="btn-create">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Nouvel Événement
+                        </a>
+                        <a href="{{ path('app_reservation_index') }}" style="background: #2b2b2b; color: white; padding: 18px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; display: inline-flex; align-items: center; gap: 12px; transition: all 0.3s; box-shadow: 0 10px 25px rgba(0,0,0,0.1);" onmouseover="this.style.background='#C4704B'">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            Gérer mes Réservations
+                        </a>
+                    </div>
+                </div>
+                
+                {# Quick Stats Banner - Simplified #}
+                <div style="display: flex; gap: 40px; margin-top: 40px; padding-top: 30px; border-top: 1px solid #f0f0f0;">
+                    <div>
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #2b2b2b;">{{ evenements|length }}</div>
+                        <div style="font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 1px;">Événements Actifs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Events List #}
+        <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+            <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: #2b2b2b; margin: 0;">Vos Créations</h2>
+            <div style="height: 1px; flex: 1; background: linear-gradient(to right, #e0e0e0, transparent);"></div>
+        </div>
+
+        {% if evenements is empty %}
+            <div style="background: white; border-radius: 30px; padding: 100px 50px; text-align: center; border: 2px dashed #eee;">
+                <div style="width: 100px; height: 100px; background: #FFF5F2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C4704B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                        <path d="M2 2l7.586 7.586"></path>
+                        <circle cx="11" cy="11" r="2"></circle>
+                    </svg>
+                </div>
+                <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: #2b2b2b; margin-bottom: 15px;">Votre galerie est encore vierge</h3>
+                <p style="color: #666; font-size: 1.1rem; max-width: 450px; margin: 0 auto 35px; line-height: 1.6;">
+                    Chaque grand artiste a commencé par un premier projet. Cliquez sur le bouton ci-dessous pour lancer votre première aventure.
+                </p>
+                <a href="{{ path('app_evenement_new') }}" style="background: #2b2b2b; color: white; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
+                    Commencer maintenant
+                </a>
+            </div>
+        {% else %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 35px;">
+                {% for evenement in evenements %}
+                    <div class="pro-event-card" style="background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.04); transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+                        <div style="position: relative; height: 260px; overflow: hidden;">
+                            {% if evenement.image %}
+                                <img src="{{ evenement.image }}" alt="{{ evenement.nom }}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease;">
+                            {% else %}
+                                <div style="width: 100%; height: 100%; background: #F5F5F3; display: flex; align-items: center; justify-content: center; color: #BBB;">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                        <polyline points="21 15 16 10 5 21"></polyline>
+                                    </svg>
+                                    <span style="font-size: 0.8rem; margin-top: 10px; font-weight: 500;">AUCUNE IMAGE</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div style="position: absolute; top: 20px; left: 20px;">
+                                <span style="background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); color: #C4704B; padding: 6px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                                    {{ evenement.typeArt }}
+                                </span>
+                            </div>
+                            
+                            <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);"></div>
+                            <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                                <div style="color: white;">
+                                    <div style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; opacity: 0.9; margin-bottom: 2px;">{{ evenement.dateDebut|date('d') }} {{ evenement.dateDebut|date('M')|trans }}</div>
+                                    <div style="font-size: 1.2rem; font-weight: 700; font-family: 'Cormorant Garamond', serif;">{{ evenement.nom }}</div>
+                                </div>
+                                <div style="background: rgba(196, 112, 75, 0.9); color: white; padding: 5px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 700;">
+                                    {{ evenement.prix|number_format(0) }} TND
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 25px; flex: 1; display: flex; flex-direction: column;">
+                            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                                <div style="flex: 1; background: #F9F9F9; padding: 12px; border-radius: 15px; text-align: center;">
+                                    <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Capacité</div>
+                                    <div style="font-size: 1.1rem; font-weight: 700; color: #2b2b2b;">{{ evenement.capacite }} places</div>
+                                </div>
+                                <div style="flex: 1; background: #F9F9F9; padding: 12px; border-radius: 15px; text-align: center;">
+                                    <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;">Status</div>
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: #2ecc71;">Actif</div>
+                                </div>
+                            </div>
+                            
+                            <p style="color: #666; font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">
+                                {{ evenement.description }}
+                            </p>
+                            
+                            {% if smartFillData[evenement.id] is defined %}
+                                {{ include('components/smartfill_widget.html.twig', { 
+                                    evenement: evenement,
+                                    prediction: smartFillData[evenement.id].prediction, 
+                                    insights: smartFillData[evenement.id].insights,
+                                    elasticity: smartFillData[evenement.id].elasticity,
+                                    successScore: smartFillData[evenement.id].successScore,
+                                    brief: smartFillData[evenement.id].brief
+                                }) }}
+                            {% endif %}
+                            
+                            <div style="display: flex; gap: 12px; pt: 15px; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+                                <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" style="flex: 1.5; display: flex; align-items: center; justify-content: center; gap: 8px; background: #2b2b2b; color: white; text-decoration: none; padding: 13px; border-radius: 14px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    Superviser
+                                </a>
+                                <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; background: white; border: 1.5px solid #2b2b2b; color: #2b2b2b; text-decoration: none; padding: 13px; border-radius: 14px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    Editer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(196, 112, 75, 0.3) !important;
+        background: #a85a3a !important;
+    }
+    .pro-event-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1) !important;
+        border-color: rgba(196, 112, 75, 0.2) !important;
+    }
+    .pro-event-card:hover img {
+        transform: scale(1.08);
+    }
+    .pro-event-card a:hover {
+        opacity: 0.9;
+    }
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'components/_ai_concierge.html.twig' %}
+{% endblock %}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Suivi des Livraisons</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+<h1>Liste des Suivis de Livraison</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID Livraison</th>
+            <th>Date de suivi</th>
+            <th>État</th>
+            <th>Localisation</th>
+            <th>Commentaire</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for suivi in suivisLivraison %}
+        <tr>
+            <td>{{ suivi.livraison.id }}</td>
+            <td>{{ suivi.datesuivi|date('d/m/Y H:i') }}</td>
+            <td>{{ suivi.etat }}</td>
+            <td>{{ suivi.localisation }}</td>
+            <td>{{ suivi.commentaire }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

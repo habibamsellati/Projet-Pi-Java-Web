@@ -1,0 +1,162 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Stratégie AI - {{ evenement.nom }}{% endblock %}
+
+{% block body %}
+<div style="background: #fdfdfd; min-height: 100vh; padding: 120px 0 80px 0; font-family: 'Outfit', sans-serif;">
+    <div class="container">
+        
+        {# Header / Navigation #}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px;">
+            <div>
+                <a href="{{ path('app_artisan_events') }}" style="text-decoration: none; color: #888; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    Retour au Tableau de Bord
+                </a>
+                <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; margin: 0; color: #2b2b2b;">Centre de Performance Stratégique <span style="color: #C4704B;">AI</span></h1>
+                <p style="color: #666; font-size: 1.1rem; margin-top: 10px;">Analyse cognitive pour l'événement : <strong>{{ evenement.nom }}</strong></p>
+            </div>
+            <div style="text-align: right;">
+                <div style="background: white; padding: 15px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f0f0f0;">
+                    <div style="font-size: 0.75rem; color: #888; font-weight: 700; text-transform: uppercase; margin-bottom: 5px;">Score Global de Santé</div>
+                    <div style="font-size: 2.2rem; font-weight: 800; color: {% if successScore > 80 %}#10b981{% elseif successScore > 50 %}#f59e0b{% else %}#ef4444{% endif %};">{{ successScore }}%</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+            
+            {# Left Column: Deep Dive #}
+            <div>
+                {# Sub-Scores Breakdown #}
+                <div style="background: white; border-radius: 30px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.03); border: 1px solid #f8f8f8; margin-bottom: 40px;">
+                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C4704B" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        Analyse des Piliers de Succès
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
+                        {# Price Score #}
+                        <div class="score-card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span style="font-weight: 700; color: #444;">Attractivité Prix</span>
+                                <span style="font-weight: 800; color: #C4704B;">{{ analysis.price_score }}%</span>
+                            </div>
+                            <div style="height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{ analysis.price_score }}%; height: 100%; background: #C4704B; transition: width 1s;"></div>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Basé sur la comparaison avec la moyenne du secteur.</p>
+                        </div>
+
+                        {# Content Score #}
+                        <div class="score-card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span style="font-weight: 700; color: #444;">Qualité du Contenu</span>
+                                <span style="font-weight: 800; color: #C4704B;">{{ analysis.content_score }}%</span>
+                            </div>
+                            <div style="height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{ analysis.content_score }}%; height: 100%; background: #C4704B; transition: width 1s;"></div>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Analyse de la richesse de la description et des médias.</p>
+                        </div>
+
+                        {# Timing Score #}
+                        <div class="score-card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span style="font-weight: 700; color: #444;">Opportunité Marché</span>
+                                <span style="font-weight: 800; color: #C4704B;">{{ analysis.timing_score }}%</span>
+                            </div>
+                            <div style="height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{ analysis.timing_score }}%; height: 100%; background: #C4704B; transition: width 1s;"></div>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Score de saisonnalité et tendances actuelles.</p>
+                        </div>
+
+                        {# Potential Reach #}
+                        <div class="score-card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span style="font-weight: 700; color: #444;">Portée Visibilité</span>
+                                <span style="font-weight: 800; color: #C4704B;">{{ analysis.reach_score }}%</span>
+                            </div>
+                            <div style="height: 6px; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                                <div style="width: {{ analysis.reach_score }}%; height: 100%; background: #C4704B; transition: width 1s;"></div>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Capacité de conversion basée sur votre audience.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {# Strategic Checklist #}
+                <div style="background: #1e293b; border-radius: 30px; padding: 40px; color: white;">
+                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 30px; color: white; display: flex; align-items: center; gap: 15px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Plan d'Action Cognitif
+                    </h2>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        {% for item in checklist %}
+                            <div style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: flex-start; gap: 20px;">
+                                <div style="background: {% if item.impact == 'Critique' %}#ef4444{% elseif item.impact == 'Elevé' %}#f59e0b{% elseif item.impact == 'Succès' %}#10b981{% else %}#3b82f6{% endif %}; color: white; font-size: 0.65rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase;">
+                                    {{ item.impact }}
+                                </div>
+                                <div style="flex: 1;">
+                                    <h3 style="margin: 0 0 5px 0; font-size: 1.1rem; color: white;">{{ item.task }}</h3>
+                                    <p style="margin: 0; font-size: 0.9rem; color: #94a3b8;">{{ item.detail }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Right Column: Elasticity & Summary #}
+            <div>
+                {# Price Simulation #}
+                <div style="background: white; border-radius: 30px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; margin-bottom: 30px;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4704B" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        Élasticité de Demande
+                    </h3>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px;">
+                            <span style="color: #666;">Prix -20% (Optimiste)</span>
+                            <span style="font-weight: 700; color: #10b981;">{{ elasticity.decrease_20|round }}% occ.</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f5f5f5; padding-bottom: 10px; font-weight: 700;">
+                            <span style="color: #2b2b2b;">Prix Actuel</span>
+                            <span style="color: #2b2b2b;">{{ elasticity.current|round }}% occ.</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #666;">Prix +10% (Risqué)</span>
+                            <span style="font-weight: 700; color: #ef4444;">{{ elasticity.increase_10|round }}% occ.</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 25px; background: #FFF9F5; padding: 15px; border-radius: 12px; font-size: 0.85rem; color: #C4704B; font-style: italic;">
+                        L'IA estime que votre prix est {% if analysis.price_score >= 85 %}optimal pour maximiser le remplissage.{% else %}plus élevé que la moyenne du marché.{% endif %}
+                    </div>
+                </div>
+
+                {# Revenue Potential #}
+                <div style="background: linear-gradient(135deg, #C4704B, #8B4513); border-radius: 30px; padding: 30px; color: white;">
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 15px; color: white;">Gain Potentiel</h3>
+                    <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">En suivant la checklist stratégique, l'IA estime que vous pourriez augmenter vos revenus de :</p>
+                    <div style="font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;">+ {{ (evenement.prix * (100 - prediction) / 100 * evenement.capacite * 0.4)|round }} <span style="font-size: 1rem;">TND</span></div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; display: inline-block;">Estimation basée sur conversion AI</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .score-card {
+        padding: 20px;
+        background: #fafafa;
+        border-radius: 20px;
+        border: 1px solid #f0f0f0;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}AfkArt | Gestion des Réservations{% endblock %}
+
+{% block body %}
+<style>
+    :root {
+        --pro-charcoal: #121212;
+        --pro-gold: #C4704B;
+        --pro-emerald: #1B4332;
+        --pro-cream: #FAF9F6;
+        --pro-silver: #F0F0F0;
+        --pro-shadow: 0 10px 40px rgba(0,0,0,0.06);
+    }
+
+    .pro-dashboard {
+        background-color: var(--pro-cream);
+        min-height: 100vh;
+        padding: 120px 0 80px;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Stats Section */
+    .pro-stat-card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: var(--pro-shadow);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.3s ease;
+    }
+    .pro-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 45px rgba(0,0,0,0.1);
+    }
+
+    /* Event Sections */
+    .pro-event-section {
+        background: white;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: var(--pro-shadow);
+        margin-bottom: 50px;
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+    .pro-event-header {
+        padding: 40px;
+        background: var(--pro-charcoal);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Table Styles */
+    .pro-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .pro-table th {
+        background: #F8F9FA;
+        padding: 20px 30px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #888;
+        border-bottom: 2px solid #F0F0F0;
+        text-align: left;
+    }
+    .pro-table td {
+        padding: 25px 30px;
+        border-bottom: 1px solid #F8F9FA;
+        vertical-align: middle;
+    }
+    .pro-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Status Badges */
+    .pro-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 15px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        gap: 8px;
+    }
+    .badge-confirmed { background: rgba(46, 204, 113, 0.1); color: #27ae60; }
+    .badge-pending { background: rgba(243, 156, 18, 0.1); color: #e67e22; }
+    .badge-canceled { background: rgba(231, 76, 60, 0.1); color: #c0392b; }
+
+    /* Client Ticket Card */
+    .pro-ticket-card {
+        background: white;
+        border-radius: 25px;
+        display: flex;
+        overflow: hidden;
+        box-shadow: var(--pro-shadow);
+        border: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.4s ease;
+        margin-bottom: 30px;
+    }
+    .pro-ticket-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+</style>
+
+<div class="pro-dashboard">
+    <div class="container" style="max-width: 1400px;">
+        
+        {# HEADER SECTION #}
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                    <span style="width: 40px; height: 3px; background: var(--pro-gold);"></span>
+                    <span style="font-weight: 800; text-transform: uppercase; letter-spacing: 4px; font-size: 0.8rem; color: var(--pro-gold);">
+                        Espace {{ isArtisan ? 'Artisan' : 'Collectionneur' }}
+                    </span>
+                </div>
+                <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 4rem; color: var(--pro-charcoal); margin: 0;">
+                    {{ isArtisan ? 'Gestion des Audiences' : 'Mes Acquisitions' }}
+                </h1>
+            </div>
+            
+            <a href="{{ path('app_evenement_index') }}" style="background: var(--pro-charcoal); color: white; padding: 18px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 12px; transition: all 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.15);" onmouseover="this.style.background='var(--pro-emerald)'" onmouseout="this.style.background='var(--pro-charcoal)'">
+                <i class="fas fa-th-large"></i> Retour au Catalogue
+            </a>
+        </div>
+
+        {% if isArtisan %}
+            {# STATS HEADER #}
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-bottom: 60px;">
+                <div class="pro-stat-card">
+                    <div style="color: #888; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 10px;">Revenu Total Sécurisé</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--pro-charcoal);">{{ stats.totalRevenue|number_format(2) }} <small style="font-size: 1rem;">TND</small></div>
+                    <div style="margin-top: 15px; font-size: 0.85rem; color: #27ae60;"><i class="fas fa-chart-line"></i> Performance Optimal</div>
+                </div>
+                <div class="pro-stat-card">
+                    <div style="color: #888; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 10px;">Total Réservations</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--pro-charcoal);">{{ stats.totalBookings }}</div>
+                    <div style="margin-top: 15px; font-size: 0.85rem; color: var(--pro-gold);"><i class="fas fa-ticket-alt"></i> Engagement fort</div>
+                </div>
+                <div class="pro-stat-card">
+                    <div style="color: #888; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 10px;">Capacité Moyenne</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--pro-emerald);">78 <small style="font-size: 1rem;">%</small></div>
+                    <div style="margin-top: 15px; font-size: 0.85rem; color: var(--pro-emerald);"><i class="fas fa-users"></i> Salle remplie</div>
+                </div>
+            </div>
+
+            {# EVENT LIST #}
+            {% set totalGuests = 0 %}
+            {% for event in events %}
+                {% if event.reservations|length > 0 %}
+                    <div class="pro-event-section">
+                        <div class="pro-event-header">
+                            <div style="display: flex; align-items: center; gap: 30px;">
+                                <div style="width: 80px; height: 80px; border-radius: 15px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1);">
+                                    <img src="{{ event.image }}" alt="" style="width:100%; height:100%; object-fit:cover;">
+                                </div>
+                                <div>
+                                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; margin: 0;">{{ event.nom }}</h2>
+                                    <div style="font-size: 0.85rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px;">
+                                        <i class="far fa-calendar-alt"></i> {{ event.dateDebut|date('d M Y') }} &nbsp; 
+                                        <i class="fas fa-map-marker-alt"></i> {{ event.lieu }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                {% set count = 0 %}{% for r in event.reservations %}{% set count = count + r.nbPlaces %}{% endfor %}
+                                <div style="font-size: 1.5rem; font-weight: 700;">{{ count }} / {{ event.capacite }}</div>
+                                <div style="width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 10px; overflow: hidden;">
+                                    <div style="width: {{ (count / event.capacite * 100)|round }}%; height: 100%; background: var(--pro-gold);"></div>
+                                </div>
+                                <div style="font-size: 0.7rem; opacity: 0.5; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px;">Remplissage de l'Événement</div>
+                            </div>
+                        </div>
+                        
+
+                        <table class="pro-table">
+                            <thead>
+                                <tr>
+                                    <th>Collectionneur</th>
+                                    <th>Places</th>
+                                    <th>Heure</th>
+                                    <th>Contacts</th>
+                                    <th>Total</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in event.reservations %}
+                                    {% set totalGuests = totalGuests + 1 %}
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight: 700; color: var(--pro-charcoal); font-size: 1.05rem;">
+                                                {{ r.user ? r.user.prenom ~ ' ' ~ r.user.nom : 'Collectionneur Anonyme' }}
+                                            </div>
+                                            <div style="font-size: 0.7rem; color: #BBB; font-weight: 700;">#RESRV-{{ r.id }}</div>
+                                        </td>
+                                        <td><span style="font-weight: 700;">{{ r.nbPlaces }}</span> <small style="color:#888;">places</small></td>
+                                        <td>{{ r.dateReservation|date('H:i') }}</td>
+                                        <td>
+                                            <div style="font-size: 0.85rem; color: #666;"><i class="far fa-envelope"></i> {{ r.user ? r.user.email : '-' }}</div>
+                                            <div style="font-size: 0.85rem; font-weight: 700; margin-top: 3px;"><i class="fas fa-phone-alt"></i> {{ (r.user and r.user.telephone) ? r.user.telephone : 'N/A' }}</div>
+                                        </td>
+                                        <td style="font-weight: 800; color: var(--pro-charcoal);">{{ (r.nbPlaces * (event.prix ?: 0))|number_format(2) }} DT</td>
+                                        <td>
+                                            <span class="pro-badge {{ r.statut == 'confirme' ? 'badge-confirmed' : 'badge-pending' }}">
+                                                {{ r.statut == 'confirme' ? 'Confirmé' : 'En attente' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div style="text-align: center; padding: 100px 0; background: white; border-radius: 40px; border: 1px dashed #DDD;">
+                    <div style="color: #DDD; font-size: 4rem; margin-bottom: 20px;"><i class="fas fa-inbox"></i></div>
+                    <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #2b2b2b; margin-bottom: 10px;">Registre Inactif</h3>
+                    <p style="color: #888;">Vous n'avez pas encore de réservations pour vos événements.</p>
+                </div>
+            {% endfor %}
+
+        {% else %}
+            {# COLLECTIONNEUR VIEW #}
+            <div style="display: grid; grid-template-columns: 1fr; gap: 40px;">
+                {% if reservations|length > 0 %}
+                    {% for r in reservations %}
+                        <div class="pro-ticket-card">
+                            <div style="width: 280px; height: 280px; flex-shrink: 0; position: relative; overflow:hidden;">
+                                <img src="{{ r.evenement.image }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0,0,0,0.5), transparent);"></div>
+                            </div>
+                            
+                            <div style="padding: 40px; flex: 1; display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <div>
+                                        <div style="color: var(--pro-gold); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 15px;">Certification de Place</div>
+                                        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; margin: 0; line-height: 1;">{{ r.evenement.nom }}</h3>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 2rem; font-weight: 700;">{{ (r.nbPlaces * r.evenement.prix)|number_format(2) }} <small>TND</small></div>
+                                        <span class="pro-badge {{ r.statut == 'confirme' ? 'badge-confirmed' : 'badge-pending' }}" style="margin-top: 10px;">
+                                            {{ r.statut == 'confirme' ? '<i class="fas fa-check-circle"></i> Place Sécurisée' : '<i class="fas fa-clock"></i> Action Requise' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 50px; margin-top: 40px; border-top: 1px solid #F0F0F0; padding-top: 30px; flex: 1;">
+                                    <div>
+                                        <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Date & Heure</div>
+                                        <div style="font-weight: 700; color: #2b2b2b;">{{ r.evenement.dateDebut|date('d F Y') }} <span style="opacity:0.3; margin: 0 10px;">|</span> {{ r.dateReservation|date('H:i') }}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Emplacement</div>
+                                        <div style="font-weight: 700; color: #2b2b2b;"><i class="fas fa-map-marker-alt" style="color:var(--pro-gold);"></i> {{ r.evenement.lieu }}</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Admission</div>
+                                        <div style="font-weight: 700; color: #2b2b2b;">{{ r.nbPlaces }} Place{{ r.nbPlaces > 1 ? 's' : '' }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
+                                    {% if r.statut == 'en_attente' %}
+                                        <div style="font-size: 0.8rem; color: #e67e22; font-weight: 700;"><i class="fas fa-exclamation-triangle"></i> Expire dans 3 heures</div>
+                                        <a href="{{ path('app_reservation_payment', {id: r.id}) }}" style="background: var(--pro-charcoal); color: white; padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.9rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">Finaliser le Paiement</a>
+                                    {% else %}
+                                        <a href="{{ path('app_reservation_show', {id: r.id}) }}" style="background: white; color: var(--pro-charcoal); border: 2px solid var(--pro-charcoal); padding: 15px 35px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: all 0.3s;" onmouseover="this.style.background='var(--pro-charcoal)'; this.style.color='white';">Générer mon Ticket PDF</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 150px 0;">
+                        <div style="width: 120px; height: 120px; background: rgba(0,0,0,0.02); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 40px; font-size: 4rem; color: #DDD;">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: #2b2b2b;">Votre carnet est vide</h2>
+                        <p style="color: #888; font-size: 1.2rem; max-width: 500px; margin: 0 auto 40px;">Commencez votre collection d'expériences artistiques en explorant notre catalogue.</p>
+                        <a href="{{ path('app_evenement_index') }}" style="background: var(--pro-gold); color: white; padding: 20px 45px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-block; transition: all 0.3s; box-shadow: 0 15px 35px rgba(196,112,75,0.25);">Découvrir la Galerie</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% include 'components/_ai_concierge.html.twig' %}
+{% endblock %}

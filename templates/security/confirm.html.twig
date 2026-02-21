@@ -1,0 +1,64 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Confirmation Email{% endblock %}
+
+{% block body %}
+<style>
+  :root {
+    --color-cream: #FAF7F2;
+    --color-cream-dark: #F5F0E8;
+    --color-terracotta: #C4704B;
+    --color-terracotta-dark: #A85D3B;
+    --color-sage: #8FAE8B;
+    --color-sage-light: #B8D4B4;
+    --color-brown: #3D3229;
+    --color-brown-light: #5C4A3D;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background-color: var(--color-cream);
+    color: var(--color-brown);
+    line-height: 1.6;
+  }
+  h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; }
+  .form-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+  .form-card { background: white; border-radius: 1.5rem; padding: 2.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1); width: 100%; max-width: 480px; }
+  .form-description { color: var(--color-brown-light); margin-bottom: 1.5rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+  .form-group input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 0.75rem; font-size: 0.95rem; }
+  .btn { width: 100%; padding: 0.75rem 1.5rem; border-radius: 9999px; border: none; cursor: pointer; font-weight: 500; background: var(--color-terracotta); color: white; }
+  .btn:hover { background: var(--color-terracotta-dark); }
+  .form-footer { text-align: center; margin-top: 1rem; }
+  .form-footer a { color: var(--color-brown-light); text-decoration: none; }
+  .flash { padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+  .flash.error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .flash.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+</style>
+
+<div class="form-container">
+  <div class="form-card">
+    <h1>Confirmer <span>votre email</span></h1>
+    <p class="form-description">Un code a été envoyé à {{ email }}.</p>
+
+    {% for label, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="flash {{ label }}">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
+
+    <form action="{{ path('app_confirm') }}" method="post">
+      <div class="form-group">
+        <label for="code">Code de confirmation</label>
+        <input type="text" id="code" name="code" required />
+      </div>
+      <button type="submit" class="btn btn-primary">Valider</button>
+    </form>
+
+    <div class="form-footer">
+      <a href="{{ path('app_login') }}">Retour connexion</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

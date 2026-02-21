@@ -1,0 +1,37 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Modifier la Livraison | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 550px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #3d2817; text-align: center; margin-bottom: 1.5rem;">Modifier la Livraison</h1>
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.datelivraison) }}
+        {{ form_widget(form.datelivraison, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.datelivraison) }}
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.addresslivraison) }}
+        {{ form_widget(form.addresslivraison, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.addresslivraison) }}
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.commande) }}
+        {{ form_widget(form.commande, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.commande) }}
+    </div>
+    <div style="margin-bottom: 1.25rem;">
+        {{ form_label(form.livreur) }}
+        {{ form_widget(form.livreur, {'attr': {'style': 'width:100%;padding:0.6rem;border:1px solid #eee;border-radius:8px;'}}) }}
+        {{ form_errors(form.livreur) }}
+    </div>
+    <button type="submit" style="width: 100%; padding: 0.75rem; background: #8b5e4a; color: white; border: none; border-radius: 50px; font-weight: 600; cursor: pointer;">Enregistrer les modifications</button>
+    {{ form_end(form) }}
+    <p style="margin-top: 1rem;"><a href="{{ path('app_livraison_index') }}" style="color: #8b5e4a; text-decoration: none;">← Retour à la liste</a></p>
+    <form method="post" action="{{ path('app_livraison_delete', {'id': livraison.id}) }}" onsubmit="return confirm('Supprimer cette livraison ?');" style="margin-top: 1rem;">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ livraison.id) }}">
+        <button type="submit" style="background: none; border: none; color: #d9534f; cursor: pointer; font-weight: 500;">Supprimer la livraison</button>
+    </form>
+</section>
+{% endblock %}

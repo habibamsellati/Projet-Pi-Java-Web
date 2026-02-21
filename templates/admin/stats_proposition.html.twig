@@ -1,0 +1,64 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Statistiques Propositions - Admin{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes growCylinder { from { height: 0; } }
+.stats-container { max-width: 1000px; margin: 1.25rem 0; animation: slideUp 0.6s ease forwards; }
+.btn-return { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: #1a1a1a; color: white; border-radius: 12px; text-decoration: none; font-weight: 600; margin-bottom: 1.25rem; }
+.btn-return:hover { background: #333; color: white; }
+.chart-canvas { background: #fff; border-radius: 12px; padding: 2rem 2.5rem 2rem 4rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 400px; border: 1px solid #eee; position: relative; }
+.grid-bg { position: absolute; top: 2rem; left: 4rem; right: 2rem; bottom: 4rem; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+.grid-line { height: 1px; background: #e2e8f0; width: 100%; }
+.bars-area { position: absolute; top: 2rem; left: 4rem; right: 2rem; bottom: 4rem; display: flex; align-items: flex-end; justify-content: space-around; }
+.cylinder-wrapper { width: 70px; display: flex; flex-direction: column; align-items: center; position: relative; height: 100%; justify-content: flex-end; }
+.cylinder { width: 100%; position: relative; animation: growCylinder 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.cylinder-body { width: 100%; height: 100%; border-radius: 0 0 24px 24px / 0 0 12px 12px; }
+.cylinder-top { position: absolute; top: -12px; left: 0; width: 100%; height: 24px; border-radius: 50%; z-index: 2; }
+.ribbon { position: absolute; top: -50px; width: 36px; height: 44px; background: #cbd5e1; clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 80%, 0% 100%); display: flex; align-items: center; justify-content: center; color: #475569; font-weight: 800; font-size: 12px; z-index: 3; }
+.legend-area { position: absolute; bottom: 1rem; left: 4rem; right: 2rem; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 0.5rem; }
+.legend-item { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+.legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+.legend-text { font-size: 11px; font-weight: 700; color: #64748b; text-align: center; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+{% endblock %}
+
+{% block back_main %}
+<div class="stats-container">
+    <a href="{{ path('back_propositions') }}" class="btn-return">← Retour aux Propositions</a>
+    <div class="chart-canvas">
+        <div class="grid-bg">
+            {% for i in 1..6 %}<div class="grid-line"></div>{% endfor %}
+        </div>
+        <div class="bars-area">
+            {% set max_count = 1 %}
+            {% for prod, count in stats_produit %}{% if count > max_count %}{% set max_count = count %}{% endif %}{% endfor %}
+            {% set colors = ['#008b8b', '#b22222', '#483d8b', '#daa520', '#2e8b57'] %}
+            {% for prod, count in stats_produit|slice(0, 5) %}
+                {% set h = max_count > 0 ? (count / max_count * 280) : 40 %}
+                {% set color = colors[loop.index0 % colors|length] %}
+                <div class="cylinder-wrapper">
+                    <div class="ribbon">{{ count }}</div>
+                    <div class="cylinder" style="height: {{ h }}px;">
+                        <div class="cylinder-top" style="background: {{ color }};"></div>
+                        <div class="cylinder-body" style="background-color: {{ color }};"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="legend-area">
+            {% for prod, count in stats_produit|slice(0, 5) %}
+                {% set color = colors[loop.index0 % colors|length] %}
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: {{ color }};"></div>
+                    <div class="legend-text" title="{{ prod }}"><span style="color:#1a1a1a;font-size:13px;">{{ count }}</span><br>{{ prod }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<p style="margin-top:1rem;font-size:0.9rem;color:#666;">Total : <strong>{{ total_propositions }}</strong> proposition(s).</p>
+{% endblock %}

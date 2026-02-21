@@ -1,0 +1,141 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Modifier produit - Admin{% endblock %}
+
+{% block back_main %}
+<header class="header"><div class="header-left"><h1>Modifier le produit</h1></div>
+    <a href="{{ path('back_produit_recyclable') }}" style="color:#8b5e4a;text-decoration:none;">← Liste des produits</a>
+</header>
+<div style="background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);max-width:700px;">
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+
+    {# ── Bloc IA Image ── #}
+    <div style="margin-bottom:1.5rem;">
+        <p style="font-weight:600;color:#374151;margin-bottom:0.5rem;font-size:0.9rem;">Aperçu de l'image générée :</p>
+        <div id="ai-preview-container" style="position:relative;width:100%;height:260px;border-radius:12px;overflow:hidden;background:#f3f4f6;border:2px solid #8b5e4a;">
+            <img id="ai-preview-img" src="" alt="Aperçu IA" style="width:100%;height:100%;object-fit:cover;display:none;">
+            <div id="ai-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;color:#9ca3af;">
+                <span style="font-size:2rem;">🖼️</span>
+                <span style="font-size:0.85rem;">Image actuelle</span>
+            </div>
+            <div id="ai-error" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;flex-direction:column;gap:0.5rem;padding:1rem;text-align:center;">
+                <span style="font-size:2rem;">⚠️</span>
+                <span id="ai-error-msg" style="font-size:0.85rem;color:#b91c1c;font-weight:600;">Service IA indisponible</span>
+                <span style="font-size:0.75rem;color:#6b7280;">Vérifiez votre connexion ou réessayez</span>
+                <button type="button" id="btn-retry-ai" style="margin-top:0.5rem;background:#8b5e4a;color:white;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;cursor:pointer;">🔄 Réessayer</button>
+            </div>
+            <div id="ai-loading" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(249,250,251,0.95);display:none;flex-direction:column;justify-content:center;align-items:center;">
+                <div class="ai-loader"></div>
+                <p style="margin-top:10px;font-size:0.8rem;color:#8b5e4a;">L'IA génère votre image…</p>
+            </div>
+        </div>
+        <button type="button" id="btn-generate-ai" style="margin-top:0.6rem;background:#8b5e4a;color:white;border:none;padding:0.4rem 1rem;border-radius:20px;font-size:0.82rem;cursor:pointer;transition:0.3s;">✨ Régénérer l'image IA</button>
+    </div>
+    {# ── Fin Bloc IA ── #}
+
+    <div style="margin-top:1rem;">
+        <button type="submit" style="padding:0.6rem 1.5rem;background:#8b5e4a;color:white;border:none;border-radius:8px;font-weight:600;">Mettre à jour</button>
+        <a href="{{ path('back_produit_recyclable') }}" style="margin-left:1rem;color:#5a5450;text-decoration:none;">Annuler</a>
+    </div>
+    {{ form_end(form) }}
+</div>
+
+<style>
+.ai-loader{border:4px solid #f3f3f3;border-top:4px solid #8b5e4a;border-radius:50%;width:30px;height:30px;animation:ai-spin 1s linear infinite;}
+@keyframes ai-spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn         = document.getElementById('btn-generate-ai');
+    const btnRetry    = document.getElementById('btn-retry-ai');
+    const descField   = document.querySelector('textarea[name*="[description]"]');
+    const imageField  = document.querySelector('input[type="hidden"][name*="[image]"]');
+    const previewImg  = document.getElementById('ai-preview-img');
+    const placeholder = document.getElementById('ai-placeholder');
+    const aiError     = document.getElementById('ai-error');
+    const aiErrorMsg  = document.getElementById('ai-error-msg');
+    const aiLoading   = document.getElementById('ai-loading');
+
+    function showError(msg) {
+        aiLoading.style.display = 'none';
+        previewImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        if (aiError) { aiError.style.display = 'flex'; }
+        if (aiErrorMsg) aiErrorMsg.textContent = msg || 'Service IA indisponible';
+    }
+
+    function showImage(url) {
+        previewImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        if (aiError) aiError.style.display = 'none';
+        previewImg.onload = null;
+        previewImg.onerror = null;
+        previewImg.onload = function () {
+            aiLoading.style.display = 'none';
+            previewImg.style.display = 'block';
+        };
+        previewImg.onerror = function () {
+            aiLoading.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'flex';
+        };
+        previewImg.src = url;
+    }
+
+    // Show existing image in edit mode (skip SVG fallbacks)
+    if (imageField && imageField.value && imageField.value.trim() !== '' && !imageField.value.endsWith('.svg')) {
+        showImage(imageField.value);
+    }
+
+    async function generateImage() {
+        const description = descField ? descField.value.trim() : '';
+        if (description.length < 5) {
+            alert('Veuillez remplir la description (au moins 5 caractères) pour générer une image.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = '⏳ Génération…';
+        if (aiError) aiError.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        previewImg.style.display = 'none';
+        aiLoading.style.display = 'flex';
+
+        try {
+            const response = await fetch('{{ path("app_ai_generate_image") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: description })
+            });
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                if (data.is_fallback) {
+                    showError('Service IA indisponible — vérifiez votre connexion internet ou réessayez plus tard.');
+                    btn.disabled = false;
+                    btn.innerText = '✨ Réessayer';
+                } else {
+                    if (imageField) imageField.value = data.image_url;
+                    btn.disabled = false;
+                    btn.innerText = '✨ Régénérer l\'image IA';
+                    showImage(data.preview_data || data.preview_url || data.image_url);
+                }
+            } else {
+                showError(data.error || 'Erreur inconnue');
+                btn.disabled = false;
+                btn.innerText = '✨ Réessayer';
+            }
+        } catch (err) {
+            console.error('AI Error:', err);
+            showError('Erreur réseau — vérifiez votre connexion internet.');
+            btn.disabled = false;
+            btn.innerText = '✨ Réessayer';
+        }
+    }
+
+    btn.addEventListener('click', generateImage);
+    if (btnRetry) btnRetry.addEventListener('click', generateImage);
+});
+</script>
+{% endblock %}

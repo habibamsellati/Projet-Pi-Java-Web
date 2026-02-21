@@ -1,0 +1,277 @@
+{% extends 'base.back.html.twig' %}
+{% block title %}Réclamations - Admin{% endblock %}
+{% block admin_container_class %}reclamations-page{% endblock %}
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.reclamations-page .header h1 { margin-bottom: 0.25rem; }
+.reclamation-block { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); }
+.reclamation-block-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding: 1.25rem 1.5rem; background: #f8f6f3; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.reclamation-block-title { font-size: 1.125rem; font-weight: 600; color: #2d2d2d; margin: 0; }
+.reclamation-block-meta { font-size: 0.875rem; color: #666; margin-top: 0.25rem; }
+.reclamation-block-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.statut-badge { display: inline-block; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+.statut-en_attente { background: #fff3cd; color: #856404; }
+.statut-en_cours { background: #cfe2ff; color: #084298; }
+.statut-validee { background: #d1e7dd; color: #0f5132; }
+.statut-rejetee { background: #f8d7da; color: #842029; }
+.btn-pdf { display: inline-flex; padding: 0.6rem 1.2rem; background: #8b5e4a; color: white; border-radius: 8px; font-size: 0.9rem; text-decoration: none; }
+.btn-action { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; text-decoration: none; }
+.btn-view { background: #8b5e4a; color: #fff; }
+.btn-repondre { background: #2d7a4f; color: #fff; }
+.filters-section { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.search-box input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e0d5ca; border-radius: 8px; font-size: 0.95rem; }
+.filter-group select { padding: 0.75rem 1rem; border: 1px solid #e0d5ca; border-radius: 8px; font-size: 0.95rem; background-color: white; cursor: pointer; }
+.reclamation-description { padding: 1rem 1.5rem; color: #555; font-size: 0.9rem; }
+.empty-reclamations { text-align: center; padding: 3rem; color: #666; background: #f8f8f8; border-radius: 12px; }
+.alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+.alert-success { background: #d4edda; color: #155724; }
+.alert-error { background: #f8d7da; color: #721c24; }
+.summary-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; }
+.summary-modal.active { display: flex; }
+.summary-content { background: white; border-radius: 12px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 2rem; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+.summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e0d5ca; }
+.summary-title { font-size: 1.5rem; font-weight: 600; color: #2d2d2d; margin: 0; }
+.summary-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+.summary-close:hover { color: #000; }
+.summary-section { margin-bottom: 1.5rem; }
+.summary-section-title { font-size: 1.1rem; font-weight: 600; color: #8b5e4a; margin-bottom: 0.75rem; }
+.summary-info { background: #f8f6f3; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+.summary-info-row { display: flex; margin-bottom: 0.5rem; }
+.summary-info-label { font-weight: 600; min-width: 150px; color: #555; }
+.summary-info-value { color: #333; }
+.summary-description { background: #fff; border: 1px solid #e0d5ca; padding: 1rem; border-radius: 8px; color: #555; line-height: 1.6; }
+.summary-response { background: #f0f8ff; border-left: 4px solid #2d7a4f; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
+.summary-response-header { font-weight: 600; color: #2d7a4f; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.summary-response-content { color: #555; font-size: 0.9rem; line-height: 1.5; }
+.summary-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e0d5ca; }
+.btn-copy { padding: 0.75rem 1.5rem; background: #8b5e4a; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+.btn-copy:hover { background: #6d4a38; }
+.loading-spinner { text-align: center; padding: 2rem; color: #666; }
+</style>
+{% endblock %}
+{% block back_main %}
+<header class="header">
+    <div class="header-left"><h1>Réclamations</h1><p class="header-subtitle">Liste des réclamations</p></div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="{{ path('back_statistiques') }}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none; font-size: 0.9rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Statistiques</span>
+        </a>
+    </div>
+</header>
+{% for message in app.flashes('success') %}<div class="alert alert-success">{{ message }}</div>{% endfor %}
+{% for message in app.flashes('error') %}<div class="alert alert-error">{{ message }}</div>{% endfor %}
+<div class="filters-section">
+<form method="GET" action="{{ path('back_reclamations') }}" style="display: flex; gap: 0.5rem; flex: 1;">
+<input type="text" name="recherche" value="{{ filters.recherche|default('') }}" placeholder="Rechercher...">
+<input type="hidden" name="statut" value="{{ filters.statut|default('') }}">
+<input type="hidden" name="tri" value="{{ filters.tri|default('date_desc') }}">
+<button type="submit" style="padding: 0.6rem 1rem; background: #8b5e4a; color: white; border: none; border-radius: 8px;">Rechercher</button>
+</form>
+<form method="GET" action="{{ path('back_reclamations') }}" class="filter-group">
+<input type="hidden" name="recherche" value="{{ filters.recherche|default('') }}">
+<select name="statut" onchange="this.form.submit()">
+<option value="">Tous</option>
+<option value="en_attente" {% if filters.statut == 'en_attente' %}selected{% endif %}>En attente</option>
+<option value="en_cours" {% if filters.statut == 'en_cours' %}selected{% endif %}>En cours</option>
+<option value="validee" {% if filters.statut == 'validee' %}selected{% endif %}>Validée</option>
+<option value="rejetee" {% if filters.statut == 'rejetee' %}selected{% endif %}>Rejetée</option>
+</select>
+<select name="tri" onchange="this.form.submit()">
+<option value="date_desc" {% if filters.tri == 'date_desc' %}selected{% endif %}>Date récentes</option>
+<option value="date_asc" {% if filters.tri == 'date_asc' %}selected{% endif %}>Date anciennes</option>
+</select>
+</form>
+<a href="{{ path('back_reclamations_pdf', filters) }}" class="btn-pdf" target="_blank">Exporter PDF</a>
+</div>
+{% if reclamations|length > 0 %}
+<div class="reclamations-list">
+{% for reclamation in reclamations %}
+<div class="reclamation-block">
+<div class="reclamation-block-header">
+<div><h2 class="reclamation-block-title">{{ reclamation.titre }}</h2>
+<div class="reclamation-block-meta">{{ reclamation.user.prenom }} {{ reclamation.user.nom }} ({{ reclamation.user.role }}) · {{ reclamation.datecreation ? reclamation.datecreation|date('d/m/Y H:i') : '—' }}{% if reclamation.image %} · 📷 Image jointe{% endif %}</div></div>
+<div class="reclamation-block-actions">
+<span class="statut-badge statut-{{ reclamation.statut|replace({'_': '-'}) }}">{{ reclamation.statut }}</span>
+<button onclick="showSummary({{ reclamation.id }})" class="btn-action" style="background: #6c757d; color: #fff; border: none; cursor: pointer;">📊 Résumé</button>
+<a href="{{ path('back_reclamation_show', { id: reclamation.id }) }}" class="btn-action btn-view">Voir</a>
+{% if reclamation.statut != 'validee' and reclamation.statut != 'rejetee' %}
+<a href="{{ path('back_reclamation_repondre', { id: reclamation.id }) }}" class="btn-action btn-repondre">Répondre</a>
+{% endif %}
+</div>
+</div>
+{% if reclamation.descripition %}<div class="reclamation-description">{{ reclamation.descripition|nl2br }}</div>{% endif %}
+{% if reclamation.image %}
+<div style="padding: 0 1.5rem 1rem 1.5rem;">
+    <img src="{{ asset('uploads/reclamations/' ~ reclamation.image) }}" alt="Image de la réclamation" style="max-width: 200px; border-radius: 8px; border: 1px solid #e0d5ca;">
+</div>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty-reclamations"><p>Aucune réclamation.</p></div>
+{% endif %}
+
+<!-- Summary Modal -->
+<div id="summaryModal" class="summary-modal" onclick="if(event.target === this) closeSummary()">
+    <div class="summary-content">
+        <div class="summary-header">
+            <h2 class="summary-title">Résumé de la réclamation</h2>
+            <button class="summary-close" onclick="closeSummary()">&times;</button>
+        </div>
+        <div id="summaryBody">
+            <div class="loading-spinner">Chargement du résumé...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function showSummary(reclamationId) {
+    const modal = document.getElementById('summaryModal');
+    const body = document.getElementById('summaryBody');
+    
+    modal.classList.add('active');
+    body.innerHTML = '<div class="loading-spinner">Chargement du résumé...</div>';
+    
+    try {
+        const response = await fetch(`/back/reclamation/${reclamationId}/summary`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displaySummary(data.summary);
+        } else {
+            body.innerHTML = '<div class="alert alert-error">Erreur lors du chargement du résumé.</div>';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        body.innerHTML = '<div class="alert alert-error">Erreur lors du chargement du résumé.</div>';
+    }
+}
+
+function displaySummary(summary) {
+    const body = document.getElementById('summaryBody');
+    
+    let html = `
+        <div class="summary-section">
+            <div class="summary-section-title">📝 Résumé automatique</div>
+            <div class="summary-description" style="background: #e8f5e9; border-left: 4px solid #2d7a4f; font-weight: 500;">
+                ${summary.ai_summary.replace(/\n/g, '<br>')}
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-section-title">Informations générales</div>
+            <div class="summary-info">
+                <div class="summary-info-row">
+                    <span class="summary-info-label">ID:</span>
+                    <span class="summary-info-value">#${summary.id}</span>
+                </div>
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Titre:</span>
+                    <span class="summary-info-value">${summary.titre}</span>
+                </div>
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Statut:</span>
+                    <span class="summary-info-value">${summary.statut}</span>
+                </div>
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Date de création:</span>
+                    <span class="summary-info-value">${summary.date_creation}</span>
+                </div>
+                ${summary.temps_traitement ? `
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Temps de traitement:</span>
+                    <span class="summary-info-value">${summary.temps_traitement}</span>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-section-title">Utilisateur</div>
+            <div class="summary-info">
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Nom:</span>
+                    <span class="summary-info-value">${summary.utilisateur.nom}</span>
+                </div>
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Email:</span>
+                    <span class="summary-info-value">${summary.utilisateur.email}</span>
+                </div>
+                <div class="summary-info-row">
+                    <span class="summary-info-label">Rôle:</span>
+                    <span class="summary-info-value">${summary.utilisateur.role}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <div class="summary-section-title">Description complète</div>
+            <div class="summary-description">${summary.description.replace(/\n/g, '<br>')}</div>
+        </div>
+    `;
+    
+    if (summary.reponses && summary.reponses.length > 0) {
+        html += `
+            <div class="summary-section">
+                <div class="summary-section-title">Réponses (${summary.nombre_reponses})</div>
+        `;
+        
+        summary.reponses.forEach((reponse, index) => {
+            html += `
+                <div class="summary-response">
+                    <div class="summary-response-header">${index + 1}. ${reponse.date} - ${reponse.admin}</div>
+                    <div class="summary-response-content">${reponse.contenu.replace(/\n/g, '<br>')}</div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+    } else {
+        html += `
+            <div class="summary-section">
+                <div class="summary-section-title">Réponses</div>
+                <div class="summary-info">Aucune réponse pour le moment.</div>
+            </div>
+        `;
+    }
+    
+    html += `
+        <div class="summary-actions">
+            <button class="btn-copy" onclick="copySummary()">📋 Copier le résumé</button>
+            <button class="btn-copy" style="background: #6c757d;" onclick="closeSummary()">Fermer</button>
+        </div>
+    `;
+    
+    body.innerHTML = html;
+    
+    // Store summary text for copying
+    window.currentSummaryText = summary.text_summary;
+}
+
+function closeSummary() {
+    document.getElementById('summaryModal').classList.remove('active');
+}
+
+function copySummary() {
+    if (window.currentSummaryText) {
+        navigator.clipboard.writeText(window.currentSummaryText).then(() => {
+            alert('Résumé copié dans le presse-papiers !');
+        }).catch(err => {
+            console.error('Error copying:', err);
+            alert('Erreur lors de la copie');
+        });
+    }
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeSummary();
+    }
+});
+</script>
+
+{% endblock %}

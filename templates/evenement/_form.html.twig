@@ -1,0 +1,290 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'modern-artisan-form', 'id': 'eventForm'}}) }}
+    
+<div style="background: white; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid rgba(0,0,0,0.05);">
+    
+    {# Error Summary #}
+    {% if not form.vars.valid %}
+        <div style="background: #FFF5F5; border: 1px solid #FED7D7; color: #C53030; padding: 20px; border-radius: 15px; margin-bottom: 30px; font-family: 'Outfit', sans-serif;">
+            <strong style="display: block; margin-bottom: 10px;">Veuillez corriger les erreurs suivantes :</strong>
+            {{ form_errors(form) }}
+            <ul style="margin: 0; padding-left: 20px;">
+                {% for child in form.children %}
+                    {% for error in child.vars.errors %}
+                        <li><strong>{{ child.vars.label }}</strong>: {{ error.message }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {# Section 1: L'Âme de l'Événement #}
+    <div style="padding: 40px; border-bottom: 1px solid #f0f0f0;">
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #C4704B; margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+            <span style="background: rgba(196, 112, 75, 0.1); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700;">1</span>
+            Essence de la Création
+        </h3>
+        
+        <div class="form-group" style="margin-bottom: 30px;">
+            {{ form_label(form.nom, 'Titre de l\'œuvre collective', {'label_attr': {'class': 'premium-label'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'premium-input input-lg', 'placeholder': 'Ex: Reflets d\'Orient - Atelier de Céramique'}}) }}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px;">
+            <div class="form-group">
+                {{ form_label(form.typeArt, 'Discipline', {'label_attr': {'class': 'premium-label'}}) }}
+                {{ form_widget(form.typeArt, {'attr': {'class': 'premium-select'}}) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.theme, 'Thématique', {'label_attr': {'class': 'premium-label'}}) }}
+                {{ form_widget(form.theme, {'attr': {'class': 'premium-input', 'placeholder': 'Ex: Modernité et Tradition'}}) }}
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 30px; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px;">
+                {{ form_label(form.description, 'Parcours & Vision', {'label_attr': {'class': 'premium-label', 'style': 'margin-bottom: 0;'}}) }}
+                <button type="button" id="magic-description" style="background: linear-gradient(135deg, #2b2b2b 0%, #C4704B 100%); color: white; border: none; padding: 6px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                    <span id="magic-desc-icon">✨</span> M'inspirer par l'IA
+                </button>
+            </div>
+            {{ form_widget(form.description, {'attr': {'class': 'premium-input', 'rows': 5, 'placeholder': 'Décrivez l\'expérience que vous proposez...'}}) }}
+            <div style="color: #888; font-size: 0.8rem; margin-top: 8px; font-style: italic; display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 14a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm1-5a1 1 0 0 0-2 0v2a1 1 0 0 0 2 0z"/></svg>
+                Notre IA peut rédiger une description poétique basée sur votre titre.
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+            <div class="form-group">
+                {{ form_label(form.coverImage, 'Fichier de Couverture', {'label_attr': {'class': 'premium-label'}}) }}
+                <div class="custom-file-upload">
+                    {{ form_widget(form.coverImage, {'attr': {'class': 'premium-input'}}) }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form_label(form.additionalImages, 'Galerie de Fichiers', {'label_attr': {'class': 'premium-label'}}) }}
+                <div class="custom-file-upload">
+                    {{ form_widget(form.additionalImages, {'attr': {'class': 'premium-input', 'multiple': 'multiple'}}) }}
+                </div>
+                <div style="color: #888; font-size: 0.75rem; margin-top: 5px;">Sélectionnez plusieurs fichiers de n'importe quel type.</div>
+            </div>
+        </div>
+    </div>
+
+    {# Section 2: Détails & Accessibilité #}
+    <div style="padding: 40px; background: #fafafa;">
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #2b2b2b; margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+            <span style="background: rgba(0, 0, 0, 0.05); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700;">2</span>
+            Temporalité & Lieu
+        </h3>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px;">
+            <div class="form-group">
+                {{ form_label(form.dateDebut, 'Inauguration', {'label_attr': {'class': 'premium-label'}}) }}
+                {{ form_widget(form.dateDebut, {'attr': {'class': 'premium-input'}}) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.dateFin, 'Clôture', {'label_attr': {'class': 'premium-label'}}) }}
+                {{ form_widget(form.dateFin, {'attr': {'class': 'premium-input'}}) }}
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 30px;">
+            {{ form_label(form.lieu, 'Espace d\'accueil', {'label_attr': {'class': 'premium-label'}}) }}
+            {{ form_widget(form.lieu, {'attr': {'class': 'premium-input', 'placeholder': 'Où se déroule la magie ?'}}) }}
+        </div>
+
+
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+            <button type="button" id="magic-pricing" style="background: rgba(43,43,43,0.05); color: #2b2b2b; border: 1.5px solid #2b2b2b; padding: 6px 15px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s;">
+                <span id="magic-price-icon">📊</span> Suggérer prix & jauge
+            </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+            <div class="form-group">
+                {{ form_label(form.capacite, 'Jauge de participants', {'label_attr': {'class': 'premium-label'}}) }}
+                {{ form_widget(form.capacite, {'attr': {'class': 'premium-input'}}) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.prix, 'Contribution (TND)', {'label_attr': {'class': 'premium-label'}}) }}
+                {{ form_widget(form.prix, {'attr': {'class': 'premium-input'}}) }}
+            </div>
+        </div>
+        <div id="pricing-reason" style="display:none; margin-top: 15px; font-size: 0.85rem; color: #666; font-style: italic; padding: 10px 15px; background: white; border-radius: 10px; border-left: 3px solid #C4704B;"></div>
+    </div>
+
+    {# Submit Section #}
+    <div style="padding: 50px 40px; text-align: center; border-top: 1px solid #f0f0f0;">
+        <div style="background: #FFF9F6; border: 1px solid #FFEBE3; padding: 15px 25px; border-radius: 15px; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 30px; color: #C4704B; font-size: 0.9rem; font-weight: 500;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 14a1 1 0 1 1 1-1 1 1 0 0 1-1 1zm0-10l-1 6h2l-1-6z"/></svg>
+            Le bouton ci-dessous valide vos informations et crée l'événement.
+        </div>
+        
+        <div>
+            <button type="submit" class="premium-submit-btn">
+                {{ button_label|default('Révéler l\'Atelier') }}
+            </button>
+        </div>
+        <div style="margin-top: 15px; color: #888; font-size: 0.85rem;">Si rien ne se passe, vérifiez les erreurs en haut du formulaire.</div>
+    </div>
+
+</div>
+{{ form_rest(form) }}
+{{ form_end(form) }}
+
+<style>
+    .premium-label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        color: #4a4a4a;
+        margin-bottom: 10px;
+        display: block;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .premium-input, .premium-select {
+        width: 100%;
+        padding: 14px 18px;
+        border: 1.5px solid #eee;
+        border-radius: 12px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: white;
+        color: #2b2b2b;
+    }
+    .premium-input:focus, .premium-select:focus {
+        border-color: #C4704B;
+        box-shadow: 0 0 0 5px rgba(196, 112, 75, 0.08);
+        outline: none;
+    }
+    .input-lg {
+        padding: 18px 22px;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+    .premium-submit-btn {
+        background: #2b2b2b;
+        color: white;
+        border: none;
+        padding: 20px 60px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .premium-submit-btn:hover {
+        background: #C4704B;
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(196, 112, 75, 0.25);
+    }
+    .modern-artisan-form {
+        max-width: 100%;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnDesc = document.getElementById('magic-description');
+    const btnPrice = document.getElementById('magic-pricing');
+    
+    // Selecteurs pour les champs Symfony (ID auto-générés par défaut : evenement_nom, etc.)
+    const nomInput = document.querySelector('[id$="_nom"]');
+    const typeInput = document.querySelector('[id$="_typeArt"]');
+    const themeInput = document.querySelector('[id$="_theme"]');
+    const descInput = document.querySelector('[id$="_description"]');
+    const priceInput = document.querySelector('[id$="_prix"]');
+    const capInput = document.querySelector('[id$="_capacite"]');
+
+    btnDesc.addEventListener('click', async () => {
+        if (!nomInput.value) {
+            alert("Donnez d'abord un titre à votre œuvre !");
+            return;
+        }
+
+        const icon = document.getElementById('magic-desc-icon');
+        icon.innerText = '⌛';
+        btnDesc.style.opacity = '0.7';
+
+        try {
+            const response = await fetch('/api/ai/copilot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'generate_description',
+                    title: nomInput.value,
+                    typeArt: typeInput.value,
+                    theme: themeInput.value
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || `Erreur PHP ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.response) {
+                descInput.value = "";
+                let i = 0;
+                const text = data.response;
+                const speed = 15;
+                function type() {
+                    if (i < text.length) {
+                        descInput.value += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    }
+                }
+                type();
+            }
+        } catch (e) {
+            console.error("Copilot Error:", e);
+            alert("Assistant indisponible : " + e.message + "\n\n(Vérifiez que votre HUGGINGFACE_API_TOKEN est valide dans le .env)");
+        } finally {
+            icon.innerText = '✨';
+            btnDesc.style.opacity = '1';
+        }
+    });
+
+    btnPrice.addEventListener('click', async () => {
+        const icon = document.getElementById('magic-price-icon');
+        icon.innerText = '⌛';
+
+        try {
+            const response = await fetch('/api/ai/copilot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'suggest_pricing',
+                    typeArt: typeInput.value,
+                    theme: themeInput.value
+                })
+            });
+            const data = await response.json();
+            
+            if (data.prix) {
+                // Animation de changement de valeur
+                priceInput.value = data.prix;
+                capInput.value = data.capacite;
+                
+                const reasonDiv = document.getElementById('pricing-reason');
+                reasonDiv.innerText = "💡 " + (data.raison || data.motivation);
+                reasonDiv.style.display = 'block';
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            icon.innerText = '📊';
+        }
+    });
+});
+</script>

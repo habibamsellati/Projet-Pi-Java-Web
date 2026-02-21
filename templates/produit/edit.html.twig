@@ -1,0 +1,465 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Modifier produit | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 750px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #3d2817; margin-bottom: 1.5rem;">Modifier le produit</h1>
+
+    {# ════════════════════════════════════════════════════════════════
+       BLOC NLP — Détection intelligente de catégorie
+       ════════════════════════════════════════════════════════════════ #}
+    <div id="nlp-smart-box" class="nlp-box">
+        <div class="nlp-header">
+            <div class="nlp-icon-wrapper">
+                <span class="nlp-icon">🧠</span>
+            </div>
+            <div>
+                <h3 class="nlp-title">Détection intelligente</h3>
+                <p class="nlp-subtitle">Décrivez votre produit en langage naturel, l'IA remplit le formulaire</p>
+            </div>
+        </div>
+        <div class="nlp-input-wrapper">
+            <textarea id="nlp-input" class="nlp-textarea" 
+                      placeholder="Ex : j'ai une vieille chaise cassée en bois, un sac en plastique usé, des journaux recyclables..."
+                      rows="3"></textarea>
+            <button type="button" id="nlp-analyze-btn" class="nlp-btn">
+                <span class="nlp-btn-icon">✨</span>
+                <span class="nlp-btn-text">Analyser</span>
+            </button>
+        </div>
+        <div id="nlp-results" class="nlp-results" style="display: none;">
+            <div class="nlp-results-header">
+                <span class="nlp-results-title">🎯 Résultats de l'analyse</span>
+                <button type="button" id="nlp-apply-btn" class="nlp-apply-btn">
+                    Appliquer au formulaire
+                </button>
+            </div>
+            <div class="nlp-tags" id="nlp-tags"></div>
+            <div class="nlp-confidence-bars" id="nlp-confidence"></div>
+        </div>
+        <div id="nlp-loading" class="nlp-loading" style="display: none;">
+            <div class="nlp-spinner"></div>
+            <span>Analyse en cours...</span>
+        </div>
+    </div>
+
+    <div style="background: white; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-top: 1rem;">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'id': 'produit-form'}}) }}
+        {% set widget_attr = {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;transition:border-color 0.3s, box-shadow 0.3s;'} %}
+        <div style="margin-bottom: 1.25rem;" id="field-nomproduit">
+            {{ form_label(form.nomproduit) }}
+            {{ form_widget(form.nomproduit, {'attr': widget_attr}) }}
+            {{ form_errors(form.nomproduit) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;" id="field-typemateriau">
+            {{ form_label(form.typemateriau) }}
+            {{ form_widget(form.typemateriau, {'attr': widget_attr}) }}
+            {{ form_errors(form.typemateriau) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;" id="field-etat">
+            {{ form_label(form.etat) }}
+            {{ form_widget(form.etat, {'attr': widget_attr}) }}
+            {{ form_errors(form.etat) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.quantite) }}
+            {{ form_widget(form.quantite, {'attr': widget_attr}) }}
+            {{ form_errors(form.quantite) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.origine) }}
+            {{ form_widget(form.origine, {'attr': widget_attr}) }}
+            {{ form_errors(form.origine) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.impactecologique) }}
+            {{ form_widget(form.impactecologique, {'attr': widget_attr}) }}
+            {{ form_errors(form.impactecologique) }}
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+            {{ form_label(form.dateajout) }}
+            {{ form_widget(form.dateajout, {'attr': widget_attr}) }}
+            {{ form_errors(form.dateajout) }}
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            {{ form_label(form.description) }}
+            <div style="position: relative;">
+                {{ form_widget(form.description, {'attr': {'style': 'width:100%;padding:0.6rem 0.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;min-height:120px;resize:vertical;'}}) }}
+                <button type="button" id="btn-generate-ai" style="position: absolute; right: 10px; bottom: 10px; background: #8b5e4a; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: 0.3s;">✨ Générer Image IA</button>
+            </div>
+            {{ form_errors(form.description) }}
+        </div>
+
+        <div id="ai-preview-container" style="margin-bottom: 1.5rem; display: block;">
+            <p style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.9rem;">Aperçu de l'image générée :</p>
+            <div style="position: relative; width: 100%; height: 280px; border-radius: 12px; overflow: hidden; background: #f3f4f6; border: 2px solid #8b5e4a;">
+                <img id="ai-preview-img" src="" alt="Aperçu IA" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                <div id="ai-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; color: #9ca3af;">
+                    <span style="font-size: 2rem;">🖼️</span>
+                    <span style="font-size: 0.85rem;">Image actuelle</span>
+                </div>
+                <div id="ai-error" style="width: 100%; height: 100%; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; padding: 1rem; text-align: center;">
+                    <span style="font-size: 2rem;">⚠️</span>
+                    <span id="ai-error-msg" style="font-size: 0.85rem; color: #b91c1c; font-weight: 600;">Service IA indisponible</span>
+                    <span style="font-size: 0.75rem; color: #6b7280;">Vérifiez votre connexion ou réessayez plus tard</span>
+                    <button type="button" id="btn-retry-ai" style="margin-top: 0.5rem; background: #8b5e4a; color: white; border: none; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; cursor: pointer;">🔄 Réessayer</button>
+                </div>
+                <div id="ai-loading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(249,250,251,0.95); display: none; flex-direction: column; justify-content: center; align-items: center;">
+                    <div class="loader"></div>
+                    <p style="margin-top: 10px; font-size: 0.8rem; color: #8b5e4a;">L'IA crée votre image...</p>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <button type="submit" style="background: #8b5e4a; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; cursor: pointer;">Mettre à jour</button>
+            <a href="{{ path('app_produit_index') }}" style="color: #5a5450; text-decoration: none;">Annuler</a>
+            <button type="button" onclick="if(confirm('Supprimer ce produit ?')) document.getElementById('delete-form').submit();" style="background: none; border: none; color: #b91c1c; cursor: pointer; text-decoration: underline; margin-left: auto;">Supprimer</button>
+        </div>
+        {{ form_end(form) }}
+        
+        <form id="delete-form" method="post" action="{{ path('app_produit_delete', {'id': produit.id}) }}" style="display: none;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+        </form>
+    </div>
+</section>
+
+{# ════════════════════════════════════════
+   STYLES NLP + FORMULAIRE
+   ════════════════════════════════════════ #}
+<style>
+    .form-error-message { color: #b91c1c; font-size: 0.875rem; margin-top: 0.25rem; }
+    label { display: block; font-weight: 600; color: #374151; margin-bottom: 0.35rem; font-size: 0.9rem; }
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #8b5e4a;
+        border-radius: 50%;
+        width: 30px; height: 30px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* ── NLP Smart Box ── */
+    .nlp-box {
+        background: linear-gradient(135deg, #fefce8 0%, #fef3c7 50%, #fde68a 100%);
+        border: 2px solid #f59e0b;
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+    }
+    .nlp-box::before {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%);
+        animation: nlp-glow 4s ease-in-out infinite;
+    }
+    @keyframes nlp-glow {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(5%, 5%); }
+    }
+    .nlp-header {
+        display: flex; align-items: center; gap: 0.75rem;
+        margin-bottom: 1rem; position: relative; z-index: 1;
+    }
+    .nlp-icon-wrapper {
+        width: 48px; height: 48px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        animation: nlp-pulse 2s ease-in-out infinite;
+    }
+    @keyframes nlp-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .nlp-icon { font-size: 1.5rem; }
+    .nlp-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 700; color: #92400e; margin: 0; }
+    .nlp-subtitle { font-size: 0.82rem; color: #a16207; margin: 0.15rem 0 0; }
+    .nlp-input-wrapper { position: relative; z-index: 1; }
+    .nlp-textarea {
+        width: 100%; padding: 0.8rem 1rem;
+        border: 2px solid #fbbf24; border-radius: 12px;
+        font-size: 0.95rem; font-family: inherit; resize: vertical;
+        background: rgba(255,255,255,0.9); color: #44403c;
+        transition: all 0.3s ease; box-sizing: border-box;
+    }
+    .nlp-textarea:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.2); background: white; }
+    .nlp-textarea::placeholder { color: #a8a29e; font-style: italic; }
+    .nlp-btn {
+        margin-top: 0.75rem;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white; border: none; padding: 0.6rem 1.5rem;
+        border-radius: 50px; font-size: 0.9rem; font-weight: 600;
+        cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+    }
+    .nlp-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35); }
+    .nlp-btn:active { transform: translateY(0); }
+    .nlp-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+    .nlp-btn-icon { font-size: 1.1rem; }
+    .nlp-results {
+        margin-top: 1rem; background: rgba(255,255,255,0.95);
+        border-radius: 12px; padding: 1rem 1.25rem;
+        position: relative; z-index: 1;
+        animation: nlp-slide-in 0.4s ease-out;
+        border: 1px solid rgba(245,158,11,0.2);
+    }
+    @keyframes nlp-slide-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .nlp-results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+    .nlp-results-title { font-weight: 700; color: #92400e; font-size: 0.95rem; }
+    .nlp-apply-btn {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: white; border: none; padding: 0.4rem 1rem;
+        border-radius: 50px; font-size: 0.82rem; font-weight: 600;
+        cursor: pointer; transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(5,150,105,0.25);
+    }
+    .nlp-apply-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(5,150,105,0.35); }
+    .nlp-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .nlp-tag {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.35rem 0.8rem; border-radius: 50px;
+        font-size: 0.8rem; font-weight: 600;
+        animation: nlp-tag-pop 0.3s ease-out backwards;
+    }
+    .nlp-tag:nth-child(1) { animation-delay: 0.1s; }
+    .nlp-tag:nth-child(2) { animation-delay: 0.2s; }
+    .nlp-tag:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes nlp-tag-pop { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    .nlp-tag-category { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; border: 1px solid #93c5fd; }
+    .nlp-tag-type { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; border: 1px solid #6ee7b7; }
+    .nlp-tag-state { background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #9d174d; border: 1px solid #f9a8d4; }
+    .nlp-tag-object { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #3730a3; border: 1px solid #a5b4fc; }
+    .nlp-confidence-bars { display: flex; flex-direction: column; gap: 0.4rem; }
+    .nlp-conf-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; }
+    .nlp-conf-label { width: 80px; font-weight: 600; color: #57534e; flex-shrink: 0; }
+    .nlp-conf-bar-bg { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .nlp-conf-bar { height: 100%; border-radius: 4px; transition: width 0.8s ease-out; }
+    .nlp-conf-bar-category { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .nlp-conf-bar-type { background: linear-gradient(90deg, #10b981, #059669); }
+    .nlp-conf-bar-state { background: linear-gradient(90deg, #ec4899, #db2777); }
+    .nlp-conf-value { width: 40px; text-align: right; font-weight: 700; color: #78716c; flex-shrink: 0; }
+    .nlp-loading { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; position: relative; z-index: 1; color: #92400e; font-size: 0.9rem; font-weight: 500; }
+    .nlp-spinner { width: 24px; height: 24px; border: 3px solid #fde68a; border-top: 3px solid #d97706; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes field-flash {
+        0% { box-shadow: 0 0 0 0 rgba(5,150,105,0.4); border-color: #059669; }
+        50% { box-shadow: 0 0 0 6px rgba(5,150,105,0.1); }
+        100% { box-shadow: 0 0 0 0 rgba(5,150,105,0); border-color: #ddd; }
+    }
+    .field-autofilled select, .field-autofilled input { animation: field-flash 1.2s ease-out; }
+    .field-autofilled::after {
+        content: '✓ Auto-rempli par IA';
+        display: block; font-size: 0.72rem; color: #059669;
+        font-weight: 600; margin-top: 0.2rem;
+        animation: nlp-slide-in 0.3s ease-out;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ── NLP Detection ──
+    const nlpInput = document.getElementById('nlp-input');
+    const nlpBtn = document.getElementById('nlp-analyze-btn');
+    const nlpResults = document.getElementById('nlp-results');
+    const nlpTags = document.getElementById('nlp-tags');
+    const nlpConfidence = document.getElementById('nlp-confidence');
+    const nlpLoading = document.getElementById('nlp-loading');
+    const nlpApplyBtn = document.getElementById('nlp-apply-btn');
+
+    let lastNlpResult = null;
+    let nlpDebounceTimer = null;
+
+    nlpInput.addEventListener('input', function() {
+        clearTimeout(nlpDebounceTimer);
+        const text = nlpInput.value.trim();
+        if (text.length >= 5) {
+            nlpDebounceTimer = setTimeout(() => analyzeNLP(text), 600);
+        } else {
+            nlpResults.style.display = 'none';
+        }
+    });
+
+    nlpBtn.addEventListener('click', function() {
+        const text = nlpInput.value.trim();
+        if (text.length < 3) { alert('Veuillez écrire au moins 3 caractères.'); return; }
+        analyzeNLP(text);
+    });
+
+    async function analyzeNLP(text) {
+        nlpBtn.disabled = true;
+        nlpBtn.querySelector('.nlp-btn-text').textContent = 'Analyse...';
+        nlpLoading.style.display = 'flex';
+        nlpResults.style.display = 'none';
+        try {
+            const response = await fetch('{{ path("app_ai_detect_category") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+            const data = await response.json();
+            if (data.status === 'success') { lastNlpResult = data; displayNlpResults(data); }
+        } catch (err) { console.error('NLP Error:', err); }
+        finally {
+            nlpBtn.disabled = false;
+            nlpBtn.querySelector('.nlp-btn-text').textContent = 'Analyser';
+            nlpLoading.style.display = 'none';
+        }
+    }
+
+    function displayNlpResults(data) {
+        nlpTags.innerHTML = '';
+        nlpConfidence.innerHTML = '';
+        if (data.category && data.category.value) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-category">📦 Catégorie : <strong>${data.category.value}</strong></span>`;
+        if (data.type && data.type.value) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-type">🏷️ Type : <strong>${data.type.value}</strong></span>`;
+        if (data.state && data.state.value) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-state">📊 État : <strong>${data.state.value}</strong></span>`;
+        if (data.objects && Object.keys(data.objects).length > 0) {
+            for (const [obj, objType] of Object.entries(data.objects)) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-object">🔍 ${obj} (${objType})</span>`;
+        }
+        const items = [
+            { label: 'Catégorie', conf: data.category?.confidence || 0, cls: 'category' },
+            { label: 'Type', conf: data.type?.confidence || 0, cls: 'type' },
+            { label: 'État', conf: data.state?.confidence || 0, cls: 'state' },
+        ];
+        items.forEach(item => {
+            nlpConfidence.innerHTML += `<div class="nlp-conf-row"><span class="nlp-conf-label">${item.label}</span><div class="nlp-conf-bar-bg"><div class="nlp-conf-bar nlp-conf-bar-${item.cls}" style="width: 0%"></div></div><span class="nlp-conf-value">${item.conf}%</span></div>`;
+        });
+        nlpResults.style.display = 'block';
+        requestAnimationFrame(() => { setTimeout(() => {
+            const bars = nlpConfidence.querySelectorAll('.nlp-conf-bar');
+            bars.forEach((bar, i) => { bar.style.width = items[i].conf + '%'; });
+        }, 50); });
+    }
+
+    nlpApplyBtn.addEventListener('click', function() {
+        if (!lastNlpResult) return;
+        const data = lastNlpResult;
+        if (data.category && data.category.value) { const s = document.querySelector('select[name*="[nomproduit]"]'); if (s) { setSelectValue(s, data.category.value); flashField('field-nomproduit'); } }
+        if (data.type && data.type.value) { const s = document.querySelector('select[name*="[typemateriau]"]'); if (s) { setSelectValue(s, data.type.value); flashField('field-typemateriau'); } }
+        if (data.state && data.state.value) { const s = document.querySelector('select[name*="[etat]"]'); if (s) { setSelectValue(s, data.state.value); flashField('field-etat'); } }
+        nlpApplyBtn.textContent = '✅ Appliqué !';
+        nlpApplyBtn.style.background = '#059669';
+        setTimeout(() => { nlpApplyBtn.textContent = 'Appliquer au formulaire'; nlpApplyBtn.style.background = ''; }, 2000);
+    });
+
+    function setSelectValue(sel, val) { for (let i = 0; i < sel.options.length; i++) { if (sel.options[i].value === val) { sel.selectedIndex = i; sel.dispatchEvent(new Event('change')); return; } } }
+    function flashField(id) { const f = document.getElementById(id); if (f) { f.classList.remove('field-autofilled'); void f.offsetWidth; f.classList.add('field-autofilled'); setTimeout(() => f.classList.remove('field-autofilled'), 3000); } }
+
+    nlpInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); nlpBtn.click(); } });
+
+    // ── Image IA Generation ──
+    const btn = document.getElementById('btn-generate-ai');
+    const btnRetry = document.getElementById('btn-retry-ai');
+    const descField = document.querySelector('textarea[name*="[description]"]');
+    const imageField = document.querySelector('input[type="hidden"][name*="[image]"]');
+    const previewContainer = document.getElementById('ai-preview-container');
+    const previewImg = document.getElementById('ai-preview-img');
+    const placeholder = document.getElementById('ai-placeholder');
+    const loading = document.getElementById('ai-loading');
+    const aiError = document.getElementById('ai-error');
+    const aiErrorMsg = document.getElementById('ai-error-msg');
+
+    function showError(msg) {
+        loading.style.display = 'none';
+        previewImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        if (aiError) { aiError.style.display = 'flex'; }
+        if (aiErrorMsg) aiErrorMsg.textContent = msg || 'Service IA indisponible';
+    }
+    function showImage(url, fallbackUrl = null) {
+        previewImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'none';
+        previewImg.onload = null;
+        previewImg.onerror = null;
+        previewImg.onload = function() {
+            loading.style.display = 'none';
+            previewImg.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        };
+        previewImg.onerror = function() {
+            if (fallbackUrl && previewImg.src !== fallbackUrl) {
+                previewImg.src = fallbackUrl;
+                return;
+            }
+            loading.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'flex';
+            previewImg.style.display = 'none';
+        };
+        previewImg.src = url;
+    }
+
+    if (imageField && imageField.value && imageField.value.trim() !== '' && !imageField.value.endsWith('.svg')) {
+        previewContainer.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+        showImage(imageField.value);
+    }
+
+    async function generateImage() {
+        const description = descField ? descField.value : '';
+        if (description.length < 10) {
+            alert('Veuillez écrire au moins 10 caractères pour que l\'IA puisse générer une image pertinente.');
+            return;
+        }
+        btn.disabled = true;
+        const originalText = btn.innerText;
+        btn.innerText = 'Génération...';
+        loading.style.display = 'flex';
+        previewContainer.style.display = 'block';
+        previewImg.style.display = 'none';
+        if (aiError) aiError.style.display = 'none';
+
+        try {
+            const response = await fetch('{{ path("app_ai_generate_image") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: description })
+            });
+            const data = await response.json();
+            if (data.status === 'success') {
+                if (data.is_fallback) {
+                    showError('Service IA indisponible — vérifiez votre connexion internet ou réessayez plus tard.');
+                    btn.disabled = false;
+                    btn.innerText = '✨ Réessayer';
+                } else {
+                    if (imageField) imageField.value = data.image_url;
+                    btn.disabled = false;
+                    btn.innerText = '✨ Régénérer';
+                    showImage(data.preview_data || data.preview_url || data.image_url, data.external_url || data.image_url);
+                }
+            } else {
+                alert('Erreur IA: ' + data.error);
+                loading.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        } catch (error) {
+            console.error('AI Error:', error);
+            alert('Une erreur réseau est survenue. Vérifiez votre connexion.');
+            loading.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'flex';
+            btn.disabled = false;
+            btn.innerText = '✨ Réessayer';
+        }
+    }
+
+    btn.addEventListener('click', generateImage);
+    if (btnRetry) btnRetry.addEventListener('click', generateImage);
+    
+    if (descField) {
+        descField.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateImage(); }
+        });
+        descField.addEventListener('blur', function() {
+            if (imageField && !imageField.value && descField.value.length >= 10) { generateImage(); }
+        });
+    }
+});
+</script>
+{% endblock %}

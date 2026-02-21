@@ -1,0 +1,20 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Modifier Réservation - Admin{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left"><h1>Modifier la réservation</h1></div>
+    <a href="{{ path('back_reservation_index') }}" style="color:#8b5e4a;text-decoration:none;">← Liste</a>
+</header>
+<div style="background:#fff;padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);max-width:700px;">
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {{ form_widget(form) }}
+    <div style="margin-top:1rem;">
+        <button type="submit" style="padding:0.6rem 1.5rem;background:#8b5e4a;color:white;border:none;border-radius:8px;">Enregistrer</button>
+        <a href="{{ path('back_reservation_index') }}" style="margin-left:1rem;color:#666;text-decoration:none;">Annuler</a>
+    </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
