@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320" role="img" aria-label="Avatar homme">
+  <rect width="320" height="320" rx="36" fill="#EAF3F7"/>
+  <ellipse cx="160" cy="266" rx="104" ry="62" fill="#2F9BC3"/>
+  <rect x="70" y="228" width="180" height="54" rx="26" fill="#2F9BC3"/>
+  <path d="M132 174h56v34c0 17-13 30-28 30s-28-13-28-30z" fill="#F09A79"/>
+  <circle cx="116" cy="146" r="16" fill="#EB9270"/>
+  <circle cx="204" cy="146" r="16" fill="#EB9270"/>
+  <path d="M110 136c0-36 22-62 50-62 29 0 50 25 50 62v15c0 38-27 66-50 66s-50-28-50-66z" fill="#F09A79"/>
+  <path d="M90 122c0-41 31-70 70-70 41 0 72 30 72 70v26h-16v-15c0-20-17-36-38-36H142c-22 0-40 17-40 38v13H90z" fill="#516A79"/>
+</svg>

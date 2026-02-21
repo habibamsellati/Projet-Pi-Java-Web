@@ -1,0 +1,152 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Propositions - Admin{% endblock %}
+{% block admin_container_class %}propositions-page{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+.propositions-page .header h1 { margin-bottom: 0.25rem; }
+.table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; margin-top: 1rem; border: 1px solid rgba(0,0,0,0.06); }
+.table-card table { width: 100%; border-collapse: collapse; }
+.table-card th { padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666; background: #f8f6f3; }
+.table-card td { padding: 1rem; border-bottom: 1px solid #eee; }
+.btn-add { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #8b5e4a; color: white; border-radius: 8px; text-decoration: none; font-weight: 500; }
+.filters-form { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; background: #fff; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.filters-form input, .filters-form select { padding: 0.5rem 0.75rem; border: 1px solid #e0d5ca; border-radius: 8px; }
+.btn-edit, .btn-del { padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; margin-left: 0.25rem; }
+.btn-edit { background: #e3f2fd; color: #1976d2; }
+.btn-del { background: #ffebee; color: #c62828; border: none; cursor: pointer; }
+.quick-actions-card { background: #fff; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 1.25rem; }
+.quick-actions-card h3 { font-size: 1rem; margin-bottom: 1rem; color: #333; }
+.quick-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.quick-action-link { text-decoration: none; display: block; background: #fdf8f4; border: 2px dashed #eadcd0; border-radius: 12px; padding: 1rem; text-align: center; transition: 0.2s; color: #5a5450; font-weight: 600; font-size: 0.875rem; }
+.quick-action-link:hover { background: #f5eee7; color: #8b5e4a; }
+</style>
+{% endblock %}
+
+{% block back_main %}
+<header class="header">
+    <div class="header-left">
+        <h1>Propositions</h1>
+        <p class="header-subtitle">Liste des propositions</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+        <button type="button" onclick="document.getElementById('stateModalProp').style.display='flex'" style="padding:0.5rem 1rem;background:#f5f0eb;color:#5a5450;border-radius:8px;border:none;cursor:pointer;">Statistiques</button>
+        <a href="{{ path('back_proposition_new') }}" class="btn-add">+ Nouvelle proposition</a>
+    </div>
+</header>
+
+{% for message in app.flashes('success') %}<div style="padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;background:#d4edda;color:#155724;">{{ message }}</div>{% endfor %}
+{% for message in app.flashes('error') %}<div style="padding:0.75rem 1rem;border-radius:8px;margin-bottom:1rem;background:#f8d7da;color:#721c24;">{{ message }}</div>{% endfor %}
+
+<div class="filters-form">
+    <form method="get" action="{{ path('back_propositions') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label style="display:block;margin-bottom:0.35rem;font-size:0.85rem;">Recherche produit / titre</label>
+            <input type="text" name="search_produit" value="{{ search_produit|default('') }}" placeholder="Nom produit...">
+        </div>
+        <div>
+            <label style="display:block;margin-bottom:0.35rem;font-size:0.85rem;">État du produit</label>
+            <select name="search_etat">
+                <option value="">Tous</option>
+                <option value="Bon" {{ search_etat|default('') == 'Bon' ? 'selected' : '' }}>Bon</option>
+                <option value="Moyen" {{ search_etat|default('') == 'Moyen' ? 'selected' : '' }}>Moyen</option>
+                <option value="Mauvais" {{ search_etat|default('') == 'Mauvais' ? 'selected' : '' }}>Mauvais</option>
+            </select>
+        </div>
+        <div>
+            <label style="display:block;margin-bottom:0.35rem;font-size:0.85rem;">Tri</label>
+            <select name="sort">
+                <option value="">—</option>
+                <option value="date" {{ sort|default('') == 'date' ? 'selected' : '' }}>Par date</option>
+            </select>
+        </div>
+        <button type="submit" style="padding:0.5rem 1rem;background:#8b5e4a;color:white;border:none;border-radius:8px;">Filtrer</button>
+        <a href="{{ path('back_propositions') }}" style="padding:0.5rem 1rem;background:#f5f0eb;color:#5a5450;border-radius:8px;text-decoration:none;">Réinitialiser</a>
+    </form>
+</div>
+
+<div class="table-card">
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Produit</th>
+                <th>Date</th>
+                <th>Utilisateur</th>
+                <th style="text-align:right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prop in propositions %}
+            <tr>
+                <td style="font-weight:600;color:#8b5e4a;">{{ prop.titre }}</td>
+                <td>{{ prop.description|length > 50 ? prop.description|slice(0,50) ~ '...' : prop.description }}</td>
+                <td>{% if prop.produit %}{{ prop.produit.nomproduit }}{% else %}—{% endif %}</td>
+                <td>{{ prop.date ? prop.date|date('d/m/Y') : '-' }}</td>
+                <td>{% if prop.user %}{{ prop.user.prenom }} {{ prop.user.nom }}{% else %}—{% endif %}</td>
+                <td style="text-align:right;">
+                    <a href="{{ path('back_proposition_edit', {id: prop.id}) }}" class="btn-edit">Modifier</a>
+                    <form method="post" action="{{ path('back_proposition_delete', {id: prop.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette proposition ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ prop.id) }}">
+                        <button type="submit" class="btn-del">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="padding:2rem;text-align:center;color:#999;">Aucune proposition.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<section class="quick-actions-card">
+    <h3>Actions rapides</h3>
+    <div class="quick-actions-grid">
+        <a href="{{ path('back_propositions', {sort: 'date', search_produit: search_produit|default(''), search_etat: search_etat|default('')}) }}" class="quick-action-link">Tri par date</a>
+        <a href="{{ path('back_propositions') }}" class="quick-action-link">Annuler filtres</a>
+        <a href="{{ path('back_proposition_stats') }}" class="quick-action-link">Statistiques</a>
+        <a href="{{ path('back_proposition_export_pdf') }}" class="quick-action-link" target="_blank">Exporter PDF</a>
+    </div>
+</section>
+
+<div id="stateModalProp" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:1.5rem;border-radius:12px;width:90%;max-width:700px;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid #eee;padding-bottom:0.75rem;">
+            <h2 style="margin:0;color:#8b5e4a;">Statistiques des Propositions</h2>
+            <button type="button" onclick="document.getElementById('stateModalProp').style.display='none'" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            <div style="text-align:center;">
+                <h4 style="margin-bottom:0.75rem;">Total Propositions</h4>
+                <div style="font-size:2rem;font-weight:700;color:#8b5e4a;">{{ total_propositions|default(0) }}</div>
+            </div>
+            <div>
+                <h4 style="margin-bottom:0.75rem;">Par état du produit</h4>
+                {% if stats_etat is defined and stats_etat|length > 0 %}
+                    {% set total = total_propositions|default(1) > 0 ? total_propositions : 1 %}
+                    {% for etat, count in stats_etat %}
+                        <div style="margin-bottom:0.5rem;">
+                            <div style="display:flex;justify-content:space-between;font-size:0.85rem;"><span>{{ etat }}</span><strong>{{ count }}</strong></div>
+                            <div style="height:6px;background:#f3f4f6;border-radius:4px;"><div style="height:100%;width:{{ (count / total * 100)|round }}%;background:#8b5e4a;border-radius:4px;"></div></div>
+                        </div>
+                    {% endfor %}
+                {% else %}<p style="color:#999;font-size:0.9rem;">Aucune donnée.</p>{% endif %}
+                <h4 style="margin:1rem 0 0.5rem;">Top Produits liés</h4>
+                {% if stats_produit is defined and stats_produit|length > 0 %}
+                    {% for prod, count in stats_produit|slice(0, 3) %}
+                        <div style="display:flex;justify-content:space-between;font-size:0.8rem;"><span>{{ prod }}</span><span>{{ count }}</span></div>
+                    {% endfor %}
+                {% else %}<p style="color:#999;font-size:0.85rem;">—</p>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+(function(){ var m=document.getElementById('stateModalProp'); if(m) m.onclick=function(e){ if(e.target===m) m.style.display='none'; }; })();
+</script>
+
+<p style="margin-top:1rem;font-size:0.9rem;color:#666;">Total : {{ total_propositions }} proposition(s). <a href="{{ path('back_produit_recyclable') }}">Voir les produits</a></p>
+{% endblock %}

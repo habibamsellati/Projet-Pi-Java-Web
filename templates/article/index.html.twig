@@ -1,0 +1,726 @@
+{# templates/article/index.html.twig - styled like Projet-Pi-Java-Web-gestion-article (panier removed for V2) #}
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Blog - AfkArt{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #faf6f1;
+            color: #3d2817;
+        }
+
+        .blog-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            background: linear-gradient(135deg, #c9a17a 0%, #a8935f 100%);
+            padding: 4rem 2rem;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .page-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .page-header p {
+            font-size: 1.15rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Filter and Search Section */
+        .filters-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0d5ca;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #8b5e4a;
+            box-shadow: 0 0 0 3px rgba(139, 94, 74, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0d5ca;
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #8b5e4a;
+            box-shadow: 0 0 0 3px rgba(139, 94, 74, 0.1);
+        }
+
+        /* Featured Articles Section */
+        .featured-section {
+            margin-bottom: 4rem;
+        }
+
+        .featured-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: #8b5e4a;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #c9a17a;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .featured-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        .featured-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #8b5e4a;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .featured-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #c9a17a 0%, #a8935f 100%);
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .featured-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .featured-header.with-image {
+            padding: 0;
+            min-height: auto;
+            background: none;
+        }
+
+        .featured-header.with-image .featured-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .article-header.with-image {
+            padding: 0;
+            background: none;
+            position: relative;
+        }
+
+        .article-header.with-image .article-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+        }
+
+        .featured-date {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .featured-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: white;
+            line-height: 1.3;
+        }
+
+        .featured-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .featured-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: #7a6e68;
+        }
+
+        .featured-excerpt {
+            color: #5a5450;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .featured-footer {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Recent Articles Section */
+        .recent-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: #8b5e4a;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #c9a17a;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .article-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #c9a17a 0%, #a8935f 100%);
+        }
+
+        .article-date {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .article-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: white;
+        }
+
+        .article-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .article-excerpt {
+            color: #5a5450;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .article-footer {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-view {
+            background-color: #8b5e4a;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-view:hover {
+            background-color: #6b4535;
+        }
+
+        .btn-edit {
+            background-color: #b8956a;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-edit:hover {
+            background-color: #9a7a50;
+        }
+
+        .btn-delete {
+            background-color: #d9534f;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-delete:hover {
+            background-color: #c9302c;
+        }
+
+        .btn-new {
+            background-color: #8b5e4a;
+            color: white;
+            padding: 0.85rem 2rem;
+            margin-bottom: 3rem;
+            display: inline-block;
+        }
+
+        .btn-new:hover {
+            background-color: #6b4535;
+        }
+
+        .btn-commander {
+            background-color: #2d7a4f;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-commander:hover {
+            background-color: #236b42;
+        }
+
+        .icon-commande {
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .icon-pencil,
+        .icon-trash {
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .no-articles {
+            text-align: center;
+            padding: 3rem;
+            color: #7a6e68;
+            font-style: italic;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-state h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            color: #8b5e4a;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: #7a6e68;
+            margin-bottom: 2rem;
+        }
+
+        .pagination-wrapper {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination span,
+        .pagination a {
+            min-width: 2.2rem;
+            height: 2.2rem;
+            padding: 0 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid #e0d5ca;
+            background: #fff;
+            color: #8b5e4a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .pagination .current {
+            background: #8b5e4a;
+            color: #fff;
+            border-color: #8b5e4a;
+        }
+
+        .pagination a:hover {
+            background: #f3e4d9;
+        }
+
+        @media (max-width: 768px) {
+            .blog-container {
+                padding: 1.5rem 1rem;
+            }
+
+            .page-header {
+                padding: 2rem 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .filters-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-group select {
+                width: 100%;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="blog-container">
+        <div class="page-header">
+            <h1>Notre Blog</h1>
+            <p>Découvrez nos articles sur l'artisanat durable, les créateurs locaux et les pratiques écologiques</p>
+        </div>
+
+        <form method="get" action="{{ path('app_article_index') }}" class="filters-section">
+            <div class="search-box">
+                <input type="text" name="recherche" value="{{ filters.recherche|default('') }}" placeholder="Rechercher un article...">
+            </div>
+            <div class="filter-group">
+                <select name="categorie">
+                    <option value="">Toutes les catégories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {{ (filters.categorie|default('')) == cat ? 'selected' : '' }}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <select name="auteur">
+                    <option value="">Tous les auteurs</option>
+                    {% for art in artisans %}
+                        <option value="{{ art.id }}" {{ (filters.auteur|default('')) == art.id ? 'selected' : '' }}>{{ art.nom }}</option>
+                    {% endfor %}
+                </select>
+                <select name="tri">
+                    <option value="date_desc" {{ (filters.tri|default('date_desc')) == 'date_desc' ? 'selected' : '' }}>Date (récent → ancien)</option>
+                    <option value="date_asc" {{ (filters.tri|default('')) == 'date_asc' ? 'selected' : '' }}>Date (ancien → récent)</option>
+                    <option value="titre_asc" {{ (filters.tri|default('')) == 'titre_asc' ? 'selected' : '' }}>Titre (A → Z)</option>
+                    <option value="titre_desc" {{ (filters.tri|default('')) == 'titre_desc' ? 'selected' : '' }}>Titre (Z → A)</option>
+                    <option value="prix_asc" {{ (filters.tri|default('')) == 'prix_asc' ? 'selected' : '' }}>Prix (croissant)</option>
+                    <option value="prix_desc" {{ (filters.tri|default('')) == 'prix_desc' ? 'selected' : '' }}>Prix (décroissant)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-view" style="margin: 0;">Filtrer</button>
+        </form>
+
+        <!-- Actions: Panier (clients) | Ajouter article (admin/artisan uniquement) -->
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+            {% if isClient %}
+                <a href="{{ path('app_panier_index') }}" class="btn btn-commander" style="margin-bottom: 0;">
+                    <svg class="icon-commande" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                    Voir le panier
+                </a>
+            {% endif %}
+            {% if not isClient %}
+                <a href="{{ path('app_article_new') }}" class="btn btn-new" style="margin-bottom: 0;">+ Ajouter un Nouvel Article</a>
+            {% endif %}
+        </div>
+
+        {% if articles.getTotalItemCount > 0 %}
+            <div class="featured-section">
+                <h2 class="featured-title">Articles en Vedette</h2>
+                <div class="featured-grid">
+                    {% set featuredCount = 0 %}
+                    {% for article in articles %}
+                        {% if featuredCount < 2 %}
+                            <article class="featured-card">
+                                <div class="featured-badge">En Vedette</div>
+                                <div class="featured-header {% if article.image %}with-image{% endif %}">
+                                    {% if article.image %}
+                                        <img src="{{ asset('image/' ~ article.image) }}" alt="{{ article.titre }}" class="featured-image">
+                                        <div class="featured-content">
+                                            <div class="featured-date">
+                                                {{ article.date ? article.date|date('d M Y') : 'Date non disponible' }}
+                                            </div>
+                                            <h3>{{ article.titre }}</h3>
+                                        </div>
+                                    {% else %}
+                                        <div class="featured-date">
+                                            {{ article.date ? article.date|date('d M Y') : 'Date non disponible' }}
+                                        </div>
+                                        <h3>{{ article.titre }}</h3>
+                                    {% endif %}
+                                </div>
+                                <div class="featured-body">
+                                    <div class="featured-meta">
+                                        <span>Auteur: {% if article.artisan %}{{ article.artisan.prenom }} {{ article.artisan.nom }}{% else %}Non spécifié{% endif %}</span>
+                                    </div>
+                                    <p class="featured-excerpt">
+                                        {{ article.contenu|length > 150 ? article.contenu|slice(0, 150) ~ '...' : article.contenu }}
+                                    </p>
+                                    {% if article.prix is not null and article.prix != '' %}
+                                    <p style="font-weight: 600; color: #8b5e4a; margin-bottom: 0.5rem;">{{ article.prix }} DT</p>
+                                    {% endif %}
+                                    <div class="featured-footer">
+                                        <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-view">
+                                            Lire la suite
+                                        </a>
+                                        {% if isClient %}
+                                            <form method="POST" action="{{ path('app_panier_ajouter', {'id': article.id}) }}" style="display: inline;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('panier_ajouter' ~ article.id) }}">
+                                                <button type="submit" class="btn btn-commander" title="Ajouter au panier">
+                                                    <svg class="icon-commande" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                                                    Ajouter au panier
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                        {% if user and (isAdmin or (isArtisan and article.artisan and article.artisan.id == user.id)) %}
+                                            <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn btn-edit" title="Modifier l'article">
+                                                <svg class="icon-pencil" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                                Modifier
+                                            </a>
+                                            <form method="POST" action="{{ path('app_article_delete', {'id': article.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+                                                <button type="submit" class="btn btn-delete" title="Supprimer l'article">
+                                                    <svg class="icon-trash" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                                    Supprimer
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </article>
+                            {% set featuredCount = featuredCount + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="recent-section">
+                <h2 class="section-title">Articles Récents</h2>
+                <div class="articles-grid" id="articlesGrid">
+                    {% for article in articles %}
+                        <article class="article-card" data-title="{{ article.titre|lower }}" data-category="{{ article.categorie ? article.categorie|lower : 'autres' }}">
+                            <div class="article-header {% if article.image %}with-image{% endif %}">
+                                {% if article.image %}
+                                    <img src="{{ asset('image/' ~ article.image) }}" alt="{{ article.titre }}" class="article-image">
+                                    <div class="article-content">
+                                        <div class="article-date">
+                                            {{ article.date ? article.date|date('d M Y') : 'Date non disponible' }}
+                                        </div>
+                                        <h3>{{ article.titre }}</h3>
+                                    </div>
+                                {% else %}
+                                    <div class="article-date">
+                                        {{ article.date ? article.date|date('d M Y') : 'Date non disponible' }}
+                                    </div>
+                                    <h3>{{ article.titre }}</h3>
+                                {% endif %}
+                            </div>
+                            <div class="article-body">
+                                <p class="article-excerpt">
+                                    {{ article.contenu|length > 120 ? article.contenu|slice(0, 120) ~ '...' : article.contenu }}
+                                </p>
+                                {% if article.prix is not null and article.prix != '' %}
+                                <p style="font-weight: 600; color: #8b5e4a; margin-bottom: 0.5rem;">{{ article.prix }} DT</p>
+                                {% endif %}
+                                <div class="article-footer">
+                                    <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-view">
+                                        Lire la suite
+                                    </a>
+                                    {% if isClient %}
+                                        <form method="POST" action="{{ path('app_panier_ajouter', {'id': article.id}) }}" style="display: inline;">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('panier_ajouter' ~ article.id) }}">
+                                            <button type="submit" class="btn btn-commander" title="Ajouter au panier">
+                                                <svg class="icon-commande" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                                                Ajouter au panier
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    {% if user and (isAdmin or (isArtisan and article.artisan and article.artisan.id == user.id)) %}
+                                        <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn btn-edit" title="Modifier l'article">
+                                            <svg class="icon-pencil" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            Modifier
+                                        </a>
+                                        <form method="POST" action="{{ path('app_article_delete', {'id': article.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+                                            <button type="submit" class="btn btn-delete" title="Supprimer l'article">
+                                                <svg class="icon-trash" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="pagination-wrapper">
+                {{ knp_pagination_render(articles) }}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h2>Aucun article</h2>
+                <p>Aucun article ne correspond à vos critères ou aucun article n'a été publié.</p>
+                {% if not isClient %}
+                    <a href="{{ path('app_article_new') }}" class="btn btn-new">Créer le Premier Article</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

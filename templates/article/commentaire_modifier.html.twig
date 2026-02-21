@@ -1,0 +1,81 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Modifier le commentaire - AfkArt{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background-color: #faf6f1; color: #3d2817; }
+        .form-container { max-width: 600px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .form-container h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; color: #8b5e4a; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.35rem; color: #3d2817; }
+        .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #d4c4b8; border-radius: 8px; min-height: 120px; font-family: 'Outfit', sans-serif; font-size: 1rem; }
+        .form-group textarea:focus { outline: none; border-color: #8b5e4a; box-shadow: 0 0 0 3px rgba(139, 94, 74, 0.1); }
+        .emoji-picker { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.75rem; }
+        .emoji-btn { border: 1px solid #d4c4b8; background: #fff; border-radius: 8px; padding: 0.25rem 0.45rem; cursor: pointer; font-size: 18px; line-height: 1; }
+        .emoji-btn:hover { background: #f5f1eb; }
+        .btn-submit { padding: 0.6rem 1.25rem; background: #8b5e4a; color: white; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #6b4535; }
+        .btn-cancel { display: inline-block; margin-left: 0.75rem; color: #8b5e4a; text-decoration: none; font-weight: 500; }
+        .btn-cancel:hover { text-decoration: underline; }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            document.querySelectorAll('.emoji-picker').forEach(function (picker) {
+                var targetId = picker.getAttribute('data-emoji-target');
+                var input = targetId ? document.getElementById(targetId) : null;
+                if (!input) {
+                    return;
+                }
+
+                picker.querySelectorAll('.emoji-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var emoji = btn.getAttribute('data-emoji') || '';
+                        var start = input.selectionStart || 0;
+                        var end = input.selectionEnd || 0;
+                        var value = input.value || '';
+                        input.value = value.slice(0, start) + emoji + value.slice(end);
+                        input.focus();
+                        var next = start + emoji.length;
+                        if (typeof input.setSelectionRange === 'function') {
+                            input.setSelectionRange(next, next);
+                        }
+                    });
+                });
+            });
+        })();
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="form-container">
+    <h1>Modifier votre commentaire</h1>
+    <p style="margin-bottom: 1rem; color: #7a6e68;">Article : {{ article.titre }}</p>
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="form-group">
+        {{ form_label(form.contenu) }}
+        {% set commentFieldId = form.contenu.vars.id %}
+        <div class="emoji-picker" data-emoji-target="{{ commentFieldId }}">
+            <button type="button" class="emoji-btn" data-emoji="😀">😀</button>
+            <button type="button" class="emoji-btn" data-emoji="😊">😊</button>
+            <button type="button" class="emoji-btn" data-emoji="😍">😍</button>
+            <button type="button" class="emoji-btn" data-emoji="❤️">❤️</button>
+            <button type="button" class="emoji-btn" data-emoji="👍">👍</button>
+            <button type="button" class="emoji-btn" data-emoji="👏">👏</button>
+            <button type="button" class="emoji-btn" data-emoji="😢">😢</button>
+            <button type="button" class="emoji-btn" data-emoji="😡">😡</button>
+        </div>
+        {{ form_widget(form.contenu) }}
+        {{ form_errors(form.contenu) }}
+    </div>
+    <button type="submit" class="btn-submit">Enregistrer</button>
+    <a href="{{ path('app_article_show', { id: article.id }) }}" class="btn-cancel">Annuler</a>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

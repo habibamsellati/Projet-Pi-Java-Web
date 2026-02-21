@@ -1,0 +1,61 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Liste validée des articles - Admin AfkArt{% endblock %}
+
+{% block admin_container_class %}liste-validee-page{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .liste-validee-page .header h1 { margin-bottom: 0.25rem; }
+        .validated-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .validated-table th, .validated-table td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid #eee; }
+        .validated-table th { background: #d4edda; font-weight: 600; color: #155724; }
+        .validated-table tr:last-child td { border-bottom: none; }
+        .validated-articles-list { margin: 0; padding-left: 1.25rem; font-size: 0.9rem; }
+        .validated-articles-list li { margin-bottom: 0.35rem; }
+        .empty-validated { text-align: center; padding: 3rem; color: #666; background: #f8f8f8; border-radius: 12px; }
+    </style>
+{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <div class="header-left">
+                <h1>Liste validée des articles</h1>
+                <p class="header-subtitle">Commandes validées et leurs articles</p>
+            </div>
+        </header>
+
+        {% if commandes|length > 0 %}
+            <table class="validated-table">
+                <thead>
+                    <tr>
+                        <th>Date commande</th>
+                        <th>Client</th>
+                        <th>Articles validés</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cmd in commandes %}
+                    <tr>
+                        <td>{{ cmd.datecommande ? cmd.datecommande|date('d/m/Y H:i') : '—' }}</td>
+                        <td>{% if cmd.client %}{{ cmd.client.prenom }} {{ cmd.client.nom }}{% else %}—{% endif %}</td>
+                        <td>
+                            <ul class="validated-articles-list">
+                                {% for art in cmd.articles %}
+                                <li>{{ art.titre }}{% if art.prix is not null and art.prix != '' %} — {{ art.prix }} DT{% endif %}</li>
+                                {% else %}
+                                <li>—</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><strong>{{ cmd.total|number_format(2, ',', ' ') }} DT</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-validated">Aucune commande validée pour le moment. Les commandes validées apparaîtront ici.</div>
+        {% endif %}
+{% endblock %}

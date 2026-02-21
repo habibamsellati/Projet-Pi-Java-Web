@@ -1,0 +1,30 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Détails Livraison | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 480px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+    <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: #3d2817; text-align: center; margin-bottom: 1.5rem;">Détails de la Livraison</h1>
+    <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f5f0e8;">
+        <span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Date prévue</span>
+        <span style="display: block; font-size: 1.1rem; font-weight: 500;">{{ livraison.datelivraison ? livraison.datelivraison|date('d F Y à H:i') : 'Non planifiée' }}</span>
+    </div>
+    <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f5f0e8;">
+        <span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Id</span>
+        <span style="display: block; font-size: 1.1rem;">#{{ livraison.id ?? 'N/A' }}</span>
+    </div>
+    <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f5f0e8;">
+        <span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Adresse de livraison</span>
+        <span style="display: block; font-size: 1.1rem;">{{ livraison.addresslivraison }}</span>
+    </div>
+    <div style="margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f5f0e8;">
+        <span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Commande</span>
+        <span style="display: block; font-size: 1.1rem;">#{{ livraison.commande ? livraison.commande.id : 'N/A' }}</span>
+    </div>
+    <div style="background: #fdfbfa; padding: 0.75rem 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
+        <span style="font-size: 0.75rem; color: #999; text-transform: uppercase;">Statut actuel</span>
+        <span style="padding: 0.25rem 0.65rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: #f0fdf4; color: #15803d;">{{ livraison.statutlivraison }}</span>
+    </div>
+   
+</section>
+{% endblock %}

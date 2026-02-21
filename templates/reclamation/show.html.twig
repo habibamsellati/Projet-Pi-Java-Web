@@ -1,0 +1,130 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Détails de la réclamation - AfkArt{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background-color: #faf6f1; color: #3d2817; }
+        .reclamation-container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; color: #8b5e4a; margin-bottom: 1.5rem; }
+        .reclamation-detail { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+        .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .detail-title { font-size: 1.5rem; font-weight: 600; color: #3d2817; margin: 0 0 0.5rem 0; }
+        .detail-meta { font-size: 0.875rem; color: #7a6e68; }
+        .statut-badge { display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
+        .statut-en_attente { background: #fff3cd; color: #856404; }
+        .statut-en_cours { background: #cfe2ff; color: #084298; }
+        .statut-repondue { background: #d1e7dd; color: #0f5132; }
+        .statut-validee { background: #d1e7dd; color: #0f5132; }
+        .statut-rejetee { background: #f8d7da; color: #842029; }
+        .detail-section { margin-bottom: 1.5rem; }
+        .detail-section:last-child { margin-bottom: 0; }
+        .detail-label { font-weight: 600; color: #8b5e4a; margin-bottom: 0.5rem; }
+        .detail-value { color: #4d4d4d; line-height: 1.6; }
+        .reponse-section { background: #f8f6f3; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; }
+        .reponse-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .reponse-title { font-weight: 600; color: #3d2817; margin: 0; }
+        .reponse-date { font-size: 0.875rem; color: #7a6e68; margin-bottom: 0.5rem; }
+        .reponse-content { color: #4d4d4d; line-height: 1.6; }
+        .no-reponse { text-align: center; padding: 2rem; color: #7a6e68; font-style: italic; }
+        .reclamation-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .btn-action { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-back { background: #8b5e4a; color: white; }
+        .btn-back:hover { background: #6b4535; }
+        .btn-edit { background: #b8956a; color: white; }
+        .btn-edit:hover { background: #9a7a50; }
+        .btn-delete { background: #d9534f; color: white; }
+        .btn-delete:hover { background: #c9302c; }
+        .back-link { display: inline-block; color: #8b5e4a; text-decoration: none; margin-bottom: 1rem; font-weight: 500; }
+        .back-link:hover { text-decoration: underline; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="reclamation-container">
+    <a href="{{ path('app_reclamation_index') }}" class="back-link">← Retour aux réclamations</a>
+    <h1 class="page-title">Détails de la réclamation</h1>
+
+    {% for message in app.flashes('success') %}<div class="alert alert-success" role="status">{{ message }}</div>{% endfor %}
+    {% for message in app.flashes('error') %}<div class="alert alert-error" role="alert">{{ message }}</div>{% endfor %}
+
+    <div class="reclamation-detail">
+        <div class="detail-header">
+            <div>
+                <h2 class="detail-title">{{ reclamation.titre }}</h2>
+                <div class="detail-meta">Créée le {{ reclamation.datecreation ? reclamation.datecreation|date('d/m/Y à H:i') : 'Date non disponible' }}</div>
+            </div>
+            <span class="statut-badge statut-{{ reclamation.statut|replace({'_': '-'}) }}">
+                {% if reclamation.statut == 'en_attente' %}En attente
+                {% elseif reclamation.statut == 'en_cours' %}En cours de traitement
+                {% elseif reclamation.statut == 'repondue' %}Répondue
+                {% elseif reclamation.statut == 'validee' %}Validée
+                {% elseif reclamation.statut == 'rejetee' %}Rejetée
+                {% else %}{{ reclamation.statut }}{% endif %}
+            </span>
+        </div>
+
+        <div class="detail-section">
+            <div class="detail-label">Utilisateur</div>
+            <div class="detail-value">{{ reclamation.user.prenom }} {{ reclamation.user.nom }} ({{ reclamation.user.role }})</div>
+        </div>
+
+        {% if reclamation.descripition %}
+        <div class="detail-section">
+            <div class="detail-label">Description</div>
+            <div class="detail-value">{{ reclamation.descripition|nl2br }}</div>
+        </div>
+        {% endif %}
+
+        {% if reclamation.reponseReclamations|length > 0 %}
+            <div class="reponse-section">
+                <div class="reponse-header">
+                    <h3 class="reponse-title">Réponse de l'administrateur</h3>
+                </div>
+                {% for reponse in reclamation.reponseReclamations %}
+                    <div class="reponse-date">Répondu le {{ reponse.datereponse ? reponse.datereponse|date('d/m/Y à H:i') : 'Date non disponible' }}</div>
+                    <div class="reponse-content">{{ reponse.contenu|nl2br }}</div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-reponse">
+                <p>Aucune réponse pour le moment. Votre réclamation est en cours de traitement.</p>
+            </div>
+        {% endif %}
+
+        {% if reclamation.videoCallLink %}
+            <div class="reponse-section" style="background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%); border-left: 4px solid #2d7a4f;">
+                <h3 style="color: #2d7a4f; margin-top: 0;">📹 Invitation à une visioconférence</h3>
+                <p style="margin-bottom: 15px;">Un administrateur souhaite discuter avec vous par visioconférence pour résoudre votre réclamation.</p>
+                <a href="{{ path('app_reclamation_video_call', {'id': reclamation.id}) }}" class="btn-action" style="background: #2d7a4f; color: white; padding: 12px 24px; font-size: 1rem;">
+                    🎥 Rejoindre la visioconférence
+                </a>
+                <p style="font-size: 0.875rem; color: #666; margin-top: 15px;">
+                    ℹ️ La visioconférence s'ouvre directement dans votre navigateur. Aucune installation requise.
+                </p>
+            </div>
+        {% endif %}
+
+        {% if not isAdmin and reclamation.statut == 'en_attente' %}
+        <div class="reclamation-actions">
+            <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" class="btn-action btn-edit" title="Modifier la réclamation">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Modifier
+            </a>
+            <form method="POST" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réclamation ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                <button type="submit" class="btn-action btn-delete" title="Supprimer la réclamation">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    Supprimer
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

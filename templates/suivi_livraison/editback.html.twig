@@ -1,0 +1,20 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Modifier le Suivi - Admin{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <h1>Modifier le Suivi</h1>
+        </header>
+        <div style="background: white; padding: 1.5rem; border-radius: 12px; max-width: 600px;">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_row(form.livraison) }}
+            {{ form_row(form.datesuivi) }}
+            {{ form_row(form.etat) }}
+            {{ form_row(form.localisation) }}
+            {{ form_row(form.commentaire) }}
+            <button type="submit" style="padding: 0.5rem 1rem; background: #8b5e4a; color: white; border: none; border-radius: 8px; cursor: pointer;">Enregistrer</button>
+            <a href="{{ path('back_suivi_livraison_index') }}" style="margin-left: 0.5rem; color: #8b5e4a;">Retour</a>
+            {{ form_end(form) }}
+        </div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Détails réclamation - Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .reclamation-detail-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 1.5rem; padding: 2rem; }
+        .detail-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .detail-title { font-size: 1.5rem; font-weight: 600; color: #2d2d2d; margin: 0 0 0.5rem 0; }
+        .detail-meta { font-size: 0.875rem; color: #666; }
+        .statut-badge { display: inline-block; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
+        .statut-en_attente { background: #fff3cd; color: #856404; }
+        .statut-en_cours { background: #cfe2ff; color: #084298; }
+        .statut-validee { background: #d1e7dd; color: #0f5132; }
+        .statut-rejetee { background: #f8d7da; color: #842029; }
+        .detail-section { margin-bottom: 1.5rem; }
+        .detail-label { font-weight: 600; color: #8b5e4a; margin-bottom: 0.5rem; }
+        .reponse-section { background: #f8f6f3; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; }
+        .reponse-content { color: #4d4d4d; line-height: 1.6; }
+        .reclamation-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .btn-action { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500; text-decoration: none; border: none; cursor: pointer; }
+        .btn-repondre { background: #2d7a4f; color: white; }
+        .btn-valider { background: #28a745; color: white; }
+        .btn-rejeter { background: #dc3545; color: white; }
+        .back-link { display: inline-block; color: #8b5e4a; text-decoration: none; margin-bottom: 1rem; font-weight: 500; }
+        .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+    </style>
+{% endblock %}
+
+{% block back_main %}
+        <header class="header"><div class="header-left"><h1>Détails de la réclamation</h1></div></header>
+
+        {% for message in app.flashes('success') %}<div class="alert alert-success">{{ message }}</div>{% endfor %}
+        {% for message in app.flashes('error') %}<div class="alert alert-error">{{ message }}</div>{% endfor %}
+
+        <a href="{{ path('back_reclamations') }}" class="back-link">← Retour à la liste</a>
+
+        <div class="reclamation-detail-card">
+            <div class="detail-header">
+                <div>
+                    <h2 class="detail-title">{{ reclamation.titre }}</h2>
+                    <div class="detail-meta">Créée le {{ reclamation.datecreation ? reclamation.datecreation|date('d/m/Y à H:i') : '—' }}</div>
+                </div>
+                <span class="statut-badge statut-{{ reclamation.statut|replace({'_': '-'}) }}">{{ reclamation.statut }}</span>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-label">Utilisateur</div>
+                <div class="detail-value"><strong>{{ reclamation.user.prenom }} {{ reclamation.user.nom }}</strong> ({{ reclamation.user.role }})</div>
+            </div>
+
+            {% if reclamation.descripition %}
+            <div class="detail-section">
+                <div class="detail-label">Description</div>
+                <div class="detail-value">{{ reclamation.descripition|nl2br }}</div>
+            </div>
+            {% endif %}
+
+            {% if reclamation.reponseReclamations|length > 0 %}
+                <div class="reponse-section">
+                    <h3>Réponses de l'administrateur</h3>
+                    {% for reponse in reclamation.reponseReclamations %}
+                        <div class="reponse-date">Répondu le {{ reponse.datereponse ? reponse.datereponse|date('d/m/Y à H:i') : '—' }} par {{ reponse.admin.prenom }} {{ reponse.admin.nom }}</div>
+                        <div class="reponse-content">{{ reponse.contenu|nl2br }}</div>
+                        {% if not loop.last %}<hr style="margin: 1rem 0;">{% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}<p>Aucune réponse pour le moment.</p>{% endif %}
+
+            {% if reclamation.videoCallLink %}
+                <div class="reponse-section" style="background: #e7f3ff; border-left: 4px solid #2d7a4f;">
+                    <h3 style="color: #2d7a4f;">📹 Visioconférence programmée</h3>
+                    <p><strong>Créée le:</strong> {{ reclamation.videoCallScheduledAt ? reclamation.videoCallScheduledAt|date('d/m/Y à H:i') : '—' }}</p>
+                    <p style="margin-top: 10px;">La visioconférence est prête. Cliquez sur le bouton ci-dessous pour rejoindre l'appel directement dans l'application.</p>
+                    <a href="{{ path('back_reclamation_video_call', {'id': reclamation.id}) }}" class="btn-action" style="background: #2d7a4f; color: white; margin-top: 10px;">
+                        🎥 Rejoindre la visioconférence
+                    </a>
+                </div>
+            {% endif %}
+
+            <div class="reclamation-actions">
+                {% if reclamation.statut != 'validee' and reclamation.statut != 'rejetee' %}
+                    <a href="{{ path('back_reclamation_repondre', {'id': reclamation.id}) }}" class="btn-action btn-repondre">Répondre</a>
+                    
+                    {% if not reclamation.videoCallLink %}
+                        <form method="POST" action="{{ path('back_reclamation_create_video_call', {'id': reclamation.id}) }}" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('create_video_call' ~ reclamation.id) }}">
+                            <button type="submit" class="btn-action" style="background: #2d7a4f; color: white;">
+                                📹 Créer une visioconférence
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <form method="POST" action="{{ path('back_reclamation_valider', {'id': reclamation.id}) }}" style="display: inline;" onsubmit="return confirm('Valider cette réclamation ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('back_reclamation_valider' ~ reclamation.id) }}">
+                        <button type="submit" class="btn-action btn-valider">Valider</button>
+                    </form>
+                    <form method="POST" action="{{ path('back_reclamation_rejeter', {'id': reclamation.id}) }}" style="display: inline;" onsubmit="return confirm('Rejeter cette réclamation ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('back_reclamation_rejeter' ~ reclamation.id) }}">
+                        <button type="submit" class="btn-action btn-rejeter">Rejeter</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+{% endblock %}

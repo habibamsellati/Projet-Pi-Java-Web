@@ -1,0 +1,57 @@
+{% extends 'base.html.front.twig' %}
+
+{% block title %}Propositions | AfkArt{% endblock %}
+
+{% block body %}
+<section style="max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: #3d2817;">Propositions</h1>
+        {% if can_manage|default(false) %}
+        <a href="{{ path('app_proposition_new') }}" style="background: #8b5e4a; color: white; padding: 0.6rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 600;">+ Nouvelle proposition</a>
+        {% endif %}
+    </div>
+    {% for message in app.flashes('success') %}
+        <div style="background: #ECFDF5; color: #065F46; padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem;">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div style="background: #FEE2E2; color: #991B1B; padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem;">{{ message }}</div>
+    {% endfor %}
+    <div style="background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f8f6f3;">
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Titre</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Description</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Produit</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Date</th>
+                    <th style="padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: #666;">Utilisateur</th>
+                    <th style="padding: 1rem; text-align: right; font-size: 0.8rem; text-transform: uppercase; color: #666;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proposition in propositions %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 1rem; font-weight: 600; color: #8b5e4a;">{{ proposition.titre }}</td>
+                    <td style="padding: 1rem;">{{ proposition.description|length > 50 ? proposition.description|slice(0, 50) ~ '...' : proposition.description }}</td>
+                    <td style="padding: 1rem;">{% if proposition.produit %}<span style="background: #f5f0eb; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.8rem;">{{ proposition.produit.nomproduit }}</span>{% else %}—{% endif %}</td>
+                    <td style="padding: 1rem;">{{ proposition.date ? proposition.date|date('d/m/Y') : '-' }}</td>
+                    <td style="padding: 1rem;">{% if proposition.user %}{{ proposition.user.prenom }} {{ proposition.user.nom }}{% else %}—{% endif %}</td>
+                    <td style="padding: 1rem; text-align: right;">
+                        <a href="{{ path('app_proposition_show', {'id': proposition.id}) }}" style="color: #8b5e4a; text-decoration: none; margin-right: 0.75rem;">Voir</a>
+                        {% if can_manage|default(false) %}
+                        <a href="{{ path('app_proposition_edit', {'id': proposition.id}) }}" style="color: #5a5450; text-decoration: none; margin-right: 0.75rem;">Modifier</a>
+                        <form method="post" action="{{ path('app_proposition_delete', {'id': proposition.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette proposition ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ proposition.id) }}">
+                            <button type="submit" style="background:none;border:none;color:#c00;cursor:pointer;padding:0;">Supprimer</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" style="padding: 2rem; text-align: center; color: #999;">Aucune proposition.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

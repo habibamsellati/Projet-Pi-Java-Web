@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Événements</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; color: #333; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #999; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Événements</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Artisan</th>
+                <th>Lieu</th>
+                <th>Date Début</th>
+                <th>Date Fin</th>
+                <th>Capacité</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evenement in evenements %}
+                <tr>
+                    <td>{{ evenement.id }}</td>
+                    <td>{{ evenement.nom }}</td>
+                    <td>{{ evenement.artisan }}</td>
+                    <td>{{ evenement.lieu }}</td>
+                    <td>{{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '' }}</td>
+                    <td>{{ evenement.dateFin ? evenement.dateFin|date('d/m/Y H:i') : '' }}</td>
+                    <td>{{ evenement.capacite }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="footer">
+        Généré le {{ "now"|date("d/m/Y à H:i") }} par Afk'Art
+    </div>
+</body>
+</html>

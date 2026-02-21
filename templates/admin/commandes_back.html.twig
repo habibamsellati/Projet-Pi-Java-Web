@@ -1,0 +1,123 @@
+{% extends 'base.back.html.twig' %}
+
+{% block title %}Commandes - Admin AfkArt{% endblock %}
+
+{% block admin_container_class %}commandes-page{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .commandes-page .header h1 { margin-bottom: 0.25rem; }
+        .commandes-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .commandes-table th, .commandes-table td { padding: 1rem 1.25rem; text-align: left; border-bottom: 1px solid #eee; }
+        .commandes-table th { background: #f8f6f3; font-weight: 600; color: #333; }
+        .commandes-table tr:last-child td { border-bottom: none; }
+        .statut-badge { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 500; }
+        .statut-en_attente { background: #fff3cd; color: #856404; }
+        .statut-valide { background: #d4edda; color: #155724; }
+        .statut-invalide { background: #f8d7da; color: #721c24; }
+        .btn-action-cmd { padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; border: none; cursor: pointer; margin-right: 0.35rem; }
+        .btn-valider { background: #28a745; color: #fff; }
+        .btn-valider:hover { background: #218838; }
+        .btn-invalider { background: #dc3545; color: #fff; }
+        .btn-invalider:hover { background: #c82333; }
+        .alert { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-success { background: #d4edda; color: #155724; }
+        .alert-error { background: #f8d7da; color: #721c24; }
+        .empty-cmd { text-align: center; padding: 3rem; color: #666; background: #f8f8f8; border-radius: 12px; }
+        .cmd-articles-list { margin: 0; padding-left: 1.25rem; font-size: 0.9rem; max-width: 280px; }
+        .cmd-articles-list li { margin-bottom: 0.25rem; }
+        .filters-section { background: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 250px; }
+        .search-box input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #e0d5ca; border-radius: 8px; font-size: 0.95rem; }
+        .filter-group select { padding: 0.75rem 1rem; border: 1px solid #e0d5ca; border-radius: 8px; font-size: 0.95rem; background-color: white; cursor: pointer; }
+        .btn-pdf { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: #dc3545; color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-decoration: none; cursor: pointer; }
+        .btn-pdf:hover { background: #c82333; color: white; }
+    </style>
+{% endblock %}
+
+{% block back_main %}
+        <header class="header">
+            <div class="header-left">
+                <h1>Commandes</h1>
+                <p class="header-subtitle">Valider ou invalider les commandes clients</p>
+            </div>
+        </header>
+
+        {% for message in app.flashes('success') %}<div class="alert alert-success">{{ message }}</div>{% endfor %}
+        {% for message in app.flashes('error') %}<div class="alert alert-error">{{ message }}</div>{% endfor %}
+
+        <div class="filters-section">
+            <form method="GET" action="{{ path('back_commandes') }}" class="search-box" style="display: flex; gap: 0.5rem; flex: 1;">
+                <input type="text" name="recherche" value="{{ filters.recherche|default('') }}" placeholder="Rechercher par nom, prénom client...">
+                <input type="hidden" name="statut" value="{{ filters.statut|default('') }}">
+                <button type="submit" class="btn-action-cmd btn-valider">Rechercher</button>
+            </form>
+            <form method="GET" action="{{ path('back_commandes') }}" class="filter-group">
+                <input type="hidden" name="recherche" value="{{ filters.recherche|default('') }}">
+                <select name="statut" onchange="this.form.submit()">
+                    <option value="">Tous les états</option>
+                    <option value="en_attente" {{ (filters.statut|default('')) == 'en_attente' ? 'selected' : '' }}>En attente</option>
+                    <option value="valide" {{ (filters.statut|default('')) == 'valide' ? 'selected' : '' }}>Validé</option>
+                    <option value="invalide" {{ (filters.statut|default('')) == 'invalide' ? 'selected' : '' }}>Invalidé</option>
+                </select>
+            </form>
+            <a href="{{ path('back_commandes_pdf', filters) }}" class="btn-pdf" target="_blank" title="Exporter en PDF">Exporter PDF</a>
+        </div>
+
+        {% if commandes|length > 0 %}
+            <table class="commandes-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>Téléphone</th>
+                        <th>Détails des articles</th>
+                        <th>Adresse livraison</th>
+                        <th>Mode paiement</th>
+                        <th>Total</th>
+                        <th>Statut</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cmd in commandes %}
+                    <tr>
+                        <td>{{ cmd.datecommande ? cmd.datecommande|date('d/m/Y H:i') : '—' }}</td>
+                        <td>{% if cmd.client %}{{ cmd.client.prenom }} {{ cmd.client.nom }}{% else %}—{% endif %}</td>
+                        <td>{{ cmd.numero|default('—') }}</td>
+                        <td>
+                            <ul class="cmd-articles-list">
+                                {% for art in cmd.articles %}
+                                <li>{{ art.titre }}{% if art.prix is not null and art.prix != '' %} — {{ art.prix }} DT{% endif %}</li>
+                                {% else %}
+                                <li>—</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>{{ cmd.adresselivraison|default('—') }}</td>
+                        <td>{{ cmd.modepaiement|default('—') }}</td>
+                        <td><strong>{{ cmd.total|number_format(2, ',', ' ') }} DT</strong></td>
+                        <td><span class="statut-badge statut-{{ cmd.statut|default('en_attente') }}">{{ cmd.statut|default('en_attente') }}</span></td>
+                        <td>
+                            {% if cmd.statut != 'valide' %}
+                            <form method="post" action="{{ path('back_commande_valider', { id: cmd.id }) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('back_commande_valider' ~ cmd.id) }}">
+                                <button type="submit" class="btn-action-cmd btn-valider">Valider</button>
+                            </form>
+                            {% endif %}
+                            {% if cmd.statut != 'invalide' %}
+                            <form method="post" action="{{ path('back_commande_invalider', { id: cmd.id }) }}" style="display: inline;" onsubmit="return confirm('Invalider cette commande ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('back_commande_invalider' ~ cmd.id) }}">
+                                <button type="submit" class="btn-action-cmd btn-invalider">Invalider</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-cmd">Aucune commande pour le moment.</div>
+        {% endif %}
+{% endblock %}
