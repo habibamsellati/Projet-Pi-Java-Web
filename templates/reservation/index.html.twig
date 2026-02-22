@@ -146,8 +146,11 @@
                 </div>
                 <div class="pro-stat-card">
                     <div style="color: #888; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 10px;">Capacité Moyenne</div>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--pro-emerald);">78 <small style="font-size: 1rem;">%</small></div>
-                    <div style="margin-top: 15px; font-size: 0.85rem; color: var(--pro-emerald);"><i class="fas fa-users"></i> Salle remplie</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--pro-emerald);">{{ stats.occupancyRate }} <small style="font-size: 1rem;">%</small></div>
+                    <div style="margin-top: 15px; font-size: 0.85rem; color: var(--pro-emerald);">
+                        <i class="fas fa-users"></i> 
+                        {% if stats.occupancyRate > 80 %}Salle presque pleine{% elseif stats.occupancyRate > 50 %}Bonne affluence{% else %}En cours de remplissage{% endif %}
+                    </div>
                 </div>
             </div>
 

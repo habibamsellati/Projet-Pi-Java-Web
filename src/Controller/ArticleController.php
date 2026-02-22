@@ -21,7 +21,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/article')]
 final class ArticleController extends AbstractController
 {
-    private const ARTICLE_CATEGORIES = ['Artisanat', 'DÃ©coration', 'Textile', 'CÃ©ramique', 'Autres'];
+    private const ARTICLE_CATEGORIES = ['Artisanat', 'Décoration', 'Textile', 'Céramique', 'Autres'];
 
     #[Route(name: 'app_article_index', methods: ['GET'])]
     public function index(Request $request, ArticleRepository $articleRepository, PaginatorInterface $paginator): Response
@@ -186,8 +186,8 @@ final class ArticleController extends AbstractController
         }
 
         $canLikeArticle = $this->canUserLikeArticle($user, $article);
-        $hasLikedArticle = $user instanceof User && $article->isLikedBy($user);
-        $articleLikesCount = $article->getLikedBy()->count();
+        $hasLikedArticle = false; // Simplified: no tracking of individual likes
+        $articleLikesCount = $article->getLikes();
         $canReplyToComments = $this->canUserReplyToComments($user, $article);
         $similarArticles = $articleRepository->getSimilarArticles($article, 3);
 
@@ -341,15 +341,11 @@ final class ArticleController extends AbstractController
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
         }
 
-        if ($article->isLikedBy($user)) {
-            $article->removeLikedBy($user);
-            $this->addFlash('success', 'Like retire.');
-        } else {
-            $article->addLikedBy($user);
-            $this->addFlash('success', 'Vous avez aime cet article.');
-        }
-
+        // Simply increment likes
+        $article->incrementLikes();
         $entityManager->flush();
+        
+        $this->addFlash('success', 'Vous avez aime cet article.');
 
         return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
     }
@@ -360,10 +356,10 @@ final class ArticleController extends AbstractController
         $user = $this->getUser();
         $user = $user instanceof User ? $user : null;
         if (!$user || $user->getRole() !== User::ROLE_CLIENT) {
-            $this->addFlash('error', 'Vous devez etre connectÃ© en tant que client pour ajouter un article aux favoris.');
+            $this->addFlash('error', 'Vous devez etre connecte en tant que client pour ajouter un article aux favoris.');
             return $this->redirectToRoute('app_login');
         }
-        $this->addFlash('success', 'Article ajoutÃ© aux favoris!');
+        $this->addFlash('success', 'Article ajoute aux favoris!');
         return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
     }
 
@@ -373,7 +369,7 @@ final class ArticleController extends AbstractController
         $user = $this->getUser();
         $user = $user instanceof User ? $user : null;
         if (!$user) {
-            $this->addFlash('error', 'Vous devez Ãªtre connectÃ© pour modifier un article.');
+            $this->addFlash('error', 'Vous devez Ãªtre connectr pour modifier un article.');
             return $this->redirectToRoute('app_login');
         }
         if ($user->getRole() === User::ROLE_CLIENT) {

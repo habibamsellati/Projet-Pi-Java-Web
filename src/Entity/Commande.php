@@ -9,6 +9,7 @@ use App\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CommandeRepository::class)]
 class Commande
@@ -31,7 +32,22 @@ class Commande
     private ?float $total = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'L\'adresse de livraison est obligatoire.')]
+    #[Assert\Length(
+        min: 10,
+        max: 255,
+        minMessage: 'L\'adresse doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'L\'adresse ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $adresselivraison = null;
+
+    #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: 'Le numéro de téléphone est obligatoire.')]
+    #[Assert\Regex(
+        pattern: '/^(\+216|00216)?[2-9]\d{7}$/',
+        message: 'Le numéro de téléphone doit être un numéro tunisien valide (ex: 20123456, +21620123456).'
+    )]
+    private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
     private ?string $modepaiement = null;
@@ -104,6 +120,17 @@ class Commande
     {
         $this->adresselivraison = $adresselivraison;
 
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(string $telephone): static
+    {
+        $this->telephone = $telephone;
         return $this;
     }
 

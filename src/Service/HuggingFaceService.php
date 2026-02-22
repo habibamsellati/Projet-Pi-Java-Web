@@ -118,12 +118,38 @@ class HuggingFaceService
     {
         // Cas 1 : Suggestion de prix (JSON)
         if (str_contains($prompt, 'JSON')) {
-            return '{"prix": 55, "capacite": 12, "raison": "Basé sur les standards AfkArt pour garantir une expérience artisanale exclusive et équitable."}';
+            $disciplines = [
+                'Sculpture'      => ['prix' => [80, 150], 'cap' => [5, 8],   'r' => 'La sculpture demande un matériel spécifique et un suivi individuel serré.'],
+                'Céramique'      => ['prix' => [45, 85],  'cap' => [8, 12],  'r' => 'Atelier technique nécessitant l\'accès au four et au tour pour chaque participant.'],
+                'Peinture'       => ['prix' => [30, 65],  'cap' => [12, 20], 'r' => 'Un atelier créatif convivial ouvert à un plus large public.'],
+                'Artisanat'      => ['prix' => [40, 75],  'cap' => [10, 15], 'r' => 'Découverte de savoir-faire traditionnels avec petit groupe pour assurer la transmission.'],
+                'Décoration'     => ['prix' => [35, 70],  'cap' => [10, 15], 'r' => 'Atelier de création d\'objets décoratifs, idéal pour des groupes moyens.'],
+                'Mix artistique' => ['prix' => [50, 95],  'cap' => [8, 15],  'r' => 'Fusion des disciplines demandant une préparation et des matériaux variés.'],
+            ];
+
+            $found = 'Artisanat';
+            foreach ($disciplines as $d => $config) {
+                if (stripos($prompt, $d) !== false) {
+                    $found = $d;
+                    break;
+                }
+            }
+
+            $conf = $disciplines[$found];
+            // Utilisation d'un "seed" basé sur la longueur du prompt pour avoir une variation
+            $seed = strlen($prompt);
+            $prix = $conf['prix'][0] + ($seed % ($conf['prix'][1] - $conf['prix'][0]));
+            $cap  = $conf['cap'][0] + ($seed % ($conf['cap'][1] - $conf['cap'][0]));
+            
+            return sprintf(
+                '{"prix": %d, "capacite": %d, "raison": "%s"}',
+                $prix, $cap, $conf['r']
+            );
         }
 
         // Cas 2 : Description Magic (Copilote)
         if (str_contains($prompt, 'copilote') || str_contains($prompt, 'copywriter')) {
-            $keywords = ['poterie', 'peinture', 'tissage', 'céramique', 'cuir', 'bijoux'];
+            $keywords = ['poterie', 'peinture', 'tissage', 'céramique', 'cuir', 'bijoux', 'sculpture'];
             $found = "artisanale";
             foreach ($keywords as $k) {
                 if (stripos($prompt, $k) !== false) { $found = $k; break; }
@@ -135,10 +161,50 @@ class HuggingFaceService
                 "Une rencontre exceptionnelle avec l'art de la $found. Venez partager un moment privilégié au plus près de la création, pour comprendre les secrets d'un savoir-faire d'exception et repartir avec une source d'inspiration intarissable."
             ];
 
-            return $fallbacks[array_rand($fallbacks)];
+            $seed = strlen($prompt) % count($fallbacks);
+            return $fallbacks[$seed];
         }
 
-        // Cas 3 : Chat général (Client)
-        return "Bienvenue chez AfkArt ! En tant que votre Concierge Culturel, je vous suggère d'explorer nos ateliers de céramique et nos expositions de peinture contemporaine. Avez-vous une préférence pour une discipline artistique particulière ?";
+        // Cas 3 : Chat général (Client/Concierge)
+        $userMsg = strtolower(substr($prompt, strrpos($prompt, "Client :") + 9));
+        
+        // 1. Salutations
+        if (preg_match('/\b(bonjour|salut|hello|hi|hey|bonsoir)\b/u', $userMsg)) {
+            $hellos = ["Bonjour ! Je suis votre Concierge AfkArt. Comment puis-je vous guider dans votre parcours culturel aujourd'hui ?", "Bonjour ! Ravi de vous voir. Souhaitez-vous découvrir nos derniers ateliers ou préférez-vous un conseil sur une discipline précise ?", "Hello ! Bienvenue chez AfkArt. Je suis là pour vous aider à trouver l'expérience artistique parfaite."];
+            return $hellos[strlen($userMsg) % count($hellos)];
+        }
+
+        // 2. Recherche d'événements dans le contexte (le prompt contient déjà la liste des events)
+        $categories = ['céramique', 'peinture', 'sculpture', 'artisanat', 'décoration', 'tissage', 'cuir', 'bijou'];
+        foreach ($categories as $cat) {
+            if (str_contains($userMsg, $cat)) {
+                // On cherche si un événement de cette catégorie est mentionné dans le contexte (la liste envoyée au début du prompt)
+                if (preg_match('/- (.*?) \('.preg_quote($cat, '/').'\) à (.*?)\. Prix: (.*?) TND/ui', $prompt, $m)) {
+                    return "Excellente idée ! Pour la $cat, je vous recommande particulièrement l'événement **\"{$m[1]}\"** à {$m[2]}. Il est proposé à {$m[3]} TND. C'est une expérience très appréciée par notre communauté.";
+                }
+                return "L'art de la $cat est au cœur de l'esprit AfkArt. Nous avons régulièrement des ateliers dédiés. N'hésitez pas à consulter notre section 'Événements' pour voir les prochaines sessions disponibles !";
+            }
+        }
+
+        // 3. Questions sur les prix / Tarifs (Précision sur 'combien' pour éviter conflit avec quantité)
+        if (preg_match('/\b(prix|tarif|coûte|payant)\b/u', $userMsg) || (str_contains($userMsg, 'combien') && str_contains($userMsg, 'coût'))) {
+            return "Nos événements sont accessibles à tous les budgets, allant généralement de 25 TND pour les initiations à 150 TND pour les masterclasses de sculpture. Quel budget aviez-vous en tête ?";
+        }
+
+        // 4. Aide générale / Liste / Quantité
+        if (preg_match('/\b(liste|programme|quoi|faire|aide|conseil|combien|nombre|disponible)\b/u', $userMsg)) {
+            // Compter les événements dans le contexte
+            $count = preg_match_all('/- (.*?) \(/', $prompt, $matches);
+            
+            if ($count > 0) {
+                if ($count === 1) {
+                    return "Nous avons actuellement **un événement** de qualité supérieure : **\"{$matches[1][0]}\"**. Souhaitez-vous connaître les détails de cet atelier ?";
+                }
+                return "Nous avons actuellement **$count événements** passionnants programmés ! Vous pourriez commencer par découvrir l'atelier **\"{$matches[1][0]}\"**. Voulez-vous que je vous détaille les autres ?";
+            }
+            return "Il n'y a pas d'événement programmé pour le moment, mais revenez vite : nos artisans préparent de nouvelles pépites !";
+        }
+
+        return "Je suis à votre écoute. Souhaitez-vous des détails sur un événement particulier, ou cherchez-vous une recommandation basée sur vos goûts artistiques ?";
     }
 }

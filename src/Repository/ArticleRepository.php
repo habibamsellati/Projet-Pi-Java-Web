@@ -24,7 +24,7 @@ class ArticleRepository extends ServiceEntityRepository
      * @param string|null $categorie Filtre par catégorie (nom)
      * @param int|null $artisanId Filtre par auteur (artisan)
      * @param string $sort date_desc|date_asc|titre_asc|titre_desc|prix_asc|prix_desc
-     * @return Article[]
+     * @return QueryBuilder
      */
     public function createSearchQueryBuilder(?string $search, ?string $categorie, ?int $artisanId, string $sort = 'date_desc'): QueryBuilder
     {
@@ -39,7 +39,7 @@ class ArticleRepository extends ServiceEntityRepository
             $qb->andWhere('a.categorie = :categorie')
                 ->setParameter('categorie', $categorie);
         }
-        if ($artisanId !== null && $artisanId !== '') {
+        if ($artisanId !== null) {
             $qb->andWhere('art.id = :artisanId')
                 ->setParameter('artisanId', $artisanId);
         }
@@ -67,6 +67,9 @@ class ArticleRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    /**
+     * @return Article[]
+     */
     public function searchWithFilters(?string $search, ?string $categorie, ?int $artisanId, string $sort = 'date_desc'): array
     {
         return $this->createSearchQueryBuilder($search, $categorie, $artisanId, $sort)
@@ -85,7 +88,9 @@ class ArticleRepository extends ServiceEntityRepository
             ->select('art.id', 'art.nom', 'art.prenom')
             ->innerJoin('a.artisan', 'art')
             ->orderBy('art.nom', 'ASC')
-            ->groupBy('art.id', 'art.nom', 'art.prenom');
+            ->groupBy('art.id')
+            ->addGroupBy('art.nom')
+            ->addGroupBy('art.prenom');
         $results = $qb->getQuery()->getResult();
         $out = [];
         foreach ($results as $row) {
@@ -127,7 +132,9 @@ class ArticleRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('a')
             ->select('art.id', 'art.nom', 'art.prenom', 'COUNT(a.id) AS cnt')
             ->innerJoin('a.artisan', 'art')
-            ->groupBy('art.id', 'art.nom', 'art.prenom')
+            ->groupBy('art.id')
+            ->addGroupBy('art.nom')
+            ->addGroupBy('art.prenom')
             ->orderBy('cnt', 'DESC')
             ->setMaxResults($limit);
         $rows = $qb->getQuery()->getResult();

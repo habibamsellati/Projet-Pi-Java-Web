@@ -131,12 +131,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Reservation::class, mappedBy: 'user')]
     private Collection $reservations;
 
-    /**
-     * @var Collection<int, Article>
-     */
-    #[ORM\ManyToMany(targetEntity: Article::class, mappedBy: 'likedBy')]
-    private Collection $likedArticles;
-
     public function __construct()
     {
         $this->reclamations = new ArrayCollection();
@@ -146,7 +140,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->articles = new ArrayCollection();
         $this->articless = new ArrayCollection();
         $this->reservations = new ArrayCollection();
-        $this->likedArticles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -562,33 +555,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             if ($articless->getUser() === $this) {
                 $articless->setUser(null);
             }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Article>
-     */
-    public function getLikedArticles(): Collection
-    {
-        return $this->likedArticles;
-    }
-
-    public function addLikedArticle(Article $article): static
-    {
-        if (!$this->likedArticles->contains($article)) {
-            $this->likedArticles->add($article);
-            $article->addLikedBy($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLikedArticle(Article $article): static
-    {
-        if ($this->likedArticles->removeElement($article)) {
-            $article->removeLikedBy($this);
         }
 
         return $this;
