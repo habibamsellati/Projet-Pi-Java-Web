@@ -294,7 +294,10 @@ class Evenement
     {
         // unset the owning side of the relation if necessary
         if ($prediction === null && $this->prediction !== null) {
-            $this->prediction->setEvenement(null);
+            // Don't call setEvenement(null) as it doesn't accept null
+            // Just clear the prediction reference
+            $this->prediction = null;
+            return $this;
         }
 
         // set the owning side of the relation if necessary

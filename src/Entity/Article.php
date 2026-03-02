@@ -52,6 +52,9 @@ class Article
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $categorie = null;
 
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $likes = 0;
+
     #[ORM\ManyToOne(inversedBy: 'articles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $artisan = null;
@@ -60,19 +63,11 @@ class Article
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'likedArticles')]
-    #[ORM\JoinTable(name: 'article_like')]
-    private Collection $likedBy;
-
     
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
         $this->commandes = new ArrayCollection();
-        $this->likedBy = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -231,35 +226,28 @@ class Article
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getLikedBy(): Collection
+    public function getLikes(): int
     {
-        return $this->likedBy;
+        return $this->likes;
     }
 
-    public function isLikedBy(User $user): bool
+    public function setLikes(int $likes): static
     {
-        return $this->likedBy->contains($user);
-    }
-
-    public function addLikedBy(User $user): static
-    {
-        if (!$this->likedBy->contains($user)) {
-            $this->likedBy->add($user);
-            $user->addLikedArticle($this);
-        }
-
+        $this->likes = $likes;
         return $this;
     }
 
-    public function removeLikedBy(User $user): static
+    public function incrementLikes(): static
     {
-        if ($this->likedBy->removeElement($user)) {
-            $user->removeLikedArticle($this);
-        }
+        $this->likes++;
+        return $this;
+    }
 
+    public function decrementLikes(): static
+    {
+        if ($this->likes > 0) {
+            $this->likes--;
+        }
         return $this;
     }
 }

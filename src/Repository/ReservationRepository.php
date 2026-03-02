@@ -98,7 +98,7 @@ class ReservationRepository extends ServiceEntityRepository
 
     public function cancelExpiredReservations(): int
     {
-        $threeHoursAgo = new \DateTimeImmutable('-3 hours');
+        $threeHoursAgo = new \DateTimeImmutable('-3 seconds');
 
         return $this->createQueryBuilder('r')
             ->update()

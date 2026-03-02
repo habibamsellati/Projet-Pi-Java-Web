@@ -81,11 +81,20 @@ final class ReservationController extends AbstractController
 
         if ($user->getRole() === User::ROLE_ARTISAN) {
             $events = $evenementRepository->findBy(['artisan' => $artisanIdentifier], ['dateDebut' => 'DESC']);
+            
+            // Calculate total capacity
+            $totalCapacity = 0;
+            foreach ($events as $event) {
+                $totalCapacity += $event->getCapacite() ?: 0;
+            }
+
+            $stats = $reservationRepository->getStatsForArtisan($artisanIdentifier);
+            $stats['occupancyRate'] = $totalCapacity > 0 ? round(($stats['totalParticipants'] / $totalCapacity) * 100) : 0;
 
             return $this->render('reservation/index.html.twig', [
                 'events' => $events,
                 'isArtisan' => true,
-                'stats' => $reservationRepository->getStatsForArtisan($artisanIdentifier),
+                'stats' => $stats,
             ]);
         }
 

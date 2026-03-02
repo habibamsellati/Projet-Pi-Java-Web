@@ -22,10 +22,11 @@ class LivraisonController extends AbstractController
     public function index(LivraisonRepository $livraisonRepository): Response
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return $this->redirectToRoute('app_login');
         }
 
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         $livraisons = ($role === 'ADMIN' || $role === 'LIVREUR')
             ? $livraisonRepository->findAllOrderByDateAsc()
@@ -253,8 +254,11 @@ if (!empty($data)) {
     private function assertCanAccessLivraison(Livraison $livraison): void
     {
         $user = $this->getUser();
-        if (!$user) throw $this->createAccessDeniedException('Connectez-vous.');
+        if (!$user instanceof \App\Entity\User) {
+            throw $this->createAccessDeniedException('Connectez-vous.');
+        }
         
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         if ($role === 'ADMIN' || $role === 'LIVREUR') return;
         

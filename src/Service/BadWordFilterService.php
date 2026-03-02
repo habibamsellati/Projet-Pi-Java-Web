@@ -8,15 +8,18 @@ class BadWordFilterService
 {
     private HttpClientInterface $httpClient;
     private array $customBadWords;
+    private array $whitelistedWords; // Mots autorisés même si l'API les détecte
 
-    public function __construct(HttpClientInterface $httpClient, array $customBadWords = [])
+    public function __construct(HttpClientInterface $httpClient, array $customBadWords = [], array $whitelistedWords = [])
     {
         $this->httpClient = $httpClient;
         $this->customBadWords = $customBadWords;
+        $this->whitelistedWords = $whitelistedWords;
     }
 
     /**
-     * Check if text contains bad words using PurgoMalum API + custom list
+     * Check if text contains bad words using custom list only
+     * API disabled to avoid false positives
      * 
      * @param string $text The text to check
      * @return array ['hasBadWords' => bool, 'filteredText' => string, 'source' => string]
@@ -27,35 +30,16 @@ class BadWordFilterService
             return ['hasBadWords' => false, 'filteredText' => $text, 'source' => 'none'];
         }
 
-        // First check custom bad words list
-        $customCheck = $this->checkCustomBadWords($text);
-        if ($customCheck['hasBadWords']) {
-            return $customCheck;
-        }
-
-        // Then check with API
-        try {
-            // Using PurgoMalum API - free profanity filter
-            $response = $this->httpClient->request('GET', 'https://www.purgomalum.com/service/containsprofanity', [
-                'query' => [
-                    'text' => $text,
-                ],
-                'timeout' => 5,
-            ]);
-
-            $containsProfanity = $response->getContent();
-            $hasBadWords = strtolower(trim($containsProfanity)) === 'true';
-
-            return [
-                'hasBadWords' => $hasBadWords,
-                'filteredText' => $text,
-                'source' => $hasBadWords ? 'api' : 'none',
-            ];
-        } catch (\Exception $e) {
-            // If API fails, allow the content (fail open)
-            return ['hasBadWords' => false, 'filteredText' => $text, 'source' => 'error'];
-        }
+        // Only check custom bad words list (API disabled)
+        return $this->checkCustomBadWords($text);
     }
+
+    /**
+     * Check if text contains only whitelisted words
+     * 
+     * @param string $text The text to check
+     * @return bool
+     */
 
     /**
      * Check if text contains custom bad words

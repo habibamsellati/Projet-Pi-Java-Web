@@ -235,6 +235,21 @@
     .nlp-tag-category { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e40af; border: 1px solid #93c5fd; }
     .nlp-tag-type { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; border: 1px solid #6ee7b7; }
     .nlp-tag-state { background: linear-gradient(135deg, #fce7f3, #fbcfe8); color: #9d174d; border: 1px solid #f9a8d4; }
+    .nlp-tag-quantity {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+        border: 1px solid #fbbf24;
+    }
+    .nlp-tag-origin {
+        background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    .nlp-tag-impact {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        color: #166534;
+        border: 1px solid #86efac;
+    }
     .nlp-tag-object { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #3730a3; border: 1px solid #a5b4fc; }
     .nlp-confidence-bars { display: flex; flex-direction: column; gap: 0.4rem; }
     .nlp-conf-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; }
@@ -319,6 +334,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.category && data.category.value) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-category">📦 Catégorie : <strong>${data.category.value}</strong></span>`;
         if (data.type && data.type.value) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-type">🏷️ Type : <strong>${data.type.value}</strong></span>`;
         if (data.state && data.state.value) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-state">📊 État : <strong>${data.state.value}</strong></span>`;
+        if (data.quantity) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-quantity">🔢 Quantité : <strong>${data.quantity}</strong></span>`;
+        if (data.origin) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-origin">📍 Origine : <strong>${data.origin}</strong></span>`;
+        if (data.impact) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-impact">🌿 Impact : <strong>${data.impact}</strong></span>`;
         if (data.objects && Object.keys(data.objects).length > 0) {
             for (const [obj, objType] of Object.entries(data.objects)) nlpTags.innerHTML += `<span class="nlp-tag nlp-tag-object">🔍 ${obj} (${objType})</span>`;
         }
@@ -343,6 +361,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.category && data.category.value) { const s = document.querySelector('select[name*="[nomproduit]"]'); if (s) { setSelectValue(s, data.category.value); flashField('field-nomproduit'); } }
         if (data.type && data.type.value) { const s = document.querySelector('select[name*="[typemateriau]"]'); if (s) { setSelectValue(s, data.type.value); flashField('field-typemateriau'); } }
         if (data.state && data.state.value) { const s = document.querySelector('select[name*="[etat]"]'); if (s) { setSelectValue(s, data.state.value); flashField('field-etat'); } }
+        
+        // Quantity
+        if (data.quantity) {
+            const q = document.querySelector('input[name*="[quantite]"]');
+            if (q) { q.value = data.quantity; flashField(q.closest('div').id || q.id); }
+        }
+        // Origin
+        if (data.origin) {
+            const o = document.querySelector('input[name*="[origine]"]');
+            if (o) { o.value = data.origin; flashField(o.closest('div').id || o.id); }
+        }
+        // Impact
+        if (data.impact) {
+            const i = document.querySelector('input[name*="[impactecologique]"]');
+            if (i) { i.value = data.impact; flashField(i.closest('div').id || i.id); }
+        }
         nlpApplyBtn.textContent = '✅ Appliqué !';
         nlpApplyBtn.style.background = '#059669';
         setTimeout(() => { nlpApplyBtn.textContent = 'Appliquer au formulaire'; nlpApplyBtn.style.background = ''; }, 2000);

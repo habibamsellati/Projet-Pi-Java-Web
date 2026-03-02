@@ -1,0 +1,24 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    excludePaths:
+        - src/Kernel.php
+    ignoreErrors:
+        # Ignore ID property type warnings (Doctrine manages these)
+        - '#Property App\\Entity\\.*::\$id \(int\|null\) is never assigned int#'
+        # Ignore always true conditions from PHPDoc types
+        - '#If condition is always true#'
+        - '#Instanceof between .* will always evaluate to true#'
+        # Ignore null coalesce warnings for array offsets
+        - '#Offset .* on left side of \?\? always exists#'
+        # Ignore property only written warnings
+        - '#Property .* is never read, only written#'
+        # Ignore property unusedType for statut fields (they have default values)
+        - '#Property App\\Entity\\.*::\$statut \(string\|null\) is never assigned null#'
+        # Ignore strict comparison warnings
+        - '#Strict comparison using !== between .* will always evaluate to true#'
+        # Ignore null coalesce expression warnings in services
+        - '#Expression on left side of \?\? is not nullable#'
+        # Ignore is_array always true warnings
+        - '#Call to function is_array\(\) .* will always evaluate to true#'

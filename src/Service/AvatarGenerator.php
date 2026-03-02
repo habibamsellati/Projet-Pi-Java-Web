@@ -95,7 +95,8 @@ class AvatarGenerator
 
         // Hugging Face inference returns raw image bytes on success.
         $contentType = '';
-        if (isset($http_response_header) && is_array($http_response_header)) {
+        // FIX: $http_response_header always exists after file_get_contents(), isset() is redundant
+        if (is_array($http_response_header)) {
             foreach ($http_response_header as $line) {
                 if (stripos($line, 'Content-Type:') === 0) {
                     $contentType = strtolower(trim(substr($line, strlen('Content-Type:'))));

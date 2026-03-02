@@ -215,6 +215,12 @@ class NLPCategoryDetector
         'cahier' => 'document', 'enveloppe' => 'document',
     ];
 
+    private const TUNISIAN_CITIES = [
+        'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Nabeul', 'Zaghouan', 'Bizerte', 'Béja', 'Jendouba', 'Le Kef',
+        'Siliana', 'Sousse', 'Monastir', 'Mahdia', 'Sfax', 'Kairouan', 'Kasserine', 'Sidi Bouzid', 'Gabès',
+        'Médenine', 'Tataouine', 'Gafsa', 'Tozeur', 'Kebili'
+    ];
+
     /**
      * Analyse un texte et retourne les détections avec scores de confiance.
      *
@@ -223,6 +229,9 @@ class NLPCategoryDetector
      *   type: array{value: string|null, confidence: float, scores: array<string, float>},
      *   state: array{value: string|null, confidence: float, scores: array<string, float>},
      *   detected_objects: string[],
+     *   quantity: int|null,
+     *   origin: string|null,
+     *   impact: float|null,
      *   input_text: string
      * }
      */
@@ -262,8 +271,59 @@ class NLPCategoryDetector
                 'scores'     => $stateScores,
             ],
             'detected_objects' => $detectedObjects,
+            'quantity'         => $this->detectQuantity($text),
+            'origin'           => $this->detectOrigin($text),
+            'impact'           => $this->detectImpact($text),
             'input_text'       => $text,
         ];
+    }
+
+    /**
+     * Détecte la quantité (chiffres ou mots)
+     */
+    private function detectQuantity(string $text): ?int
+    {
+        // Recherche de chiffres
+        if (preg_match('/\b(\d+)\b/', $text, $matches)) {
+            return (int) $matches[1];
+        }
+
+        $map = [
+            'un' => 1, 'une' => 1, 'deux' => 2, 'trois' => 3, 'quatre' => 4, 'cinq' => 5,
+            'six' => 6, 'sept' => 7, 'huit' => 8, 'neuf' => 9, 'dix' => 10
+        ];
+
+        foreach ($map as $word => $val) {
+            if (preg_match('/\b' . $word . '\b/iu', $text)) {
+                return $val;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Détecte l'origine (villes Tunisiennes)
+     */
+    private function detectOrigin(string $text): ?string
+    {
+        foreach (self::TUNISIAN_CITIES as $city) {
+            if (preg_match('/\b' . preg_quote($city, '/') . '\b/iu', $text)) {
+                return $city;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Détecte l'impact écologique (chiffre après "impact")
+     */
+    private function detectImpact(string $text): ?float
+    {
+        if (preg_match('/impact\s*(?:écologique\s*)?(?:de\s+)?(\d+(?:[\.,]\d+)?)/iu', $text, $matches)) {
+            return (float) str_replace(',', '.', $matches[1]);
+        }
+        return null;
     }
 
     /**

@@ -82,8 +82,9 @@ class EvenementRepository extends ServiceEntityRepository
         }
 
         if ($event->getPrix()) {
-            $minPrice = $event->getPrix() * 0.8;
-            $maxPrice = $event->getPrix() * 1.2;
+            $prix = (float) $event->getPrix();
+            $minPrice = $prix * 0.8;
+            $maxPrice = $prix * 1.2;
             $qb->andWhere('e.prix BETWEEN :minPrice AND :maxPrice')
                ->setParameter('minPrice', $minPrice)
                ->setParameter('maxPrice', $maxPrice);

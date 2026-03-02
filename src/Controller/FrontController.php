@@ -2,6 +2,7 @@
 // src/Controller/FrontController.php
 namespace App\Controller;
 
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,11 +12,13 @@ class FrontController extends AbstractController
     private function checkFrontAccess(string $requiredRole): ?Response
     {
         $user = $this->getUser();
-        if (!$user) {
+        
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Hors privilege');
             return $this->redirectToRoute('home');
         }
 
+        /** @var User $user */
         $role = strtoupper((string) $user->getRole());
         if (str_starts_with($role, 'ROLE_')) {
             $role = substr($role, 5);
@@ -73,7 +76,9 @@ class FrontController extends AbstractController
         if ($check) return $check;
 
         $user = $this->getUser();
-        if ($user) {
+        
+        if ($user instanceof User) {
+            /** @var User $user */
             return $this->redirectToRoute('app_livreur_dashboard', ['id' => $user->getId()]);
         }
         return $this->render('front/livreur.html.twig');

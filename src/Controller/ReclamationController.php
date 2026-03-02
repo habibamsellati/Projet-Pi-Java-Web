@@ -20,8 +20,9 @@ final class ReclamationController extends AbstractController
     public function index(Request $request, ReclamationRepository $reclamationRepository): Response
     {
         $user = $this->getUser();
-
-        if (!$user) {
+        
+        /** @var User|null $user */
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour accéder à vos réclamations.');
             return $this->redirectToRoute('app_login');
         }
@@ -57,8 +58,9 @@ final class ReclamationController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager, BadWordFilterService $badWordFilter): Response
     {
         $user = $this->getUser();
-
-        if (!$user) {
+        
+        /** @var User|null $user */
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour créer une réclamation.');
             return $this->redirectToRoute('app_login');
         }
@@ -126,8 +128,9 @@ final class ReclamationController extends AbstractController
     public function show(Reclamation $reclamation): Response
     {
         $user = $this->getUser();
-
-        if (!$user) {
+        
+        /** @var User|null $user */
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour voir cette réclamation.');
             return $this->redirectToRoute('app_login');
         }
@@ -148,8 +151,9 @@ final class ReclamationController extends AbstractController
     public function edit(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager, BadWordFilterService $badWordFilter): Response
     {
         $user = $this->getUser();
-
-        if (!$user) {
+        
+        /** @var User|null $user */
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour modifier une réclamation.');
             return $this->redirectToRoute('app_login');
         }
@@ -225,8 +229,9 @@ final class ReclamationController extends AbstractController
     public function delete(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
-
-        if (!$user) {
+        
+        /** @var User|null $user */
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour supprimer une réclamation.');
             return $this->redirectToRoute('app_login');
         }
@@ -256,8 +261,9 @@ final class ReclamationController extends AbstractController
     public function joinVideoCall(Reclamation $reclamation): Response
     {
         $user = $this->getUser();
-
-        if (!$user) {
+        
+        /** @var User|null $user */
+        if (!$user instanceof User) {
             $this->addFlash('error', 'Vous devez être connecté pour rejoindre la visioconférence.');
             return $this->redirectToRoute('app_login');
         }

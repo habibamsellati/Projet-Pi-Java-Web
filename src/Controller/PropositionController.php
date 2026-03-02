@@ -160,9 +160,11 @@ final class PropositionController extends AbstractController
     public function index(PropositionRepository $propositionRepository): Response
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return $this->redirectToRoute('app_login');
         }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         $isClient = ($role === 'CLIENT' || $role === 'ROLE_CLIENT');
         
@@ -178,17 +180,20 @@ final class PropositionController extends AbstractController
     #[Route('/new', name: 'app_proposition_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
             return $this->redirectToRoute('app_login');
         }
+        
+        /** @var \App\Entity\User $user */
         $proposition = new Proposition();
-        $proposition->setUser($this->getUser());
+        $proposition->setUser($user);
         $form = $this->createForm(PropositionType::class, $proposition);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$proposition->getUser()) {
-                $proposition->setUser($this->getUser());
+                $proposition->setUser($user);
             }
             $entityManager->persist($proposition);
             $entityManager->flush();
@@ -253,10 +258,11 @@ final class PropositionController extends AbstractController
     private function canManageProposition(?Proposition $proposition = null): bool
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return false;
         }
         
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         // Standardize role strings
         $isAdmin = ($role === 'ADMIN' || $role === 'ROLE_ADMIN');
@@ -281,10 +287,11 @@ final class PropositionController extends AbstractController
     private function assertCanViewProposition(Proposition $proposition): void
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
         
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         $isAdmin = ($role === 'ADMIN' || $role === 'ROLE_ADMIN');
         $isArtisan = ($role === 'ARTISANT' || $role === 'ROLE_ARTISANT' || $role === 'ARTISAN' || $role === 'ROLE_ARTISAN');

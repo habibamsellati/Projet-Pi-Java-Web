@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Article;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -26,7 +25,7 @@ class ArticleRepository extends ServiceEntityRepository
      * @param string $sort date_desc|date_asc|titre_asc|titre_desc|prix_asc|prix_desc
      * @return Article[]
      */
-    public function createSearchQueryBuilder(?string $search, ?string $categorie, ?int $artisanId, string $sort = 'date_desc'): QueryBuilder
+    public function searchWithFilters(?string $search, ?string $categorie, ?int $artisanId, string $sort = 'date_desc'): array
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.artisan', 'art');
@@ -64,14 +63,7 @@ class ArticleRepository extends ServiceEntityRepository
                 $qb->orderBy('a.date', 'DESC');
         }
 
-        return $qb;
-    }
-
-    public function searchWithFilters(?string $search, ?string $categorie, ?int $artisanId, string $sort = 'date_desc'): array
-    {
-        return $this->createSearchQueryBuilder($search, $categorie, $artisanId, $sort)
-            ->getQuery()
-            ->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     /**
@@ -140,52 +132,5 @@ class ArticleRepository extends ServiceEntityRepository
             ];
         }
         return $out;
-    }
-
-    /**
-     * Retourne des articles similaires au contexte courant.
-     * Priorite: meme categorie, puis fallback sur les plus recents.
-     *
-     * @return Article[]
-     */
-    public function getSimilarArticles(Article $article, int $limit = 3): array
-    {
-        if ($limit <= 0 || !$article->getId()) {
-            return [];
-        }
-
-        $similar = [];
-        $excludeId = (int) $article->getId();
-        $categorie = $article->getCategorie();
-
-        if ($categorie !== null && $categorie !== '') {
-            $similar = $this->createQueryBuilder('a')
-                ->andWhere('a.id != :excludeId')
-                ->andWhere('a.categorie = :categorie')
-                ->setParameter('excludeId', $excludeId)
-                ->setParameter('categorie', $categorie)
-                ->orderBy('a.date', 'DESC')
-                ->setMaxResults($limit)
-                ->getQuery()
-                ->getResult();
-        }
-
-        $missing = $limit - count($similar);
-        if ($missing > 0) {
-            $existingIds = array_map(static fn (Article $a): int => (int) $a->getId(), $similar);
-            $existingIds[] = $excludeId;
-
-            $fallback = $this->createQueryBuilder('a')
-                ->andWhere('a.id NOT IN (:excludeIds)')
-                ->setParameter('excludeIds', $existingIds)
-                ->orderBy('a.date', 'DESC')
-                ->setMaxResults($missing)
-                ->getQuery()
-                ->getResult();
-
-            $similar = array_merge($similar, $fallback);
-        }
-
-        return $similar;
     }
 }

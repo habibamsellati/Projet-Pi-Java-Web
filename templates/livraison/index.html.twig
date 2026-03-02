@@ -50,13 +50,16 @@
         <a href="{{ path('app_livraison_new') }}" class="btn-custom" style="background: #8b5e4a; color: white; padding: 0.6rem 1.25rem; border-radius: 50px; text-decoration: none; font-weight: 500;">+ Ajouter une livraison</a>
     </div>
 
+     {# BOUTON AFFICHAGE #}
+    {% if is_granted('ROLE_LIVREUR') %}
     {# BOUTON AFFICHAGE #}
     <button class="btn-toggle-cal" onclick="toggleCalendar()">📅 Afficher/Masquer le Calendrier</button>
 
-    {# LE MINI CALENDRIER (Thème Clair) #}
+    {# LE MINI CALENDRIER #}
     <div id="calendar-container">
         <div id="calendar"></div>
     </div>
+{% endif %}
 
     <div class="table-container" style="background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">

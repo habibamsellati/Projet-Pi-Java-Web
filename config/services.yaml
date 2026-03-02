@@ -4,6 +4,18 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    bad_words.custom_list:
+        - 'connard'
+        - 'salaud'
+        - 'merde'
+        # Ajoutez d'autres mots inappropriés ici
+    
+    bad_words.whitelist: []
+        # Ajoutez ici les mots qui sont détectés à tort par l'API
+        # Ces mots seront toujours autorisés
+        # Exemple:
+        # bad_words.whitelist:
+        #     - 'assassin'
 
 services:
     # default configuration for services in *this* file
@@ -27,3 +39,9 @@ services:
     App\Service\SmartFillService:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    # BadWordFilterService configuration
+    App\Service\BadWordFilterService:
+        arguments:
+            $customBadWords: '%bad_words.custom_list%'
+            $whitelistedWords: '%bad_words.whitelist%'

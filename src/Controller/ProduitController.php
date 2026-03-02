@@ -18,9 +18,11 @@ final class ProduitController extends AbstractController
     public function index(ProduitRepository $produitRepository): Response
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return $this->redirectToRoute('app_login');
         }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         $produits = ($role === 'CLIENT')
             ? $produitRepository->findByAddedBy($user)
@@ -34,15 +36,19 @@ final class ProduitController extends AbstractController
     #[Route('/new', name: 'app_produit_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
             return $this->redirectToRoute('app_login');
         }
+        
         if (!$this->canManageProduit()) {
             $this->addFlash('error', 'Seuls les clients peuvent ajouter des produits.');
             return $this->redirectToRoute('app_produit_index');
         }
+        
+        /** @var \App\Entity\User $user */
         $produit = new Produit();
-        $produit->setAddedBy($this->getUser());
+        $produit->setAddedBy($user);
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
 
@@ -103,9 +109,11 @@ final class ProduitController extends AbstractController
     private function canManageProduit(): bool
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return false;
         }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         return $role === 'CLIENT' || $role === 'ADMIN';
     }
@@ -113,9 +121,11 @@ final class ProduitController extends AbstractController
     private function isOwnerProduit(Produit $produit): bool
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return false;
         }
+        
+        /** @var \App\Entity\User $user */
         $owner = $produit->getAddedBy();
         return $owner && (int) $owner->getId() === (int) $user->getId();
     }
@@ -123,9 +133,11 @@ final class ProduitController extends AbstractController
     private function assertCanViewProduit(Produit $produit): void
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         if ($role === 'ADMIN') {
             return;
@@ -141,6 +153,11 @@ final class ProduitController extends AbstractController
             throw $this->createAccessDeniedException('Seuls les clients peuvent modifier ou supprimer des produits.');
         }
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         if ($role === 'ADMIN') {
             return;

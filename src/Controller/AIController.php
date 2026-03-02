@@ -62,6 +62,9 @@ class AIController extends AbstractController
                 'type'       => $result['type'],
                 'state'      => $result['state'],
                 'objects'    => $result['detected_objects'],
+                'quantity'   => $result['quantity'],
+                'origin'     => $result['origin'],
+                'impact'     => $result['impact'],
             ]);
         } catch (\Exception $e) {
             return new JsonResponse([

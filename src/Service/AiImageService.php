@@ -97,7 +97,7 @@ class AiImageService
                 $ch = curl_init($url);
                 $fp = fopen($targetPath, 'wb');
                 curl_setopt($ch, CURLOPT_FILE, $fp);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_setopt($ch, CURLOPT_HEADER, false);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -127,9 +127,8 @@ class AiImageService
             } else {
                 // Final fallback if both local storage attempts fail
                 // Use loremflickr which is very stable for keyword-based placeholders
-                $fallbackKeywords = implode(',', array_slice($allKeywords ?? ['art'], 0, 2));
                 $storedPaths[] = [
-                    'url' => "https://loremflickr.com/1600/900/{$fallbackKeywords}/all?sig=" . uniqid(),
+                    'url' => "https://loremflickr.com/1600/900/art/all?sig=" . uniqid(),
                     'caption' => $data['caption'] . " (Live)"
                 ];
             }

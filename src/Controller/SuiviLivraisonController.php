@@ -19,9 +19,11 @@ final class SuiviLivraisonController extends AbstractController
     public function index(LivraisonRepository $livraisonRepository): Response
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             return $this->redirectToRoute('app_login');
         }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         $livraisons = ($role === 'ADMIN' || $role === 'LIVREUR')
             ? $livraisonRepository->findAllOrderByDateAsc()
@@ -97,9 +99,11 @@ final class SuiviLivraisonController extends AbstractController
     private function assertCanAccessSuivi(SuiviLivraison $suiviLivraison): void
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\User) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
+        
+        /** @var \App\Entity\User $user */
         $role = strtoupper((string) $user->getRole());
         if ($role === 'ADMIN' || $role === 'LIVREUR') {
             return;

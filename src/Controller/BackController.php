@@ -660,13 +660,15 @@ final class BackController extends AbstractController
         if ($check) return $check;
         $proposition = new Proposition();
         $user = $this->getUser();
-        if ($user) {
+        if ($user instanceof \App\Entity\User) {
+            /** @var \App\Entity\User $user */
             $proposition->setUser($user);
         }
         $form = $this->createForm(PropositionType::class, $proposition);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$proposition->getUser() && $user) {
+            if (!$proposition->getUser() && $user instanceof \App\Entity\User) {
+                /** @var \App\Entity\User $user */
                 $proposition->setUser($user);
             }
             $entityManager->persist($proposition);
@@ -1229,7 +1231,7 @@ HTML;
         $user = $reclamation->getUser();
         $responses = $reclamation->getReponseReclamations();
         
-        // Generate AI summary of the description
+        // Generate summary
         $description = $reclamation->getDescripition() ?: 'Aucune description';
         $aiSummary = $this->generateAISummary($description);
         
@@ -1306,7 +1308,7 @@ HTML;
         $text = trim($text);
         
         // If text is very short, return as is
-        if (empty($text) || strlen($text) < 30) {
+        if ($text === '' || strlen($text) < 30) {
             return $text;
         }
 
@@ -1376,14 +1378,14 @@ HTML;
             return $a['index'] - $b['index'];
         });
         
-        $summary = array_map(function($item) {
+        $summaryParts = array_map(function($item) {
             return $item['sentence'];
         }, $topSentences);
 
-        $summaryText = implode('. ', $summary);
+        $summaryText = implode('. ', $summaryParts);
         
         // Ensure proper ending punctuation
-        if (!empty($summaryText) && !preg_match('/[.!?]$/', $summaryText)) {
+        if ($summaryText !== '' && !preg_match('/[.!?]$/', $summaryText)) {
             $summaryText .= '.';
         }
 
@@ -1396,6 +1398,7 @@ HTML;
             }
         }
 
-        return !empty($summaryText) ? $summaryText : $text;
+        // FIX: replaced empty($summaryText) with strict string check — $summaryText always exists
+        return $summaryText !== '' ? $summaryText : $text;
     }
 }

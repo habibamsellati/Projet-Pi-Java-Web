@@ -311,6 +311,9 @@ final class EvenementController extends AbstractController
             $this->addFlash('warning', 'Un fichier de la galerie n\'a pas pu être enregistré.');
         }
     }
+    
+    // TODO: Add apiKey property to User entity and uncomment this route
+    /*
     #[Route('/artisan/generate-api-key', name: 'app_artisan_generate_api_key', methods: ['POST'])]
     public function generateApiKey(EntityManagerInterface $em): Response
     {
@@ -325,4 +328,5 @@ final class EvenementController extends AbstractController
         $this->addFlash('success', 'Votre nouvelle clé API a été générée avec succès !');
         return $this->redirectToRoute('app_api_docs');
     }
+    */
 }
